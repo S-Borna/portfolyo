@@ -17,6 +17,11 @@
       "service": "portfolyo"
     }
   ],
+  "routes": [
+    { "pattern": "portfolyo.se", "custom_domain": true },
+    { "pattern": "www.portfolyo.se", "custom_domain": true },
+    { "pattern": "*.portfolyo.se/*", "zone_name": "portfolyo.se" }
+  ],
   "vars": {
     "NEXT_PUBLIC_SUPABASE_URL": "https://REDACTED-SUPABASE-URL",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "REDACTED-SUPABASE-ANON-KEY"
