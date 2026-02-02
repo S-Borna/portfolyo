@@ -113,26 +113,36 @@ export default function OnboardingPage() {
         if (!userId) return;
 
         setIsLoading(true);
+        setError(null);
+        
         try {
-            // Create portfolio in Supabase
+            // Generate a temporary username from name
+            const baseUsername = state.full_name
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, '')
+                .slice(0, 20) || 'user';
+            const username = `${baseUsername}${Date.now().toString(36)}`;
+
+            // Create portfolio in Supabase - match ACTUAL database schema
             const { data: portfolio, error } = await supabase
                 .from('portfolios')
                 .insert({
                     user_id: userId,
+                    username: username,
                     template_id: state.template_id,
-                    template_family: TEMPLATES.find(t => t.id === state.template_id)?.family || 'crimson',
                     title: state.full_name,
                     tagline: state.title,
                     location: state.location,
                     email: state.email,
                     phone: state.phone,
-                    skills: state.skills.map(s => ({ name: s })),
+                    tech_stack: state.skills,
                     projects: state.projects.map((p, i) => ({
                         id: crypto.randomUUID(),
                         name: p.name,
                         description: p.description,
                         tags: p.technologies,
-                        links: { live: p.url, github: p.github },
+                        url: p.url,
+                        github: p.github,
                         featured: i === 0,
                         order: i,
                     })),
@@ -141,29 +151,28 @@ export default function OnboardingPage() {
                             id: crypto.randomUUID(),
                             type: 'education',
                             title: e.degree,
-                            subtitle: e.institution,
+                            organization: e.institution,
                             description: e.field,
-                            period: `${e.start_date} - ${e.current ? 'Nu' : e.end_date}`,
+                            startDate: e.start_date,
+                            endDate: e.current ? null : e.end_date,
                             current: e.current,
-                            order: i,
                         })),
                         ...state.experience.map((e, i) => ({
                             id: crypto.randomUUID(),
                             type: 'work',
                             title: e.title,
-                            subtitle: e.company,
+                            organization: e.company,
                             description: e.description,
-                            period: `${e.start_date} - ${e.current ? 'Nu' : e.end_date}`,
+                            startDate: e.start_date,
+                            endDate: e.current ? null : e.end_date,
                             current: e.current,
-                            order: state.education.length + i,
                         })),
                     ],
-                    is_seeking: state.is_seeking,
-                    seeking_type: state.is_seeking ? state.seeking_type : null,
-                    seeking_period: state.seeking_period || null,
-                    seeking_location: state.seeking_location || null,
-                    seeking_interests: state.seeking_interests,
-                    status: 'draft',
+                    is_seeking_lia: state.is_seeking,
+                    lia_period: state.seeking_period || null,
+                    lia_location: state.seeking_location || null,
+                    lia_interests: state.seeking_interests,
+                    is_published: false,
                 })
                 .select()
                 .single();
