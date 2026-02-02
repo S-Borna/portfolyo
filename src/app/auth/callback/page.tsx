@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePortfolyoStore } from '@/lib/store';
 import { supabase } from '@/lib/supabase';
@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase';
 // Force dynamic rendering - this page needs runtime env vars
 export const dynamic = 'force-dynamic';
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { login } = usePortfolyoStore();
@@ -106,5 +106,20 @@ export default function AuthCallbackPage() {
                 <p className="text-gray-600">Loggar in...</p>
             </div>
         </div>
+    );
+}
+
+export default function AuthCallbackPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto mb-4" />
+                    <p className="text-gray-600">Laddar...</p>
+                </div>
+            </div>
+        }>
+            <AuthCallbackContent />
+        </Suspense>
     );
 }
