@@ -185,7 +185,7 @@ export default function DashboardPage() {
         {/* Header */}
         <header className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {getGreeting()}, {user.name.split(' ')[0]}!
+            {getGreeting()}, {user.name.split(/[\s.@]/)[0].charAt(0).toUpperCase() + user.name.split(/[\s.@]/)[0].slice(1).toLowerCase()}!
           </h1>
           <p className="text-gray-600">
             Hantera dina portfolios och CV:n
