@@ -64,6 +64,10 @@ export default function DashboardPage() {
                         .single();
 
                     if (analyticsData) setAnalytics(analyticsData);
+                } else {
+                    // No portfolio - redirect to create one automatically
+                    router.push('/portfolio/new');
+                    return;
                 }
 
                 setLoading(false);
