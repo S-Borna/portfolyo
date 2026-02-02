@@ -321,10 +321,10 @@ export const TEMPLATES: TemplateDefinition[] = [
         id: 'studio-pink',
         family: 'studio',
         name: 'Studio Pink',
-        description: 'Kreativ och lekfull',
+        description: 'Kreativ och lekfull med rosa accent',
         style: { ...TEMPLATE_FAMILIES.studio.baseStyle },
         features: ['timeline', 'stats', 'tech_stack', 'cv_download', 'project_grid', 'floating_orbs', 'gradient_bg', 'sticky_nav'],
-        tier: 'standard',
+        tier: 'free',
         preview_url: '/templates/studio-pink.png',
     },
     {
