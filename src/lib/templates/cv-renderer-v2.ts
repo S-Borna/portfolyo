@@ -515,6 +515,250 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
+
+    // ============================================
+    // FLAG & COLOR COLLECTION - 15 nya templates
+    // ============================================
+    
+    // 1. ROYAL BLUE
+    {
+        id: 'flag-royal-blue',
+        name: 'Royal Blue',
+        description: 'Kunglig blå sidebar med guld accent',
+        sidebarBg: '#1e3a8a',
+        sidebarText: '#ffffff',
+        sidebarMuted: '#93c5fd',
+        mainBg: '#ffffff',
+        mainText: '#1e293b',
+        mainMuted: '#64748b',
+        accent: '#fbbf24',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+    
+    // 2. BEIGE CARDIGAN
+    {
+        id: 'flag-beige',
+        name: 'Warm Beige',
+        description: 'Varm beige sidebar med choklad accent',
+        sidebarBg: '#d4c4a8',
+        sidebarText: '#2d2418',
+        sidebarMuted: '#5a5040',
+        mainBg: '#faf8f5',
+        mainText: '#2a2520',
+        mainMuted: '#6a6055',
+        accent: '#5d4037',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    
+    // 3. EMERALD GREEN
+    {
+        id: 'flag-emerald',
+        name: 'Emerald Green',
+        description: 'Smaragdgrön sidebar med guld accent',
+        sidebarBg: '#065f46',
+        sidebarText: '#ffffff',
+        sidebarMuted: '#6ee7b7',
+        mainBg: '#ffffff',
+        mainText: '#1a2e1a',
+        mainMuted: '#4a5a4a',
+        accent: '#fcd34d',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+    
+    // 4. MAGENTA PURPLE
+    {
+        id: 'flag-magenta',
+        name: 'Electric Magenta',
+        description: 'Vibrerande magenta sidebar med cyan accent',
+        sidebarBg: '#a21caf',
+        sidebarText: '#ffffff',
+        sidebarMuted: '#f5d0fe',
+        mainBg: '#fdf4ff',
+        mainText: '#4a044e',
+        mainMuted: '#86198f',
+        accent: '#22d3ee',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    
+    // 5. SKY BLUE
+    {
+        id: 'flag-sky',
+        name: 'Sky Blue',
+        description: 'Ljus himmelblå sidebar med marinblå accent',
+        sidebarBg: '#bae6fd',
+        sidebarText: '#0c4a6e',
+        sidebarMuted: '#0369a1',
+        mainBg: '#ffffff',
+        mainText: '#0f172a',
+        mainMuted: '#475569',
+        accent: '#1e3a8a',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+    
+    // 6. TURQUOISE TEAL
+    {
+        id: 'flag-turquoise',
+        name: 'Turquoise Dream',
+        description: 'Turkos sidebar med korall accent',
+        sidebarBg: '#0d9488',
+        sidebarText: '#ffffff',
+        sidebarMuted: '#99f6e4',
+        mainBg: '#ffffff',
+        mainText: '#134e4a',
+        mainMuted: '#2dd4bf',
+        accent: '#fb7185',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    
+    // 7. COTTON CANDY PINK
+    {
+        id: 'flag-pink-cloud',
+        name: 'Cotton Candy',
+        description: 'Drömmig rosa sidebar med lila accent',
+        sidebarBg: '#f9a8d4',
+        sidebarText: '#500724',
+        sidebarMuted: '#9d174d',
+        mainBg: '#fff1f2',
+        mainText: '#4c0519',
+        mainMuted: '#881337',
+        accent: '#7c3aed',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    
+    // 8. SWEDEN
+    {
+        id: 'flag-sweden',
+        name: 'Sverige',
+        description: 'Svenska flaggans färger - blå & gul',
+        sidebarBg: '#005293',
+        sidebarText: '#ffffff',
+        sidebarMuted: '#a0c4e8',
+        mainBg: '#ffffff',
+        mainText: '#1a2530',
+        mainMuted: '#4a5a6a',
+        accent: '#fecc00',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+    
+    // 9. IRAN
+    {
+        id: 'flag-iran',
+        name: 'Persian Heritage',
+        description: 'Iranska flaggans färger - grön & röd',
+        sidebarBg: '#239f40',
+        sidebarText: '#ffffff',
+        sidebarMuted: '#a0e0ac',
+        mainBg: '#ffffff',
+        mainText: '#1a2a1a',
+        mainMuted: '#4a5a4a',
+        accent: '#da0000',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    
+    // 10. USA
+    {
+        id: 'flag-usa',
+        name: 'Stars & Stripes',
+        description: 'Amerikanska färger - röd, vit, blå',
+        sidebarBg: '#002868',
+        sidebarText: '#ffffff',
+        sidebarMuted: '#b0c4de',
+        mainBg: '#ffffff',
+        mainText: '#1a1a2e',
+        mainMuted: '#4a4a6a',
+        accent: '#bf0a30',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+    
+    // 11. DEEP VIOLET
+    {
+        id: 'flag-deep-violet',
+        name: 'Deep Violet',
+        description: 'Djup violett sidebar med elektrisk cyan',
+        sidebarBg: '#1e1040',
+        sidebarText: '#e8e0ff',
+        sidebarMuted: '#b0a0d0',
+        mainBg: '#faf8ff',
+        mainText: '#1e1040',
+        mainMuted: '#5a4a7a',
+        accent: '#00d4ff',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    
+    // 12. SUNSET FROST
+    {
+        id: 'flag-sunset-frost',
+        name: 'Sunset Frost',
+        description: 'Frostig rosa sidebar med orange accent',
+        sidebarBg: '#7c2d6a',
+        sidebarText: '#ffffff',
+        sidebarMuted: '#f0c0e0',
+        mainBg: '#fff5f7',
+        mainText: '#4a1535',
+        mainMuted: '#8a4a6a',
+        accent: '#fca311',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    
+    // 13. CREAM GRADIENT
+    {
+        id: 'flag-cream',
+        name: 'Cream & Gold',
+        description: 'Krämig sidebar med guld accent',
+        sidebarBg: '#f5f0e0',
+        sidebarText: '#2a2510',
+        sidebarMuted: '#6a6050',
+        mainBg: '#fffefa',
+        mainText: '#2a2515',
+        mainMuted: '#5a5545',
+        accent: '#b8860b',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    
+    // 14. MINT SAGE
+    {
+        id: 'flag-mint-sage',
+        name: 'Mint Sage',
+        description: 'Mintgrön sidebar med terrakotta accent',
+        sidebarBg: '#d0e8d0',
+        sidebarText: '#1a2a1a',
+        sidebarMuted: '#4a6a4a',
+        mainBg: '#fafcfa',
+        mainText: '#1a2a1a',
+        mainMuted: '#4a5a4a',
+        accent: '#c45d3a',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+    
+    // 15. NORDIC AURORA
+    {
+        id: 'flag-aurora',
+        name: 'Nordic Aurora',
+        description: 'Mörk sidebar med norrskensgrönt',
+        sidebarBg: '#0f172a',
+        sidebarText: '#f0fdf4',
+        sidebarMuted: '#86efac',
+        mainBg: '#ffffff',
+        mainText: '#0f172a',
+        mainMuted: '#475569',
+        accent: '#22c55e',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
 ];
 
 export function getCVTemplateV2(id: string): CVTemplateConfig {

@@ -45,8 +45,8 @@ export {
     renderCVV2,
     CV_TEMPLATES_V2,
     getCVTemplateV2,
-    type CVDataV2,
-    type CVTemplateConfigV2,
+    type CVData as CVDataV2,
+    type CVTemplateConfig as CVTemplateConfigV2,
 } from './cv-renderer-v2';
 
 // Portfolio Renderer V2 (exact saidborna.com copy)

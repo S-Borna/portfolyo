@@ -1,6 +1,6 @@
 /**
  * Portfolio Renderer V2 - Exakt kopia av saidborna.com
- * 
+ *
  * Sektioner:
  * 1. Hero (namn, titel, profilbild, CV-länk, meta-info)
  * 2. About (om mig, statistik, LIA-banner)
@@ -8,7 +8,7 @@
  * 4. Timeline (horisontell tidslinje med kurs-kort)
  * 5. Tech Stack (grid med verktyg)
  * 6. Contact (kontaktlänkar)
- * 
+ *
  * Features:
  * - Flytande bakgrunds-orbs med animation
  * - Fade-in animationer på scroll
@@ -25,7 +25,7 @@
 export interface PortfolioDataV2 {
     // Meta
     language: 'sv' | 'en';
-    
+
     // Hero
     fullName: string;
     firstName: string;
@@ -34,13 +34,13 @@ export interface PortfolioDataV2 {
     tagline: string;         // Kort beskrivning under titeln
     profileImageUrl?: string;
     cvUrl?: string;
-    
+
     // Meta items (under hero)
     metaItems: {
         label: string;
         value: string;
     }[];
-    
+
     // About
     about: {
         paragraphs: {
@@ -56,13 +56,13 @@ export interface PortfolioDataV2 {
             };
         };
     };
-    
+
     // Stats (4 kort)
     stats: {
         number: string;
         label: string;
     }[];
-    
+
     // LIA/Internship Banner
     seeking?: {
         active: boolean;
@@ -74,7 +74,7 @@ export interface PortfolioDataV2 {
         }[];
         bgText?: string;
     };
-    
+
     // Projects (max 5)
     projects: {
         tag: string;
@@ -88,7 +88,7 @@ export interface PortfolioDataV2 {
         };
         previewImageUrl?: string;
     }[];
-    
+
     // Timeline
     timeline: {
         intro: string;
@@ -107,7 +107,7 @@ export interface PortfolioDataV2 {
             isCurrent?: boolean;
         }[];
     };
-    
+
     // Tech Stack
     techStack: {
         name: string;
@@ -115,7 +115,7 @@ export interface PortfolioDataV2 {
         iconUrl: string;
         tooltip: string;
     }[];
-    
+
     // Contact
     contact: {
         title: string;
@@ -126,7 +126,7 @@ export interface PortfolioDataV2 {
             type: 'email' | 'phone' | 'linkedin' | 'github' | 'other';
         }[];
     };
-    
+
     // Footer
     footer: {
         copyright: string;
@@ -142,7 +142,7 @@ export interface PortfolioTemplateConfigV2 {
     id: string;
     name: string;
     description: string;
-    
+
     // Colors
     bgPrimary: string;
     bgSecondary: string;
@@ -152,7 +152,7 @@ export interface PortfolioTemplateConfigV2 {
     textPrimary: string;
     textSecondary: string;
     textMuted: string;
-    
+
     // Fonts
     fontHeading: string;
     fontBody: string;
@@ -602,6 +602,344 @@ export const PORTFOLIO_TEMPLATES_V2: PortfolioTemplateConfigV2[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
+
+    // ============================================
+    // LIGHT COLLECTION - Ljusa Premium Themes
+    // ============================================
+    {
+        id: 'light-cream',
+        name: 'Cream & Coffee',
+        description: 'Varm krämvit med espresso-accent',
+        bgPrimary: '#faf8f5',
+        bgSecondary: '#f5f0ea',
+        bgCard: '#ffffff',
+        accent: '#6b4423',
+        accentGlow: 'rgba(107, 68, 35, 0.2)',
+        textPrimary: '#1a1512',
+        textSecondary: '#5a5048',
+        textMuted: '#8a8078',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    {
+        id: 'light-arctic',
+        name: 'Arctic White',
+        description: 'Ren vit med isblå accent',
+        bgPrimary: '#f8fafc',
+        bgSecondary: '#f0f4f8',
+        bgCard: '#ffffff',
+        accent: '#2563eb',
+        accentGlow: 'rgba(37, 99, 235, 0.2)',
+        textPrimary: '#0f172a',
+        textSecondary: '#475569',
+        textMuted: '#94a3b8',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+    {
+        id: 'light-sage',
+        name: 'Sage & Stone',
+        description: 'Mjuk grå-grön med terrakotta',
+        bgPrimary: '#f5f7f5',
+        bgSecondary: '#ebf0eb',
+        bgCard: '#ffffff',
+        accent: '#c17f59',
+        accentGlow: 'rgba(193, 127, 89, 0.2)',
+        textPrimary: '#1a1f1a',
+        textSecondary: '#4a5a4a',
+        textMuted: '#8a9a8a',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    {
+        id: 'light-blush',
+        name: 'Blush & Rose',
+        description: 'Mjuk rosa med roséguld accent',
+        bgPrimary: '#fdf8f8',
+        bgSecondary: '#f8f0f0',
+        bgCard: '#ffffff',
+        accent: '#b76e79',
+        accentGlow: 'rgba(183, 110, 121, 0.2)',
+        textPrimary: '#2a1a1f',
+        textSecondary: '#5a4a50',
+        textMuted: '#9a8a90',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+    {
+        id: 'light-ocean',
+        name: 'Ocean Mist',
+        description: 'Havsinspirerad ljus med teal accent',
+        bgPrimary: '#f5fafa',
+        bgSecondary: '#e8f4f4',
+        bgCard: '#ffffff',
+        accent: '#0d9488',
+        accentGlow: 'rgba(13, 148, 136, 0.2)',
+        textPrimary: '#0f1a1a',
+        textSecondary: '#406060',
+        textMuted: '#80a0a0',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+
+    // ============================================
+    // FLAG & COLOR COLLECTION - 15 nya templates
+    // ============================================
+
+    // 1. ROYAL BLUE - Ren blå
+    {
+        id: 'flag-royal-blue',
+        name: 'Royal Blue',
+        description: 'Kunglig blå med vit accent',
+        bgPrimary: '#1e3a8a',
+        bgSecondary: '#1e40af',
+        bgCard: '#2563eb',
+        accent: '#fbbf24',
+        accentGlow: 'rgba(251, 191, 36, 0.4)',
+        textPrimary: '#ffffff',
+        textSecondary: '#bfdbfe',
+        textMuted: '#93c5fd',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+
+    // 2. BEIGE CARDIGAN - Varm beige
+    {
+        id: 'flag-beige',
+        name: 'Warm Beige',
+        description: 'Varm beige med choklad accent',
+        bgPrimary: '#d4c4a8',
+        bgSecondary: '#c9b896',
+        bgCard: '#e8dcc8',
+        accent: '#5d4037',
+        accentGlow: 'rgba(93, 64, 55, 0.3)',
+        textPrimary: '#2d2418',
+        textSecondary: '#4a3f2f',
+        textMuted: '#6b5d4a',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+
+    // 3. EMERALD GREEN - Rik grön
+    {
+        id: 'flag-emerald',
+        name: 'Emerald Green',
+        description: 'Smaragdgrön med guld accent',
+        bgPrimary: '#065f46',
+        bgSecondary: '#047857',
+        bgCard: '#059669',
+        accent: '#fcd34d',
+        accentGlow: 'rgba(252, 211, 77, 0.4)',
+        textPrimary: '#ffffff',
+        textSecondary: '#a7f3d0',
+        textMuted: '#6ee7b7',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+
+    // 4. MAGENTA PURPLE - Livlig magenta
+    {
+        id: 'flag-magenta',
+        name: 'Electric Magenta',
+        description: 'Vibrerande magenta med cyan accent',
+        bgPrimary: '#a21caf',
+        bgSecondary: '#c026d3',
+        bgCard: '#d946ef',
+        accent: '#22d3ee',
+        accentGlow: 'rgba(34, 211, 238, 0.4)',
+        textPrimary: '#ffffff',
+        textSecondary: '#f5d0fe',
+        textMuted: '#e879f9',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+
+    // 5. SKY BLUE - Ljusblå himmel
+    {
+        id: 'flag-sky',
+        name: 'Sky Blue',
+        description: 'Ljus himmelblå med marinblå accent',
+        bgPrimary: '#bae6fd',
+        bgSecondary: '#7dd3fc',
+        bgCard: '#e0f2fe',
+        accent: '#1e3a8a',
+        accentGlow: 'rgba(30, 58, 138, 0.3)',
+        textPrimary: '#0c4a6e',
+        textSecondary: '#0369a1',
+        textMuted: '#0284c7',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+
+    // 6. TURQUOISE TEAL - Turkos
+    {
+        id: 'flag-turquoise',
+        name: 'Turquoise Dream',
+        description: 'Levande turkos med korall accent',
+        bgPrimary: '#0d9488',
+        bgSecondary: '#14b8a6',
+        bgCard: '#2dd4bf',
+        accent: '#fb7185',
+        accentGlow: 'rgba(251, 113, 133, 0.4)',
+        textPrimary: '#ffffff',
+        textSecondary: '#ccfbf1',
+        textMuted: '#99f6e4',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+
+    // 7. COTTON CANDY PINK - Rosa moln
+    {
+        id: 'flag-pink-cloud',
+        name: 'Cotton Candy',
+        description: 'Drömmig rosa med lila accent',
+        bgPrimary: '#f9a8d4',
+        bgSecondary: '#f472b6',
+        bgCard: '#fbcfe8',
+        accent: '#7c3aed',
+        accentGlow: 'rgba(124, 58, 237, 0.4)',
+        textPrimary: '#500724',
+        textSecondary: '#831843',
+        textMuted: '#9d174d',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+
+    // 8. SWEDEN - Blå & Gul
+    {
+        id: 'flag-sweden',
+        name: 'Sverige',
+        description: 'Svenska flaggans färger - blå & gul',
+        bgPrimary: '#005293',
+        bgSecondary: '#004080',
+        bgCard: '#0066b3',
+        accent: '#fecc00',
+        accentGlow: 'rgba(254, 204, 0, 0.5)',
+        textPrimary: '#ffffff',
+        textSecondary: '#a0c4e8',
+        textMuted: '#70a0d0',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+
+    // 9. IRAN - Grön, Vit, Röd
+    {
+        id: 'flag-iran',
+        name: 'Persian Heritage',
+        description: 'Iranska flaggans färger - grön, vit, röd',
+        bgPrimary: '#239f40',
+        bgSecondary: '#1a8a33',
+        bgCard: '#2cb84e',
+        accent: '#da0000',
+        accentGlow: 'rgba(218, 0, 0, 0.4)',
+        textPrimary: '#ffffff',
+        textSecondary: '#c8f0cf',
+        textMuted: '#a0e0ac',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+
+    // 10. USA - Röd, Vit, Blå
+    {
+        id: 'flag-usa',
+        name: 'Stars & Stripes',
+        description: 'Amerikanska färger - röd, vit, blå',
+        bgPrimary: '#002868',
+        bgSecondary: '#001845',
+        bgCard: '#003380',
+        accent: '#bf0a30',
+        accentGlow: 'rgba(191, 10, 48, 0.5)',
+        textPrimary: '#ffffff',
+        textSecondary: '#b0c4de',
+        textMuted: '#8090b0',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+
+    // 11. DEEP VIOLET - Mörk violett
+    {
+        id: 'flag-deep-violet',
+        name: 'Deep Violet',
+        description: 'Djup violett natt med elektrisk accent',
+        bgPrimary: '#1e1040',
+        bgSecondary: '#2a1660',
+        bgCard: '#3a2080',
+        accent: '#00ffff',
+        accentGlow: 'rgba(0, 255, 255, 0.4)',
+        textPrimary: '#e8e0ff',
+        textSecondary: '#b0a0d0',
+        textMuted: '#8070a0',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+
+    // 12. SUNSET FROST - Rosa/orange solnedgång
+    {
+        id: 'flag-sunset-frost',
+        name: 'Sunset Frost',
+        description: 'Frostig solnedgång i rosa och orange',
+        bgPrimary: '#7c2d6a',
+        bgSecondary: '#9d3d7a',
+        bgCard: '#b84d8a',
+        accent: '#fca311',
+        accentGlow: 'rgba(252, 163, 17, 0.5)',
+        textPrimary: '#ffffff',
+        textSecondary: '#f0c0e0',
+        textMuted: '#d0a0c0',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+
+    // 13. CREAM GRADIENT - Krämig gradient
+    {
+        id: 'flag-cream',
+        name: 'Cream & Gold',
+        description: 'Lyxig kräm med guld accent',
+        bgPrimary: '#f5f0e0',
+        bgSecondary: '#ebe5d0',
+        bgCard: '#faf8f0',
+        accent: '#b8860b',
+        accentGlow: 'rgba(184, 134, 11, 0.3)',
+        textPrimary: '#2a2510',
+        textSecondary: '#5a5040',
+        textMuted: '#8a8070',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
+
+    // 14. MINT SAGE - Grön/beige gradient
+    {
+        id: 'flag-mint-sage',
+        name: 'Mint Sage',
+        description: 'Mjuk mint med terrakotta accent',
+        bgPrimary: '#e0ebe0',
+        bgSecondary: '#d0ddd0',
+        bgCard: '#f0f5f0',
+        accent: '#c45d3a',
+        accentGlow: 'rgba(196, 93, 58, 0.3)',
+        textPrimary: '#1a2a1a',
+        textSecondary: '#3a4a3a',
+        textMuted: '#6a7a6a',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Inter', sans-serif",
+    },
+
+    // 15. NORDIC AURORA - Norrsken-inspirerad
+    {
+        id: 'flag-aurora',
+        name: 'Nordic Aurora',
+        description: 'Norrsken med gröna och lila toner',
+        bgPrimary: '#0f172a',
+        bgSecondary: '#1e293b',
+        bgCard: '#334155',
+        accent: '#22c55e',
+        accentGlow: 'rgba(34, 197, 94, 0.5)',
+        textPrimary: '#f0fdf4',
+        textSecondary: '#86efac',
+        textMuted: '#4ade80',
+        fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
+        fontBody: "'Space Grotesk', sans-serif",
+    },
 ];
 
 export function getPortfolioTemplateV2(id: string): PortfolioTemplateConfigV2 {
@@ -612,12 +950,63 @@ export function getPortfolioTemplateV2(id: string): PortfolioTemplateConfigV2 {
 // MAIN RENDERER
 // ============================================
 
+export interface PortfolioRenderOptions {
+    previewMode?: boolean;
+}
+
 export function renderPortfolioV2(
     data: PortfolioDataV2,
-    templateId: string = 'said-dark'
+    templateId: string = 'said-dark',
+    options: PortfolioRenderOptions = {}
 ): string {
     const t = getPortfolioTemplateV2(templateId);
-    
+    const { previewMode = false } = options;
+
+    // Preview mode: Statisk snapshot som visar hero med innehåll synligt
+    const previewStyles = previewMode ? `
+    /* === PREVIEW MODE - Statisk snapshot === */
+    /* Stoppa alla animationer */
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    /* Bakgrundsorbarna statiska */
+    .bg-animation .orb {
+        animation: none !important;
+    }
+
+    /* Dölj onödiga element i preview */
+    footer, .cta-button, .cv-modal, .cv-modal-overlay {
+        display: none !important;
+    }
+
+    /* VIKTIGT: Ersätt 100vh med fasta höjder för förutsägbar scrollning */
+    .hero {
+        min-height: 700px !important;
+        height: auto !important;
+    }
+
+    section {
+        padding: 60px 4rem !important;
+    }
+
+    /* Kompaktare sektioner för preview */
+    .about { min-height: auto !important; }
+    .projects { min-height: auto !important; }
+    .timeline { min-height: auto !important; }
+    .stack { min-height: auto !important; }
+    .contact {
+        min-height: auto !important;
+        padding: 80px 4rem !important;
+    }
+
+    /* Timeline mer kompakt */
+    .timeline-content {
+        min-height: 300px !important;
+    }
+    ` : '';
+
     return `<!DOCTYPE html>
 <html lang="${data.language}">
 <head>
@@ -625,13 +1014,14 @@ export function renderPortfolioV2(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(data.fullName)} | ${escapeHtml(data.title)}</title>
     <meta name="description" content="${escapeHtml(data.tagline)}">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
 ${generateCSS(t)}
+${previewStyles}
     </style>
 </head>
 <body>
@@ -640,7 +1030,7 @@ ${generateCSS(t)}
         <div class="orb"></div>
         <div class="orb"></div>
     </div>
-    
+
     ${renderNav(data, t)}
     ${renderHero(data, t)}
     ${renderAbout(data, t)}
@@ -651,7 +1041,7 @@ ${generateCSS(t)}
     ${renderCvModal(data, t)}
     ${renderCtaButton(data)}
     ${renderFooter(data)}
-    
+
     <script>
 ${generateJS(data.language)}
     </script>
@@ -1989,10 +2379,10 @@ function generateCSS(t: PortfolioTemplateConfigV2): string {
 // ============================================
 
 function renderNav(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string {
-    const labels = data.language === 'sv' 
+    const labels = data.language === 'sv'
         ? { about: 'Om mig', timeline: 'Timeline', projects: 'Projekt', stack: 'Stack', contact: 'Kontakt' }
         : { about: 'About', timeline: 'Timeline', projects: 'Projects', stack: 'Stack', contact: 'Contact' };
-    
+
     return `
     <nav>
         <div class="logo">${escapeHtml(data.fullName.toUpperCase())}</div>
@@ -2009,7 +2399,7 @@ function renderNav(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string 
 function renderHero(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string {
     const scrollText = data.language === 'sv' ? 'Scrolla' : 'Scroll';
     const profileLabel = data.language === 'sv' ? 'Profil' : 'Profile';
-    
+
     return `
     <section class="hero">
         <div class="hero-content">
@@ -2040,10 +2430,10 @@ function renderHero(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string
                 </div>
             </div>
             <div class="hero-image-container">
-                ${data.profileImageUrl 
-                    ? `<img src="${escapeHtml(data.profileImageUrl)}" alt="${escapeHtml(data.fullName)}" class="hero-profile-image">`
-                    : `<div class="hero-profile-image" style="background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--accent);">${data.firstName.charAt(0)}${data.lastName.charAt(0)}</div>`
-                }
+                ${data.profileImageUrl
+            ? `<img src="${escapeHtml(data.profileImageUrl)}" alt="${escapeHtml(data.fullName)}" class="hero-profile-image">`
+            : `<div class="hero-profile-image" style="background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--accent);">${data.firstName.charAt(0)}${data.lastName.charAt(0)}</div>`
+        }
             </div>
         </div>
         <div class="scroll-indicator"><span>↓</span><span>${scrollText}</span></div>
@@ -2055,7 +2445,7 @@ function renderAbout(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): strin
     const titleParts = data.title.split(' ');
     const mainTitle = titleParts[0]?.toUpperCase() || 'DEVOPS';
     const subTitle = titleParts.slice(1).join(' ').toUpperCase() || 'ENGINEER';
-    
+
     return `
     <section class="about" id="about">
         <div class="section-header">
@@ -2096,7 +2486,7 @@ function renderAbout(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): strin
 
 function renderLiaBanner(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string {
     if (!data.seeking?.active) return '';
-    
+
     return `
     <div class="lia-banner fade-in" data-bg-text="${escapeHtml(data.seeking.bgText || 'LIA')}">
         <div class="lia-content">
@@ -2116,10 +2506,10 @@ function renderLiaBanner(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): s
 
 function renderProjects(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string {
     if (!data.projects.length) return '';
-    
+
     const label = data.language === 'sv' ? 'Projekt' : 'Projects';
     const titleWords = data.language === 'sv' ? ['VISA', 'PROJEKT'] : ['VIEW', 'PROJECTS'];
-    
+
     return `
     <section class="projects" id="projects">
         <div class="section-header">
@@ -2153,14 +2543,14 @@ function renderProjects(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): st
 
 function renderTimeline(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string {
     if (!data.timeline.cards.length) return '';
-    
+
     const label = data.language === 'sv' ? 'Min Resa' : 'My Journey';
     const titleWords = ['DEVOPS', 'JOURNEY'];
     const pointerLabel = data.language === 'sv' ? 'JUST NU' : 'RIGHT NOW';
-    
+
     // Calculate position percentage (0-5 maps to ~0-100%)
     const positionPercent = (data.timeline.currentPosition / 6) * 100;
-    
+
     return `
     <section class="timeline" id="timeline">
         <div class="section-header">
@@ -2169,7 +2559,7 @@ function renderTimeline(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): st
         </div>
         <h2 class="section-title">${titleWords[0]}<br><span class="outline">${titleWords[1]}</span></h2>
         <p class="timeline-intro">${escapeHtml(data.timeline.intro)}</p>
-        
+
         <div class="timeline-container">
             <div class="timeline-track">
                 <div class="timeline-line"></div>
@@ -2186,7 +2576,7 @@ function renderTimeline(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): st
                     <div class="timeline-pointer-dot"></div>
                 </div>
             </div>
-            
+
             <div class="timeline-cards">
                 ${data.timeline.cards.map(card => `
                 <div class="timeline-item fade-in">
@@ -2210,10 +2600,10 @@ function renderTimeline(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): st
 
 function renderTechStack(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string {
     if (!data.techStack.length) return '';
-    
+
     const label = data.language === 'sv' ? 'Tech Stack' : 'Tech Stack';
     const titleWords = data.language === 'sv' ? ['TEKNISK', 'KOMPETENS'] : ['TECHNICAL', 'SKILLS'];
-    
+
     return `
     <section class="stack" id="stack">
         <div class="section-header">
@@ -2240,21 +2630,21 @@ function renderContact(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): str
         <p class="contact-subtitle">${data.contact.subtitle.replace(/\n/g, '<br>')}</p>
         <div class="contact-links">
             ${data.contact.links.map(link => {
-                const href = link.type === 'email' ? `mailto:${link.url}` 
-                    : link.type === 'phone' ? `tel:${link.url}`
-                    : link.url;
-                return `<a href="${escapeHtml(href)}" ${link.type !== 'email' && link.type !== 'phone' ? 'target="_blank"' : ''} class="contact-link">${escapeHtml(link.label)}</a>`;
-            }).join('')}
+        const href = link.type === 'email' ? `mailto:${link.url}`
+            : link.type === 'phone' ? `tel:${link.url}`
+                : link.url;
+        return `<a href="${escapeHtml(href)}" ${link.type !== 'email' && link.type !== 'phone' ? 'target="_blank"' : ''} class="contact-link">${escapeHtml(link.label)}</a>`;
+    }).join('')}
         </div>
     </section>`;
 }
 
 function renderCvModal(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): string {
     if (!data.cvUrl) return '';
-    
+
     const title = 'Curriculum Vitae';
     const downloadText = data.language === 'sv' ? 'Ladda ner PDF' : 'Download PDF';
-    
+
     return `
     <div class="cv-modal-overlay" id="cvModal">
         <div class="cv-modal">
@@ -2280,7 +2670,7 @@ function renderCvModal(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): str
 
 function renderCtaButton(data: PortfolioDataV2): string {
     const text = data.language === 'sv' ? 'Visa<br>Projekt' : 'View<br>Projects';
-    
+
     return `
     <a href="#projects" class="cta-button">
         <span class="arrow">↓</span>
@@ -2304,7 +2694,7 @@ function generateJS(lang: 'sv' | 'en'): string {
     const showText = lang === 'sv' ? 'Visa' : 'View';
     const projectsText = lang === 'sv' ? 'Projekt' : 'Projects';
     const topText = lang === 'sv' ? 'Toppen' : 'Top';
-    
+
     return `
     // Scroll animations
     const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
@@ -2314,7 +2704,7 @@ function generateJS(lang: 'sv' | 'en'): string {
         });
     }, observerOptions);
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-    
+
     // Smooth scroll
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
@@ -2328,7 +2718,7 @@ function generateJS(lang: 'sv' | 'en'): string {
             }
         });
     });
-    
+
     // CTA button scroll behavior
     const ctaButton = document.querySelector('.cta-button');
     window.addEventListener('scroll', () => {
@@ -2340,22 +2730,22 @@ function generateJS(lang: 'sv' | 'en'): string {
             ctaButton.href = '#projects';
         }
     });
-    
+
     // CV Modal
     function openCvModal() {
         document.getElementById('cvModal')?.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
-    
+
     function closeCvModal() {
         document.getElementById('cvModal')?.classList.remove('active');
         document.body.style.overflow = '';
     }
-    
+
     document.getElementById('cvModal')?.addEventListener('click', function(e) {
         if (e.target === this) closeCvModal();
     });
-    
+
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeCvModal();
     });

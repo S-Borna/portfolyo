@@ -215,6 +215,25 @@
   }
 }
 
+/* Portfolio scroll animation - smooth conveyor belt effect */
+@keyframes portfolioScroll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-3000px); /* Scroll through entire portfolio height */
+  }
+}
+
+.animate-portfolio-scroll {
+  animation: portfolioScroll 15s linear infinite;
+}
+
+/* Pause animation on hover */
+.group:hover .animate-portfolio-scroll {
+  animation-play-state: paused;
+}
+
 /* Portfolio Preview Styles */
 .portfolio-preview {
   @apply bg-gray-900 text-white;
