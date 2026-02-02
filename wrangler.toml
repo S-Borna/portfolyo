@@ -1,0 +1,11 @@
+name = "portfolyo"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = ".next"
+
+# Wildcard subdomäner
+[[routes]]
+pattern = "*.portfolyo.se/*"
+zone_name = "portfolyo.se"
+
+[vars]
+NEXT_PUBLIC_DOMAIN = "portfolyo.se"
