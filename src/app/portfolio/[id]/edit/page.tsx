@@ -15,6 +15,9 @@ import {
   CreditDisplay,
   Icons,
 } from '@/components/ui';
+import { PortfolioLivePreview } from '@/components/preview/LivePreview';
+import { TemplateGallery } from '@/components/TemplateGallery';
+import { getTemplateById, getAllTemplates } from '@/lib/templates';
 import { usePortfolyoStore } from '@/lib/store';
 import { TECH_STACK_OPTIONS, CREDIT_COSTS } from '@/lib/types';
 import type { ProjectShowcase, TimelineEntry, TechStackItem } from '@/lib/types';
@@ -90,6 +93,8 @@ export default function PortfolioEditorPage() {
     darkMode: true,
     showAnalytics: false,
   });
+  const [selectedTemplateId, setSelectedTemplateId] = useState(portfolio?.templateId || 'developer-dark');
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -97,7 +102,7 @@ export default function PortfolioEditorPage() {
 
   useEffect(() => {
     if (mounted && !isAuthenticated) {
-      router.push('/login');
+      router.push('/onboarding');
     }
   }, [mounted, isAuthenticated, router]);
 
@@ -333,7 +338,10 @@ export default function PortfolioEditorPage() {
       </header>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto py-8 px-4">
+      <main className="max-w-7xl mx-auto py-8 px-4">
+        <div className="grid lg:grid-cols-5 gap-8">
+          {/* Editor Panel */}
+          <div className="lg:col-span-3 space-y-6">
         {/* Profile Tab */}
         {activeTab === 'profile' && (
           <div className="space-y-6">
@@ -628,8 +636,8 @@ export default function PortfolioEditorPage() {
                           key={tech.name}
                           onClick={() => toggleTechStack(tech)}
                           className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${isSelected
-                            ? 'bg-violet-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              ? 'bg-violet-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         >
                           {isSelected && <Check className="h-3 w-3" />}
@@ -716,6 +724,39 @@ export default function PortfolioEditorPage() {
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className="space-y-6">
+            {/* Template Selection */}
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Mall</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTemplateGallery(true)}
+                >
+                  Bläddra alla mallar
+                </Button>
+              </div>
+
+              <div className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-200">
+                <div className="flex items-center gap-4">
+                  <div
+                    className="w-16 h-16 rounded-lg"
+                    style={{
+                      background: getTemplateById(selectedTemplateId)?.colorScheme?.primary || '#8b5cf6'
+                    }}
+                  />
+                  <div>
+                    <h3 className="font-semibold text-gray-900">
+                      {getTemplateById(selectedTemplateId)?.name || 'Developer Dark'}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {getTemplateById(selectedTemplateId)?.description || 'Modern dark theme for developers'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Färger</h2>
 
@@ -728,8 +769,8 @@ export default function PortfolioEditorPage() {
                         key={color}
                         onClick={() => setSettings({ ...settings, primaryColor: color })}
                         className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
-                          ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
-                          : 'hover:scale-105'
+                            ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
+                            : 'hover:scale-105'
                           }`}
                         style={{ backgroundColor: color }}
                       />
@@ -774,7 +815,83 @@ export default function PortfolioEditorPage() {
             </Card>
           </div>
         )}
+          </div>
+
+          {/* Live Preview Panel */}
+          <div className="lg:col-span-2 hidden lg:block">
+            <div className="sticky top-32">
+              <Card className="overflow-hidden h-[calc(100vh-180px)]">
+                <PortfolioLivePreview
+                  templateId={selectedTemplateId}
+                  data={{
+                    fullName: profile.fullName,
+                    title: profile.title,
+                    tagline: profile.tagline,
+                    bio: profile.bio,
+                    location: profile.location,
+                    email: contact.email,
+                    phone: contact.phone,
+                    linkedin: contact.linkedin,
+                    github: contact.github,
+                    website: contact.website,
+                    skills: techStack.map(t => t.name),
+                    projects: projects.map(p => ({
+                      name: p.name,
+                      description: p.description,
+                      tags: p.tags,
+                    })),
+                    experience: timeline
+                      .filter(t => t.type === 'work')
+                      .map(t => ({
+                        title: t.title,
+                        company: t.subtitle,
+                        period: t.period,
+                        current: t.current,
+                      })),
+                    education: timeline
+                      .filter(t => t.type === 'education')
+                      .map(t => ({
+                        degree: t.title,
+                        institution: t.subtitle,
+                        period: t.period,
+                      })),
+                    seeking: profile.seeking,
+                  }}
+                  showDeviceFrame={false}
+                />
+              </Card>
+            </div>
+          </div>
+        </div>
       </main>
+
+      {/* Template Gallery Modal */}
+      {showTemplateGallery && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h2 className="text-xl font-bold">Välj Mall</h2>
+              <button
+                onClick={() => setShowTemplateGallery(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-auto max-h-[calc(90vh-80px)]">
+              <TemplateGallery
+                type="portfolio"
+                selectedId={selectedTemplateId}
+                userTier="free"
+                onSelect={(templateId) => {
+                  setSelectedTemplateId(templateId);
+                  setShowTemplateGallery(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

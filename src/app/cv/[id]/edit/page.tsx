@@ -15,6 +15,9 @@ import {
   CreditDisplay,
   Icons,
 } from '@/components/ui';
+import { CVLivePreview } from '@/components/preview/LivePreview';
+import { TemplateGallery } from '@/components/TemplateGallery';
+import { CV_TEMPLATES, getCVTemplateById, getCVTemplatesForTier } from '@/lib/templates';
 import { usePortfolyoStore } from '@/lib/store';
 import { CREDIT_COSTS } from '@/lib/types';
 import type { CVExperience, CVEducation, CVSkillCategory, CV, CVTemplate } from '@/lib/types';
@@ -38,14 +41,11 @@ const {
   MapPin,
   Trash2,
   Eye,
+  Grid,
 } = Icons;
 
-const CV_TEMPLATES: { id: CVTemplate; name: string; description: string }[] = [
-  { id: 'modern', name: 'Modern', description: 'Ren och modern design' },
-  { id: 'classic', name: 'Klassisk', description: 'Traditionell och professionell' },
-  { id: 'minimal', name: 'Minimal', description: 'Enkel och avskalad' },
-  { id: 'creative', name: 'Kreativ', description: 'Utmärkande och unik' },
-];
+// Get popular templates for quick selection
+const QUICK_CV_TEMPLATES = CV_TEMPLATES.filter(t => t.tier === 'free' || t.popular).slice(0, 8);
 
 export default function CVEditorPage() {
   const router = useRouter();
@@ -70,6 +70,8 @@ export default function CVEditorPage() {
   // Local state
   const [name, setName] = useState(cv?.name || 'Nytt CV');
   const [template, setTemplate] = useState<CVTemplate>(cv?.template || 'modern');
+  const [selectedTemplateId, setSelectedTemplateId] = useState('cv-professional-blue');
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
   const [personalInfo, setPersonalInfo] = useState(cv?.personalInfo || {
     fullName: '',
     title: '',
@@ -92,7 +94,7 @@ export default function CVEditorPage() {
 
   useEffect(() => {
     if (mounted && !isAuthenticated) {
-      router.push('/login');
+      router.push('/onboarding');
     }
   }, [mounted, isAuthenticated, router]);
 
@@ -617,20 +619,68 @@ export default function CVEditorPage() {
             {/* Design Tab */}
             {activeTab === 'design' && (
               <div className="space-y-6">
+                {/* Template Selection */}
                 <Card className="p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Mall</h2>
-                  <div className="grid grid-cols-2 gap-4">
-                    {CV_TEMPLATES.map((t) => (
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">CV-mall</h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowTemplateGallery(true)}
+                      leftIcon={<Grid className="h-4 w-4" />}
+                    >
+                      Se alla 50 mallar
+                    </Button>
+                  </div>
+
+                  {/* Current template info */}
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-200 mb-4">
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="w-12 h-16 rounded-lg"
+                        style={{
+                          background: getCVTemplateById(selectedTemplateId)?.colors?.primary || '#1e40af'
+                        }}
+                      />
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {getCVTemplateById(selectedTemplateId)?.name || 'Professional Blue'}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {getCVTemplateById(selectedTemplateId)?.description || 'Klassisk professionell stil'}
+                        </p>
+                        <div className="flex gap-2 mt-1">
+                          {getCVTemplateById(selectedTemplateId)?.atsOptimized && (
+                            <span className="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">
+                              ATS-optimerad
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick template selection */}
+                  <div className="grid grid-cols-4 gap-3">
+                    {QUICK_CV_TEMPLATES.map((t) => (
                       <button
                         key={t.id}
-                        onClick={() => setTemplate(t.id)}
-                        className={`p-4 rounded-xl border-2 text-left transition-all ${template === t.id
-                          ? 'border-violet-500 bg-violet-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                        onClick={() => setSelectedTemplateId(t.id)}
+                        className={`relative p-3 rounded-xl border-2 text-left transition-all ${selectedTemplateId === t.id
+                            ? 'border-violet-500 bg-violet-50'
+                            : 'border-gray-200 hover:border-gray-300'
                           }`}
                       >
-                        <h3 className="font-semibold text-gray-900">{t.name}</h3>
-                        <p className="text-sm text-gray-500">{t.description}</p>
+                        <div
+                          className="w-full h-8 rounded mb-2"
+                          style={{ background: t.colors.primary }}
+                        />
+                        <h4 className="font-medium text-xs text-gray-900 truncate">{t.name}</h4>
+                        {t.tier !== 'free' && (
+                          <span className="absolute top-1 right-1 text-[8px] px-1 py-0.5 bg-violet-500 text-white rounded">
+                            {t.tier === 'starter' ? 'S' : 'P'}
+                          </span>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -644,8 +694,8 @@ export default function CVEditorPage() {
                         key={color}
                         onClick={() => setSettings({ ...settings, primaryColor: color })}
                         className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
-                          ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
-                          : 'hover:scale-105'
+                            ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
+                            : 'hover:scale-105'
                           }`}
                         style={{ backgroundColor: color }}
                       />
@@ -672,114 +722,80 @@ export default function CVEditorPage() {
             )}
           </div>
 
-          {/* Preview */}
+          {/* Live Preview Panel */}
           <div className="hidden lg:block">
             <div className="sticky top-32">
-              <Card className="overflow-hidden">
-                <div className="p-4 bg-gray-100 border-b flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">Förhandsvisning</span>
-                  <Badge variant="outline" size="sm">{template}</Badge>
-                </div>
-
-                {/* CV Preview */}
-                <div
-                  className="p-8 bg-white min-h-[600px]"
-                  style={{
-                    fontSize: settings.fontSize === 'small' ? '12px' : settings.fontSize === 'large' ? '16px' : '14px'
+              <Card className="overflow-hidden h-[calc(100vh-180px)]">
+                <CVLivePreview
+                  templateId={selectedTemplateId}
+                  data={{
+                    fullName: personalInfo.fullName,
+                    title: personalInfo.title,
+                    email: personalInfo.email,
+                    phone: personalInfo.phone,
+                    location: personalInfo.location,
+                    linkedin: personalInfo.linkedin,
+                    github: personalInfo.github,
+                    summary: summary,
+                    experience: experience.map(exp => ({
+                      company: exp.company,
+                      title: exp.title,
+                      startDate: exp.startDate,
+                      endDate: exp.endDate,
+                      current: exp.current,
+                      description: exp.description,
+                      achievements: exp.achievements,
+                    })),
+                    education: education.map(edu => ({
+                      institution: edu.institution,
+                      degree: edu.degree,
+                      field: edu.field,
+                      startDate: edu.startDate,
+                      endDate: edu.endDate,
+                      current: edu.current,
+                    })),
+                    skills: skills.map(cat => ({
+                      name: cat.name,
+                      skills: cat.skills,
+                    })),
                   }}
-                >
-                  {/* Header */}
-                  <div className="border-b pb-4 mb-4" style={{ borderColor: settings.primaryColor }}>
-                    <h1 className="text-2xl font-bold text-gray-900">
-                      {personalInfo.fullName || 'Ditt Namn'}
-                    </h1>
-                    <p className="text-lg" style={{ color: settings.primaryColor }}>
-                      {personalInfo.title || 'Din Titel'}
-                    </p>
-                    <div className="flex gap-4 mt-2 text-xs text-gray-500">
-                      {personalInfo.email && <span>{personalInfo.email}</span>}
-                      {personalInfo.phone && <span>{personalInfo.phone}</span>}
-                      {personalInfo.location && <span>{personalInfo.location}</span>}
-                    </div>
-                  </div>
-
-                  {/* Summary */}
-                  {summary && (
-                    <div className="mb-4">
-                      <h2 className="text-sm font-bold text-gray-900 mb-1" style={{ color: settings.primaryColor }}>
-                        SAMMANFATTNING
-                      </h2>
-                      <p className="text-gray-600 text-sm">{summary}</p>
-                    </div>
-                  )}
-
-                  {/* Experience */}
-                  {experience.length > 0 && (
-                    <div className="mb-4">
-                      <h2 className="text-sm font-bold text-gray-900 mb-2" style={{ color: settings.primaryColor }}>
-                        ERFARENHET
-                      </h2>
-                      {experience.map((exp) => (
-                        <div key={exp.id} className="mb-3">
-                          <div className="flex justify-between">
-                            <span className="font-semibold text-gray-900">{exp.title || 'Titel'}</span>
-                            <span className="text-xs text-gray-500">
-                              {exp.startDate} - {exp.current ? 'Nuvarande' : exp.endDate}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">{exp.company || 'Företag'}</p>
-                          {exp.achievements.length > 0 && (
-                            <ul className="mt-1 text-xs text-gray-500 list-disc list-inside">
-                              {exp.achievements.slice(0, 2).map((a, i) => (
-                                <li key={i}>{a}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Education */}
-                  {education.length > 0 && (
-                    <div className="mb-4">
-                      <h2 className="text-sm font-bold text-gray-900 mb-2" style={{ color: settings.primaryColor }}>
-                        UTBILDNING
-                      </h2>
-                      {education.map((edu) => (
-                        <div key={edu.id} className="mb-2">
-                          <div className="flex justify-between">
-                            <span className="font-semibold text-gray-900">{edu.degree || 'Examen'}</span>
-                            <span className="text-xs text-gray-500">
-                              {edu.startDate} - {edu.current ? 'Pågående' : edu.endDate}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">{edu.institution || 'Lärosäte'}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Skills */}
-                  {skills.length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-bold text-gray-900 mb-2" style={{ color: settings.primaryColor }}>
-                        KOMPETENSER
-                      </h2>
-                      {skills.map((category, i) => (
-                        <div key={i} className="mb-1">
-                          <span className="font-medium text-gray-900">{category.name}: </span>
-                          <span className="text-gray-600 text-sm">{category.skills.join(', ')}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                />
               </Card>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Template Gallery Modal */}
+      {showTemplateGallery && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="p-4 border-b flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold">Välj CV-mall</h2>
+                <p className="text-sm text-gray-500">50 professionella mallar att välja mellan</p>
+              </div>
+              <button
+                onClick={() => setShowTemplateGallery(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6 overflow-auto max-h-[calc(90vh-100px)]">
+              <TemplateGallery
+                type="cv"
+                selectedId={selectedTemplateId}
+                userTier="free"
+                onSelect={(templateId) => {
+                  setSelectedTemplateId(templateId);
+                  setShowTemplateGallery(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

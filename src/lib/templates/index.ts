@@ -92,7 +92,6 @@ export const presets = {
 // För befintliga sidor (upgrade, cv/new)
 // ============================================
 
-import { templates, getTemplateById } from './templates';
 
 // Template counts per tier
 export const TEMPLATE_COUNTS = {
@@ -102,74 +101,28 @@ export const TEMPLATE_COUNTS = {
         pro: 100,
     },
     cv: {
-        free: 3,
-        starter: 15,
-        pro: 50,
+        free: 5,
+        starter: 20,
+        pro: 25,
     },
 };
 
-// CV Templates (subset av portfolio templates anpassade för CV)
-export interface CVTemplate {
-    id: string;
-    name: string;
-    description: string;
-    category: 'modern' | 'classic' | 'creative' | 'minimal' | 'professional';
-    tier: 'free' | 'starter' | 'pro';
-    preview: string;
-    colors: {
-        primary: string;
-        secondary: string;
-        accent: string;
-        background: string;
-        text: string;
-        muted: string;
-    };
-    fonts: {
-        heading: string;
-        body: string;
-    };
-    layout: 'single-column' | 'two-column' | 'sidebar' | 'classic';
-    atsOptimized: boolean;
-    popular?: boolean;
-    new?: boolean;
-}
+// CV Templates - Import from dedicated 50 CV template file
+export {
+    CV_TEMPLATES,
+    getCVTemplateById,
+    getCVTemplatesForTier,
+    getCVTemplatesByCategory,
+    getPopularCVTemplates,
+    searchCVTemplates,
+    type CVTemplateDefinition,
+} from './cv-templates';
 
-export const ALL_CV_TEMPLATES: CVTemplate[] = [
-    // Free tier (3)
-    { id: 'cv-minimal-clean', name: 'Minimal Clean', description: 'Enkel och ren design', category: 'minimal', tier: 'free', preview: '/cv/minimal-clean.png', colors: { primary: '#000000', secondary: '#666666', accent: '#333333', background: '#ffffff', text: '#000000', muted: '#6b7280' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif' }, layout: 'single-column', atsOptimized: true },
-    { id: 'cv-professional-blue', name: 'Professional Blue', description: 'Klassisk professionell stil', category: 'professional', tier: 'free', preview: '/cv/professional-blue.png', colors: { primary: '#1e40af', secondary: '#3b82f6', accent: '#60a5fa', background: '#ffffff', text: '#1f2937', muted: '#6b7280' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif' }, layout: 'two-column', atsOptimized: true },
-    { id: 'cv-modern-dark', name: 'Modern Dark', description: 'Mörkt modernt tema', category: 'modern', tier: 'free', preview: '/cv/modern-dark.png', colors: { primary: '#ff4d4d', secondary: '#888888', accent: '#ff6666', background: '#0a0a0a', text: '#ffffff', muted: '#a1a1aa' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif' }, layout: 'single-column', atsOptimized: false },
-    // Starter tier (12 more = 15 total)
-    { id: 'cv-creative-gradient', name: 'Creative Gradient', description: 'Kreativ med gradienter', category: 'creative', tier: 'starter', preview: '/cv/creative-gradient.png', colors: { primary: '#8b5cf6', secondary: '#ec4899', accent: '#a78bfa', background: '#ffffff', text: '#1f2937', muted: '#6b7280' }, fonts: { heading: 'Poppins, sans-serif', body: 'Inter, sans-serif' }, layout: 'single-column', atsOptimized: false },
-    { id: 'cv-classic-serif', name: 'Classic Serif', description: 'Tidlös serif-typografi', category: 'classic', tier: 'starter', preview: '/cv/classic-serif.png', colors: { primary: '#1a1a1a', secondary: '#4a4a4a', accent: '#666666', background: '#fafaf8', text: '#1a1a1a', muted: '#6b7280' }, fonts: { heading: 'Playfair Display, serif', body: 'Lora, serif' }, layout: 'classic', atsOptimized: true },
-    { id: 'cv-tech-mono', name: 'Tech Mono', description: 'Teknisk monospace-stil', category: 'modern', tier: 'starter', preview: '/cv/tech-mono.png', colors: { primary: '#00ff00', secondary: '#00aa00', accent: '#22c55e', background: '#0d0d0d', text: '#00ff00', muted: '#86efac' }, fonts: { heading: 'JetBrains Mono, monospace', body: 'JetBrains Mono, monospace' }, layout: 'single-column', atsOptimized: false },
-    { id: 'cv-elegant-gold', name: 'Elegant Gold', description: 'Elegant med guldaccenter', category: 'professional', tier: 'starter', preview: '/cv/elegant-gold.png', colors: { primary: '#d4af37', secondary: '#b8860b', accent: '#e6c75a', background: '#fffef7', text: '#1a1a1a', muted: '#78716c' }, fonts: { heading: 'Cormorant Garamond, serif', body: 'Inter, sans-serif' }, layout: 'two-column', atsOptimized: true },
-    { id: 'cv-startup-fresh', name: 'Startup Fresh', description: 'Fräsch startup-vibe', category: 'modern', tier: 'starter', preview: '/cv/startup-fresh.png', colors: { primary: '#06b6d4', secondary: '#22d3ee', accent: '#67e8f9', background: '#ffffff', text: '#0f172a', muted: '#64748b' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif' }, layout: 'two-column', atsOptimized: true },
-    { id: 'cv-academic', name: 'Academic', description: 'Akademisk och formell', category: 'classic', tier: 'starter', preview: '/cv/academic.png', colors: { primary: '#1e3a5f', secondary: '#2c5282', accent: '#3b82f6', background: '#ffffff', text: '#1a202c', muted: '#6b7280' }, fonts: { heading: 'Times New Roman, serif', body: 'Times New Roman, serif' }, layout: 'classic', atsOptimized: true },
-    { id: 'cv-designer-portfolio', name: 'Designer Portfolio', description: 'För kreativa designers', category: 'creative', tier: 'starter', preview: '/cv/designer-portfolio.png', colors: { primary: '#f472b6', secondary: '#ec4899', accent: '#f9a8d4', background: '#ffffff', text: '#1f2937', muted: '#9ca3af' }, fonts: { heading: 'Space Grotesk, sans-serif', body: 'Inter, sans-serif' }, layout: 'sidebar', atsOptimized: false },
-    { id: 'cv-corporate', name: 'Corporate', description: 'Företagsprofessionell', category: 'professional', tier: 'starter', preview: '/cv/corporate.png', colors: { primary: '#334155', secondary: '#475569', accent: '#64748b', background: '#ffffff', text: '#1e293b', muted: '#94a3b8' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif' }, layout: 'two-column', atsOptimized: true },
-    { id: 'cv-nordic-light', name: 'Nordic Light', description: 'Skandinavisk minimalism', category: 'minimal', tier: 'starter', preview: '/cv/nordic-light.png', colors: { primary: '#64748b', secondary: '#94a3b8', accent: '#cbd5e1', background: '#f8fafc', text: '#334155', muted: '#94a3b8' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif' }, layout: 'single-column', atsOptimized: true },
-    { id: 'cv-bold-statement', name: 'Bold Statement', description: 'Gör ett starkt intryck', category: 'creative', tier: 'starter', preview: '/cv/bold-statement.png', colors: { primary: '#ef4444', secondary: '#dc2626', accent: '#f87171', background: '#ffffff', text: '#1f2937', muted: '#6b7280' }, fonts: { heading: 'Archivo Black, sans-serif', body: 'Inter, sans-serif' }, layout: 'single-column', atsOptimized: false },
-    { id: 'cv-consultant', name: 'Consultant', description: 'För konsulter', category: 'professional', tier: 'starter', preview: '/cv/consultant.png', colors: { primary: '#0284c7', secondary: '#0369a1', accent: '#38bdf8', background: '#ffffff', text: '#1e293b', muted: '#64748b' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif' }, layout: 'two-column', atsOptimized: true },
-    { id: 'cv-developer', name: 'Developer', description: 'För utvecklare', category: 'modern', tier: 'starter', preview: '/cv/developer.png', colors: { primary: '#22c55e', secondary: '#16a34a', accent: '#4ade80', background: '#0f172a', text: '#e2e8f0', muted: '#94a3b8' }, fonts: { heading: 'JetBrains Mono, monospace', body: 'Inter, sans-serif' }, layout: 'sidebar', atsOptimized: false },
-    // Pro tier (35 more = 50 total)
-    { id: 'cv-executive', name: 'Executive', description: 'C-level profil', category: 'professional', tier: 'pro', preview: '/cv/executive.png', colors: { primary: '#1e293b', secondary: '#334155', accent: '#475569', background: '#ffffff', text: '#0f172a', muted: '#64748b' }, fonts: { heading: 'Cormorant Garamond, serif', body: 'Inter, sans-serif' }, layout: 'two-column', atsOptimized: true },
-    { id: 'cv-infographic', name: 'Infographic', description: 'Visuell infografik-stil', category: 'creative', tier: 'pro', preview: '/cv/infographic.png', colors: { primary: '#8b5cf6', secondary: '#a78bfa', accent: '#c4b5fd', background: '#ffffff', text: '#1f2937', muted: '#6b7280' }, fonts: { heading: 'Poppins, sans-serif', body: 'Inter, sans-serif' }, layout: 'sidebar', atsOptimized: false },
-    { id: 'cv-timeline', name: 'Timeline', description: 'Tidslinje-fokuserad', category: 'modern', tier: 'pro', preview: '/cv/timeline.png', colors: { primary: '#0891b2', secondary: '#06b6d4', accent: '#22d3ee', background: '#ffffff', text: '#164e63', muted: '#67e8f9' }, fonts: { heading: 'Inter, sans-serif', body: 'Inter, sans-serif' }, layout: 'single-column', atsOptimized: true },
-];
-
-export function getCVTemplatesForTier(tier: 'free' | 'starter' | 'pro'): CVTemplate[] {
-    if (tier === 'free') return ALL_CV_TEMPLATES.filter(t => t.tier === 'free');
-    if (tier === 'starter') return ALL_CV_TEMPLATES.filter(t => t.tier === 'free' || t.tier === 'starter');
-    return ALL_CV_TEMPLATES; // Pro får alla
-}
-
-export function getCVTemplateById(id: string): CVTemplate | undefined {
-    return ALL_CV_TEMPLATES.find(t => t.id === id);
-}
-
-// Type alias för bakåtkompatibilitet
-export type CVTemplateConfig = CVTemplate;
+// Re-export with legacy names for backwards compatibility
+import { CV_TEMPLATES, type CVTemplateDefinition } from './cv-templates';
+export const ALL_CV_TEMPLATES = CV_TEMPLATES;
+export type CVTemplate = CVTemplateDefinition;
+export type CVTemplateConfig = CVTemplateDefinition;
 
 // ============================================
 // PORTFOLIO TEMPLATES - Legacy exports

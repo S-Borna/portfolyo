@@ -3,6 +3,13 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import type { PortfolioTemplateConfig, CVTemplateConfig } from '@/lib/templates';
+
+// Re-export live preview components
+export {
+  PortfolioLivePreview,
+  CVLivePreview,
+  TemplatePreviewThumbnail
+} from './LivePreview';
 import { 
   Mail, 
   Phone, 
