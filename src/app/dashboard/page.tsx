@@ -314,7 +314,7 @@ function EmptyDashboard({ user }: { user: DbProfile | null }) {
                         <div className="flex-1">
                             <h2 className="text-xl font-semibold mb-2">Redo att skapa din portfolio?</h2>
                             <p className="text-zinc-400 mb-6 leading-relaxed">
-                                Ta din tid. Du kan börja när du vill och spara utkast längs vägen. 
+                                Ta din tid. Du kan börja när du vill och spara utkast längs vägen.
                                 Processen tar ungefär 5-10 minuter.
                             </p>
                             <Link
@@ -340,26 +340,26 @@ function EmptyDashboard({ user }: { user: DbProfile | null }) {
                             <span className="text-xl">💡</span>
                             <span className="font-medium">Osäker? Så här tänker rekryterare</span>
                         </div>
-                        <svg 
-                            className={`w-5 h-5 text-zinc-500 transition-transform ${showTips ? 'rotate-180' : ''}`} 
+                        <svg
+                            className={`w-5 h-5 text-zinc-500 transition-transform ${showTips ? 'rotate-180' : ''}`}
                             fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
-                    
+
                     {showTips && (
                         <div className="px-6 pb-6 border-t border-zinc-800/50">
                             <div className="pt-6 space-y-6 text-zinc-300">
                                 <div>
                                     <h3 className="font-medium text-white mb-2">Verkligheten: 6 sekunder</h3>
                                     <p className="text-sm leading-relaxed">
-                                        En rekryterare lägger i snitt 6 sekunder på ett CV innan de bestämmer sig. 
-                                        Med 200+ ansökningar per tjänst behöver du sticka ut — inte med tricks, 
+                                        En rekryterare lägger i snitt 6 sekunder på ett CV innan de bestämmer sig.
+                                        Med 200+ ansökningar per tjänst behöver du sticka ut — inte med tricks,
                                         utan genom att göra det enkelt att se din kompetens.
                                     </p>
                                 </div>
-                                
+
                                 <div>
                                     <h3 className="font-medium text-white mb-2">Vad de letar efter först</h3>
                                     <ul className="text-sm space-y-2">
@@ -381,16 +381,16 @@ function EmptyDashboard({ user }: { user: DbProfile | null }) {
                                 <div>
                                     <h3 className="font-medium text-white mb-2">Varför en portfolio gör skillnad</h3>
                                     <p className="text-sm leading-relaxed">
-                                        Ett CV säger vad du gjort. En portfolio <em>visar</em> det. 
-                                        Den som tar sig tid att presentera sitt arbete ordentligt signalerar något viktigt: 
+                                        Ett CV säger vad du gjort. En portfolio <em>visar</em> det.
+                                        Den som tar sig tid att presentera sitt arbete ordentligt signalerar något viktigt:
                                         du bryr dig om kvalitet. Det är samma egenskap arbetsgivare vill ha i teamet.
                                     </p>
                                 </div>
 
                                 <div className="pt-2 border-t border-zinc-800/50">
                                     <p className="text-sm text-zinc-400 italic">
-                                        "Den enda ansökan med portfolio fastnade direkt. 
-                                        Det var inte ens den mest erfarna kandidaten — men den enda 
+                                        "Den enda ansökan med portfolio fastnade direkt.
+                                        Det var inte ens den mest erfarna kandidaten — men den enda
                                         som visade att de brydde sig."
                                         <span className="block mt-1 text-zinc-500 not-italic">— Tech Lead, startup i Stockholm</span>
                                     </p>

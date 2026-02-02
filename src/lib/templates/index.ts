@@ -40,6 +40,24 @@ export {
     generateTailwindConfig,
 } from './css-generator';
 
+// CV Renderer V2 (sidebar layout)
+export {
+    renderCVV2,
+    CV_TEMPLATES_V2,
+    getCVTemplateV2,
+    type CVDataV2,
+    type CVTemplateConfigV2,
+} from './cv-renderer-v2';
+
+// Portfolio Renderer V2 (exact saidborna.com copy)
+export {
+    renderPortfolioV2,
+    PORTFOLIO_TEMPLATES_V2,
+    getPortfolioTemplateV2,
+    type PortfolioDataV2,
+    type PortfolioTemplateConfigV2,
+} from './portfolio-renderer-v2';
+
 // Presets för snabb användning
 export const presets = {
     // Mest populära templates

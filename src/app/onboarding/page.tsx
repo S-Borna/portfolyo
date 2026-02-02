@@ -114,7 +114,7 @@ export default function OnboardingPage() {
 
         setIsLoading(true);
         setError(null);
-        
+
         try {
             // Generate a temporary username from name
             const baseUsername = state.full_name
@@ -231,10 +231,10 @@ export default function OnboardingPage() {
                                 key={s.id}
                                 onClick={() => i <= step && setStep(i)}
                                 className={`text-sm font-medium transition-colors ${i === step
-                                        ? 'text-white'
-                                        : i < step
-                                            ? 'text-[#ff4d4d]'
-                                            : 'text-zinc-600'
+                                    ? 'text-white'
+                                    : i < step
+                                        ? 'text-[#ff4d4d]'
+                                        : 'text-zinc-600'
                                     }`}
                             >
                                 {s.title}
@@ -385,8 +385,8 @@ function StepBasics({ state, update }: StepProps) {
                                 key={s.value}
                                 onClick={() => update('current_situation', s.value)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all ${state.current_situation === s.value
-                                        ? 'bg-[#ff4d4d]/10 border-[#ff4d4d] text-white'
-                                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                                    ? 'bg-[#ff4d4d]/10 border-[#ff4d4d] text-white'
+                                    : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
                                     }`}
                             >
                                 <span className="text-xl">{s.emoji}</span>
@@ -437,8 +437,8 @@ function StepBasics({ state, update }: StepProps) {
                                         key={t.value}
                                         onClick={() => update('seeking_type', t.value)}
                                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${state.seeking_type === t.value
-                                                ? 'bg-[#ff4d4d] text-white'
-                                                : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                                            ? 'bg-[#ff4d4d] text-white'
+                                            : 'bg-zinc-800 text-zinc-400 hover:text-white'
                                             }`}
                                     >
                                         {t.label}
@@ -769,8 +769,8 @@ function StepDesign({ state, update }: StepProps) {
                             key={template.id}
                             onClick={() => update('template_id', template.id)}
                             className={`relative p-4 rounded-xl border-2 text-left transition-all ${isSelected
-                                    ? 'border-[#ff4d4d] bg-[#ff4d4d]/5'
-                                    : 'border-zinc-800 hover:border-zinc-700'
+                                ? 'border-[#ff4d4d] bg-[#ff4d4d]/5'
+                                : 'border-zinc-800 hover:border-zinc-700'
                                 }`}
                         >
                             {/* Preview */}
