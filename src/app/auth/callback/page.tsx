@@ -47,6 +47,28 @@ function AuthCallbackContent() {
                     }
                 }
 
+                // Handle token_hash from email confirmation
+                const tokenHash = searchParams.get('token_hash');
+                const type = searchParams.get('type');
+                if (tokenHash) {
+                    console.log('Verifying email with token_hash, type:', type);
+                    const { data, error: verifyError } = await supabase.auth.verifyOtp({
+                        token_hash: tokenHash,
+                        type: 'signup',
+                    });
+                    if (verifyError) {
+                        console.error('Token verification error:', verifyError);
+                        setError('Kunde inte verifiera e-posten');
+                        setTimeout(() => router.push('/login'), 3000);
+                        return;
+                    }
+                    if (data.session) {
+                        console.log('Session created from token verification');
+                        loginUser(data.session.user);
+                        return;
+                    }
+                }
+
                 // Check for existing session (token-based flow via URL hash)
                 // Supabase client automatically handles the hash fragment
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
