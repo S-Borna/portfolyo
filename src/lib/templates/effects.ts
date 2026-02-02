@@ -608,10 +608,71 @@ export const layoutStyles = {
     },
 } as const;
 
-// Export types
-export type ColorScheme = typeof colorSchemes[keyof typeof colorSchemes];
-export type Animation = typeof animations[keyof typeof animations];
-export type HoverEffect = typeof hoverEffects[keyof typeof hoverEffects];
-export type BackgroundPattern = typeof backgroundPatterns[keyof typeof backgroundPatterns];
-export type TypographyStyle = typeof typographyStyles[keyof typeof typographyStyles];
-export type LayoutStyle = typeof layoutStyles[keyof typeof layoutStyles];
+// Explicit interfaces for flexibility
+export interface ColorSchemeBase {
+    id: string;
+    name: string;
+    bgPrimary: string;
+    bgSecondary: string;
+    bgCard: string;
+    accent: string;
+    accentGlow: string;
+    textPrimary: string;
+    textSecondary: string;
+    textMuted: string;
+}
+
+export interface AnimationBase {
+    id: string;
+    name: string;
+    css: string;
+    duration: string;
+    easing: string;
+    delay?: string;
+}
+
+export interface HoverEffectBase {
+    id: string;
+    name: string;
+    transition: string;
+    transform?: string;
+    shadow?: string;
+    border?: string;
+    borderRadius?: string;
+    clipPath?: string;
+    filter?: string;
+}
+
+export interface BackgroundPatternBase {
+    id: string;
+    name: string;
+    css: string;
+}
+
+export interface TypographyStyleBase {
+    id: string;
+    name: string;
+    headingFont: string;
+    bodyFont: string;
+    headingWeight: string;
+    headingLetterSpacing: string;
+    useOutlineText: boolean;
+}
+
+export interface LayoutStyleBase {
+    id: string;
+    name: string;
+    heroLayout: string;
+    heroColumns: string;
+    imagePosition: string;
+    imageShape: 'circle' | 'rounded' | 'square' | 'none';
+    contentAlignment: string;
+}
+
+// Export types - using base interfaces for flexibility
+export type ColorScheme = ColorSchemeBase;
+export type Animation = AnimationBase;
+export type HoverEffect = HoverEffectBase;
+export type BackgroundPattern = BackgroundPatternBase;
+export type TypographyStyle = TypographyStyleBase;
+export type LayoutStyle = LayoutStyleBase;

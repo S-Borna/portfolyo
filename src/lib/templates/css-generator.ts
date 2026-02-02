@@ -4,6 +4,7 @@
 // ============================================
 
 import type { TemplateConfig } from './templates';
+import type { LayoutStyleBase, HoverEffectBase } from './effects';
 
 export function generateTemplateCSS(template: TemplateConfig): string {
     const { colorScheme, typography, layout, backgroundPattern, animations } = template;
@@ -110,10 +111,10 @@ ${animations.entrance.css}
 }
 
 .hover-effect:hover {
-  transform: ${animations.hover.transform};
-  box-shadow: ${animations.hover.shadow};
-  ${animations.hover.border ? `border: ${animations.hover.border};` : ''}
-  ${animations.hover.borderRadius ? `border-radius: ${animations.hover.borderRadius};` : ''}
+  ${'transform' in animations.hover ? `transform: ${animations.hover.transform};` : ''}
+  ${'shadow' in animations.hover ? `box-shadow: ${animations.hover.shadow};` : ''}
+  ${'border' in animations.hover ? `border: ${animations.hover.border};` : ''}
+  ${'borderRadius' in animations.hover ? `border-radius: ${animations.hover.borderRadius};` : ''}
 }
 
 /* Navigation */
@@ -427,7 +428,8 @@ function generateBackgroundAnimationCSS(animation: TemplateConfig['animations'][
 }
 
 function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
-    switch (layout.id) {
+    const l = layout as LayoutStyleBase;
+    switch (l.id) {
         case 'splitHero':
             return `
 .hero {
@@ -439,7 +441,7 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 
 .hero-content {
   display: grid;
-  grid-template-columns: ${layout.heroColumns};
+  grid-template-columns: ${l.heroColumns};
   gap: 4rem;
   align-items: center;
   max-width: 1400px;
@@ -448,7 +450,7 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 }
 
 .hero-image {
-  ${layout.imageShape === 'circle' ? 'border-radius: 50%;' : layout.imageShape === 'rounded' ? 'border-radius: 20px;' : ''}
+  ${l.imageShape === 'circle' ? 'border-radius: 50%;' : l.imageShape === 'rounded' ? 'border-radius: 20px;' : ''}
   width: 320px;
   height: 320px;
   object-fit: cover;
@@ -483,7 +485,7 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 }
 
 .hero-image {
-  ${layout.imageShape === 'circle' ? 'border-radius: 50%;' : layout.imageShape === 'rounded' ? 'border-radius: 20px;' : ''}
+  ${l.imageShape === 'circle' ? 'border-radius: 50%;' : l.imageShape === 'rounded' ? 'border-radius: 20px;' : ''}
   width: 200px;
   height: 200px;
   object-fit: cover;
@@ -537,7 +539,7 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 
 .hero-content {
   display: grid;
-  grid-template-columns: ${layout.heroColumns};
+  grid-template-columns: ${l.heroColumns};
   gap: 4rem;
   align-items: center;
   max-width: 1400px;
@@ -546,7 +548,7 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 }
 
 .hero-image {
-  ${layout.imageShape === 'rounded' ? 'border-radius: 20px;' : ''}
+  ${l.imageShape === 'rounded' ? 'border-radius: 20px;' : ''}
   width: 100%;
   max-width: 300px;
   aspect-ratio: 3/4;
