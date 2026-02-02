@@ -17,6 +17,11 @@
       "service": "portfolyo"
     }
   ],
+  "routes": [
+    { "pattern": "portfolyo.se", "custom_domain": true },
+    { "pattern": "www.portfolyo.se", "custom_domain": true },
+    { "pattern": "*.portfolyo.se/*", "zone_name": "portfolyo.se" }
+  ],
   "vars": {
     "NEXT_PUBLIC_SUPABASE_URL": "https://bguvmisxpvjrbbeglrul.supabase.co",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJndXZtaXN4cHZqcmJiZWdscnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5OTI0NTYsImV4cCI6MjA4NTU2ODQ1Nn0.lLZYzEI7WQBX8QiPCWJ74Urn2DTwWeNpZQarmV77_WM"
