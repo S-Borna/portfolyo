@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { 
-  Loader2, 
-  Check, 
-  X, 
-  ChevronRight, 
+import {
+  Loader2,
+  Check,
+  X,
+  ChevronRight,
   ChevronLeft,
   Sparkles,
   ExternalLink,
@@ -44,6 +44,7 @@ import {
   Lock,
   Crown,
   Gift,
+  AlertCircle,
 } from 'lucide-react';
 
 // ============ BUTTON ============
@@ -110,15 +111,15 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   rightIcon?: React.ReactNode;
 }
 
-export function Input({ 
-  className, 
-  label, 
-  error, 
-  hint, 
-  id, 
+export function Input({
+  className,
+  label,
+  error,
+  hint,
+  id,
   leftIcon,
   rightIcon,
-  ...props 
+  ...props
 }: InputProps) {
   const inputId = id || label?.toLowerCase().replace(/\s/g, '-');
 
@@ -321,7 +322,7 @@ interface ProgressProps {
 
 export function Progress({ value, max = 100, className, showLabel, size = 'md' }: ProgressProps) {
   const percentage = Math.round((value / max) * 100);
-  
+
   const sizes = {
     sm: 'h-1.5',
     md: 'h-2.5',
@@ -433,9 +434,9 @@ interface StepIndicatorProps {
 }
 
 export function StepIndicator({ steps, currentStep, className }: StepIndicatorProps) {
-  const getStepTitle = (step: string | { title: string; description?: string }) => 
+  const getStepTitle = (step: string | { title: string; description?: string }) =>
     typeof step === 'string' ? step : step.title;
-    
+
   return (
     <div className={cn('flex items-center justify-center', className)}>
       {steps.map((step, index) => (
@@ -447,8 +448,8 @@ export function StepIndicator({ steps, currentStep, className }: StepIndicatorPr
                 index < currentStep
                   ? 'bg-emerald-500 text-white'
                   : index === currentStep
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
-                  : 'bg-gray-200 text-gray-500'
+                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
+                    : 'bg-gray-200 text-gray-500'
               )}
             >
               {index < currentStep ? (
@@ -500,7 +501,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
@@ -681,4 +682,5 @@ export const Icons = {
   Lock,
   Crown,
   Gift,
+  AlertCircle,
 };
