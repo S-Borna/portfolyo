@@ -17,6 +17,7 @@ function AuthCallbackContent() {
     useEffect(() => {
         const handleCallback = async () => {
             try {
+
                 // Check for error in URL (from OAuth or email confirmation)
                 const errorParam = searchParams.get('error');
                 const errorDescription = searchParams.get('error_description');
@@ -28,8 +29,26 @@ function AuthCallbackContent() {
                     return;
                 }
 
-                // For OAuth and email confirmation, Supabase sets the session via URL hash
-                // We need to exchange the code for a session
+                // Try to exchange code if present (PKCE flow)
+                const code = searchParams.get('code');
+                if (code) {
+                    console.log('Exchanging code for session...');
+                    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+                    if (exchangeError) {
+                        console.error('Code exchange error:', exchangeError);
+                        setError('Kunde inte verifiera koden');
+                        setTimeout(() => router.push('/login'), 3000);
+                        return;
+                    }
+                    if (data.session) {
+                        console.log('Session created from code exchange');
+                        loginUser(data.session.user);
+                        return;
+                    }
+                }
+
+                // Check for existing session (token-based flow via URL hash)
+                // Supabase client automatically handles the hash fragment
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
                 if (sessionError) {
@@ -39,28 +58,15 @@ function AuthCallbackContent() {
                     return;
                 }
 
-                if (!session?.user) {
-                    // Try to exchange code if present
-                    const code = searchParams.get('code');
-                    if (code) {
-                        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-                        if (exchangeError) {
-                            console.error('Code exchange error:', exchangeError);
-                            setError('Kunde inte verifiera koden');
-                            setTimeout(() => router.push('/login'), 3000);
-                            return;
-                        }
-                        if (data.session) {
-                            loginUser(data.session.user);
-                            return;
-                        }
-                    }
-
-                    router.push('/login');
+                if (session?.user) {
+                    console.log('Found existing session');
+                    loginUser(session.user);
                     return;
                 }
 
-                loginUser(session.user);
+                // No session found, redirect to login
+                console.log('No session found, redirecting to login');
+                router.push('/login');
             } catch (err) {
                 console.error('Callback error:', err);
                 setError('Ett oväntat fel uppstod');
