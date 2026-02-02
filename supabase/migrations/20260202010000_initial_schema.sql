@@ -27,6 +27,7 @@ CREATE TABLE public.portfolios (
   tagline TEXT,
   bio TEXT,
   location TEXT,
+  avatar_url TEXT,
   email TEXT,
   phone TEXT,
   website TEXT,
@@ -35,10 +36,13 @@ CREATE TABLE public.portfolios (
   tech_stack JSONB DEFAULT '[]'::jsonb,
   projects JSONB DEFAULT '[]'::jsonb,
   timeline JSONB DEFAULT '[]'::jsonb,
+  highlights JSONB DEFAULT '[]'::jsonb,
   theme JSONB DEFAULT '{}'::jsonb,
   is_published BOOLEAN DEFAULT false,
   is_seeking_lia BOOLEAN DEFAULT true,
   lia_period TEXT,
+  lia_location TEXT,
+  lia_interests JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -72,18 +76,33 @@ CREATE TABLE public.ai_generations (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Portfolio Analytics table
+CREATE TABLE public.portfolio_analytics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  portfolio_id UUID NOT NULL REFERENCES public.portfolios(id) ON DELETE CASCADE UNIQUE,
+  total_views INTEGER DEFAULT 0,
+  unique_visitors INTEGER DEFAULT 0,
+  cv_downloads INTEGER DEFAULT 0,
+  contact_clicks INTEGER DEFAULT 0,
+  last_viewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for performance
 CREATE INDEX idx_portfolios_user_id ON public.portfolios(user_id);
 CREATE INDEX idx_portfolios_username ON public.portfolios(username);
 CREATE INDEX idx_portfolios_published ON public.portfolios(is_published) WHERE is_published = true;
 CREATE INDEX idx_cvs_user_id ON public.cvs(user_id);
 CREATE INDEX idx_profiles_username ON public.profiles(username);
+CREATE INDEX idx_portfolio_analytics_portfolio_id ON public.portfolio_analytics(portfolio_id);
 
 -- Row Level Security (RLS)
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.portfolios ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.cvs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_generations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.portfolio_analytics ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
 CREATE POLICY "Public profiles are viewable by everyone"
@@ -136,6 +155,24 @@ CREATE POLICY "Users can view own generations"
 CREATE POLICY "Users can insert own generations"
   ON public.ai_generations FOR INSERT
   WITH CHECK (auth.uid() = user_id);
+
+-- Portfolio analytics policies
+CREATE POLICY "Anyone can view analytics for published portfolios"
+  ON public.portfolio_analytics FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.portfolios p
+      WHERE p.id = portfolio_id AND (p.is_published = true OR p.user_id = auth.uid())
+    )
+  );
+
+CREATE POLICY "Anyone can insert analytics (for tracking)"
+  ON public.portfolio_analytics FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Anyone can update analytics (for tracking)"
+  ON public.portfolio_analytics FOR UPDATE
+  USING (true);
 
 -- Function to handle new user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()

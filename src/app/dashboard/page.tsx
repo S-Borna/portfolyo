@@ -14,9 +14,11 @@ import {
   EmptyState,
   Icons,
 } from '@/components/ui';
+import ActivatePortfolioModal from '@/components/ActivatePortfolioModal';
 import { usePortfolyoStore } from '@/lib/store';
 import { PRICING, LEARNING_RESOURCES } from '@/lib/types';
 import { getGreeting, formatNumber, getPortfolioUrl } from '@/lib/utils';
+import { getUserPortfolios, getPortfolioAnalytics, type DbPortfolio, type DbAnalytics } from '@/lib/supabase';
 
 const {
   Plus,
@@ -37,37 +39,73 @@ const {
   Copy,
   Check,
   Globe,
+  Sparkles,
 } = Icons;
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { 
-    user, 
-    isAuthenticated, 
-    portfolios, 
-    cvs, 
-    credits, 
+  const {
+    user,
+    isAuthenticated,
+    portfolios: localPortfolios,
+    cvs,
+    credits,
     logout,
     deletePortfolio,
     deleteCV,
     setActivePortfolio,
     setActiveCV,
   } = usePortfolyoStore();
-  
+
   const [activeTab, setActiveTab] = useState<'portfolios' | 'cvs' | 'resources'>('portfolios');
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [showActivateModal, setShowActivateModal] = useState(false);
+  const [dbPortfolios, setDbPortfolios] = useState<DbPortfolio[]>([]);
+  const [portfolioAnalytics, setPortfolioAnalytics] = useState<Record<string, DbAnalytics>>({});
+  const [loadingPortfolios, setLoadingPortfolios] = useState(true);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Fetch portfolios from Supabase
+  useEffect(() => {
+    if (mounted && isAuthenticated && user) {
+      const fetchPortfolios = async () => {
+        setLoadingPortfolios(true);
+        const portfolios = await getUserPortfolios(user.id);
+        setDbPortfolios(portfolios);
+
+        // Fetch analytics for each portfolio
+        const analyticsMap: Record<string, DbAnalytics> = {};
+        for (const p of portfolios) {
+          const analytics = await getPortfolioAnalytics(p.id);
+          if (analytics) {
+            analyticsMap[p.id] = analytics;
+          }
+        }
+        setPortfolioAnalytics(analyticsMap);
+        setLoadingPortfolios(false);
+      };
+      fetchPortfolios();
+    }
+  }, [mounted, isAuthenticated, user]);
+
   // Redirect if not authenticated
   useEffect(() => {
     if (mounted && !isAuthenticated) {
-      router.push('/onboarding');
+      router.push('/login');
     }
   }, [mounted, isAuthenticated, router]);
+
+  const handleActivateSuccess = (username: string) => {
+    setShowActivateModal(false);
+    // Refresh portfolios
+    if (user) {
+      getUserPortfolios(user.id).then(setDbPortfolios);
+    }
+  };
 
   if (!mounted || !isAuthenticated || !user) {
     return (
@@ -88,8 +126,9 @@ export default function DashboardPage() {
     router.push('/');
   };
 
-  const totalViews = portfolios.reduce((sum, p) => sum + p.analytics.totalViews, 0);
-  const totalDownloads = portfolios.reduce((sum, p) => sum + p.analytics.cvDownloads, 0);
+  const totalViews = Object.values(portfolioAnalytics).reduce((sum, a) => sum + a.total_views, 0);
+  const totalDownloads = Object.values(portfolioAnalytics).reduce((sum, a) => sum + a.cv_downloads, 0);
+  const hasActivePortfolio = dbPortfolios.some(p => p.is_published);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -109,33 +148,30 @@ export default function DashboardPage() {
         <nav className="flex-1 p-4 space-y-1">
           <button
             onClick={() => setActiveTab('portfolios')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-              activeTab === 'portfolios'
-                ? 'bg-violet-100 text-violet-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'portfolios'
+              ? 'bg-violet-100 text-violet-700'
+              : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             <Globe className="h-5 w-5" />
             Portfolios
           </button>
           <button
             onClick={() => setActiveTab('cvs')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-              activeTab === 'cvs'
-                ? 'bg-violet-100 text-violet-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'cvs'
+              ? 'bg-violet-100 text-violet-700'
+              : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             <Briefcase className="h-5 w-5" />
             CV:n
           </button>
           <button
             onClick={() => setActiveTab('resources')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-              activeTab === 'resources'
-                ? 'bg-violet-100 text-violet-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'resources'
+              ? 'bg-violet-100 text-violet-700'
+              : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             <BookOpen className="h-5 w-5" />
             Lärresurser
@@ -169,7 +205,7 @@ export default function DashboardPage() {
               <p className="font-medium text-gray-900 truncate">{user.name}</p>
               <p className="text-sm text-gray-500 truncate">{user.email}</p>
             </div>
-            <button 
+            <button
               onClick={handleLogout}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               title="Logga ut"
@@ -196,7 +232,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <StatCard
             icon={<Globe className="h-5 w-5" />}
-            value={portfolios.length}
+            value={dbPortfolios.length}
             label="Portfolios"
           />
           <StatCard
@@ -220,54 +256,62 @@ export default function DashboardPage() {
         {activeTab === 'portfolios' && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Mina Portfolios</h2>
-              <Link href="/portfolio/new">
-                <Button leftIcon={<Plus className="h-4 w-4" />}>
-                  Ny Portfolio
+              <h2 className="text-xl font-bold text-gray-900">Min Portfolio</h2>
+              {!hasActivePortfolio && (
+                <Button
+                  leftIcon={<Sparkles className="h-4 w-4" />}
+                  onClick={() => setShowActivateModal(true)}
+                >
+                  Aktivera Portfolio
                 </Button>
-              </Link>
+              )}
             </div>
 
-            {portfolios.length === 0 ? (
+            {loadingPortfolios ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
+              </div>
+            ) : dbPortfolios.length === 0 ? (
               <EmptyState
                 icon={<Globe className="h-8 w-8" />}
-                title="Inga portfolios än"
-                description="Skapa din första portfolio och visa upp dina projekt för världen."
+                title="Ingen aktiv portfolio"
+                description="Skapa din portfolio för att visa upp dig för företag och visa att du söker LIA."
                 action={{
-                  label: 'Skapa portfolio',
+                  label: 'Skapa Portfolio',
                   onClick: () => router.push('/portfolio/new'),
                 }}
               />
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {portfolios.map((portfolio) => {
-                  const url = getPortfolioUrl(portfolio.slug, portfolio.customDomain);
+                {dbPortfolios.map((portfolio) => {
+                  const url = `https://${portfolio.username}.portfolyo.se`;
+                  const analytics = portfolioAnalytics[portfolio.id];
                   return (
                     <Card key={portfolio.id} className="overflow-hidden" hover>
                       {/* Preview */}
                       <div className="aspect-video bg-gray-900 p-6 flex items-center justify-center">
                         <div className="text-center text-white">
-                          <Avatar name={portfolio.profile.fullName} size="lg" className="mx-auto mb-2" />
-                          <h3 className="font-bold">{portfolio.profile.fullName || 'Din Portfolio'}</h3>
-                          <p className="text-sm text-gray-400">{portfolio.profile.title || 'Titel'}</p>
+                          <Avatar name={portfolio.title} size="lg" className="mx-auto mb-2" />
+                          <h3 className="font-bold">{portfolio.title || 'Din Portfolio'}</h3>
+                          <p className="text-sm text-gray-400">{portfolio.tagline || 'YH-student'}</p>
                         </div>
                       </div>
 
                       {/* Info */}
                       <div className="p-4">
                         <div className="flex items-center justify-between mb-3">
-                          <Badge variant={portfolio.status === 'published' ? 'success' : 'warning'}>
-                            {portfolio.status === 'published' ? 'Publicerad' : 'Utkast'}
+                          <Badge variant={portfolio.is_published ? 'success' : 'warning'}>
+                            {portfolio.is_published ? 'Publicerad' : 'Utkast'}
                           </Badge>
                           <span className="text-xs text-gray-500">
-                            {portfolio.analytics.totalViews} visningar
+                            {analytics?.total_views || 0} visningar
                           </span>
                         </div>
 
                         {/* URL */}
                         <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg mb-4">
                           <span className="text-sm text-gray-600 truncate flex-1">
-                            {portfolio.slug}.portfolyo.se
+                            {portfolio.username}.portfolyo.se
                           </span>
                           <button
                             onClick={() => copyToClipboard(url)}
@@ -293,16 +337,6 @@ export default function DashboardPage() {
                               <ExternalLink className="h-4 w-4" />
                             </Button>
                           </a>
-                          <button
-                            onClick={() => {
-                              if (confirm('Är du säker på att du vill ta bort denna portfolio?')) {
-                                deletePortfolio(portfolio.id);
-                              }
-                            }}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
                         </div>
                       </div>
                     </Card>
@@ -441,6 +475,16 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Activate Portfolio Modal */}
+      <ActivatePortfolioModal
+        isOpen={showActivateModal}
+        onClose={() => setShowActivateModal(false)}
+        onSuccess={handleActivateSuccess}
+        userId={user.id}
+        userEmail={user.email}
+        userName={user.name}
+      />
     </div>
   );
 }

@@ -18,8 +18,8 @@ import {
 import { PortfolioPreview, TemplateCard } from '@/components/preview';
 import { usePortfolyoStore } from '@/lib/store';
 import { TECH_STACK_OPTIONS } from '@/lib/types';
-import { 
-  ALL_PORTFOLIO_TEMPLATES, 
+import {
+  ALL_PORTFOLIO_TEMPLATES,
   getPortfolioTemplatesForTier,
   getPortfolioTemplateById,
   TEMPLATE_COUNTS,
@@ -103,7 +103,7 @@ export default function OnboardingPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState('developer-dark');
 
   const userTier = user?.plan || 'free';
-  
+
   // Filter templates by category
   const filteredTemplates = useMemo(() => {
     if (templateCategory === 'all') return ALL_PORTFOLIO_TEMPLATES;
@@ -111,7 +111,7 @@ export default function OnboardingPage() {
   }, [templateCategory]);
 
   // Get selected template
-  const selectedTemplate = useMemo(() => 
+  const selectedTemplate = useMemo(() =>
     getPortfolioTemplateById(selectedTemplateId) || ALL_PORTFOLIO_TEMPLATES[0],
     [selectedTemplateId]
   );
@@ -179,7 +179,7 @@ export default function OnboardingPage() {
   };
 
   const updateEducation = (index: number, updates: Partial<OnboardingEducation>) => {
-    setEducations(educations.map((edu, i) => 
+    setEducations(educations.map((edu, i) =>
       i === index ? { ...edu, ...updates } : edu
     ));
   };
@@ -198,7 +198,7 @@ export default function OnboardingPage() {
   };
 
   const updateExperience = (index: number, updates: Partial<OnboardingExperience>) => {
-    setExperiences(experiences.map((exp, i) => 
+    setExperiences(experiences.map((exp, i) =>
       i === index ? { ...exp, ...updates } : exp
     ));
   };
@@ -215,7 +215,7 @@ export default function OnboardingPage() {
   };
 
   const updateProject = (index: number, updates: Partial<OnboardingProject>) => {
-    setProjects(projects.map((proj, i) => 
+    setProjects(projects.map((proj, i) =>
       i === index ? { ...proj, ...updates } : proj
     ));
   };
@@ -282,7 +282,7 @@ export default function OnboardingPage() {
 
       // Create portfolio
       const portfolio = completeOnboarding();
-      
+
       toast.success('🎉 Din portfolio är skapad!');
       router.push(`/portfolio/${portfolio.id}/edit`);
     } catch (error) {
@@ -304,7 +304,7 @@ export default function OnboardingPage() {
             </div>
             <span className="font-bold text-gray-900">PORTFOLYO</span>
           </Link>
-          
+
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -359,7 +359,7 @@ export default function OnboardingPage() {
                         label="Fullständigt namn *"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Said Borna"
+                        placeholder="Förnamn Efternamn"
                         leftIcon={<User className="h-4 w-4" />}
                       />
                       <Input
@@ -367,7 +367,7 @@ export default function OnboardingPage() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="said@example.com"
+                        placeholder="din@email.se"
                         leftIcon={<Mail className="h-4 w-4" />}
                       />
                       <Input
@@ -603,7 +603,7 @@ export default function OnboardingPage() {
                               <Input
                                 label="Teknologier (kommaseparerade)"
                                 value={proj.technologies.join(', ')}
-                                onChange={(e) => updateProject(index, { 
+                                onChange={(e) => updateProject(index, {
                                   technologies: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
                                 })}
                                 placeholder="React, Node.js, PostgreSQL"
@@ -651,11 +651,10 @@ export default function OnboardingPage() {
                             <button
                               key={skill.name}
                               onClick={() => toggleSkill(skill.name, true)}
-                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                isSelected
+                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isSelected
                                   ? 'bg-violet-600 text-white'
                                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                              }`}
+                                }`}
                             >
                               {skill.name}
                             </button>
@@ -675,11 +674,10 @@ export default function OnboardingPage() {
                             <button
                               key={skill.name}
                               onClick={() => toggleSkill(skill.name, false)}
-                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                isSelected
+                              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isSelected
                                   ? 'bg-emerald-600 text-white'
                                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                              }`}
+                                }`}
                             >
                               {skill.name}
                             </button>
@@ -769,11 +767,10 @@ export default function OnboardingPage() {
                         <button
                           key={cat.id}
                           onClick={() => setTemplateCategory(cat.id)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                            templateCategory === cat.id
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${templateCategory === cat.id
                               ? 'bg-violet-600 text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
+                            }`}
                         >
                           {cat.label}
                         </button>
@@ -865,7 +862,7 @@ export default function OnboardingPage() {
                       {selectedTemplate.name}
                     </Badge>
                   </div>
-                  
+
                   <div className="overflow-hidden rounded-xl" style={{ height: '500px' }}>
                     <PortfolioPreview
                       template={selectedTemplate}
@@ -873,7 +870,7 @@ export default function OnboardingPage() {
                       scale={0.35}
                     />
                   </div>
-                  
+
                   <p className="text-xs text-gray-500 text-center mt-3">
                     Preview uppdateras medan du fyller i
                   </p>
