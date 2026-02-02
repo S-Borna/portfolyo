@@ -1,19 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  Button, 
-  Card, 
+import { useRouter } from 'next/navigation';
+import {
+  Button,
+  Card,
   Badge,
   Icons,
 } from '@/components/ui';
 import { PRICING, LEARNING_RESOURCES } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
 
-const { 
-  Sparkles, 
-  ArrowRight, 
-  Check, 
+const {
+  Sparkles,
+  ArrowRight,
+  Check,
   Star,
   Zap,
   Code,
@@ -28,6 +30,37 @@ const {
 } = Icons;
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          // Användaren är inloggad, redirect till dashboard
+          router.replace('/dashboard');
+          return;
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+      setIsChecking(false);
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // Visa loading medan vi kollar auth
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
@@ -40,7 +73,7 @@ export default function LandingPage() {
               </div>
               <span className="font-bold text-xl text-gray-900">PORTFOLYO</span>
             </Link>
-            
+
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Funktioner</a>
               <a href="#examples" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Exempel</a>
@@ -70,15 +103,15 @@ export default function LandingPage() {
               <Sparkles className="h-3 w-3 mr-1" />
               AI-driven portfolio builder
             </Badge>
-            
+
             <h1 className="text-5xl md:text-7xl font-black text-gray-900 mb-6 tracking-tight">
               Bygg din
               <span className="text-gradient"> karriär-vinnande </span>
               portfolio
             </h1>
-            
+
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Skapa imponerande portfolios och ATS-optimerade CV:n som får rekryterare att ringa. 
+              Skapa imponerande portfolios och ATS-optimerade CV:n som får rekryterare att ringa.
               AI hjälper dig skriva content som sticker ut.
             </p>
 
@@ -257,9 +290,9 @@ export default function LandingPage() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <Badge variant="success">Live</Badge>
-                  <a 
-                    href="https://saidborna.com" 
-                    target="_blank" 
+                  <a
+                    href="https://saidborna.com"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-violet-600 text-sm font-medium flex items-center gap-1"
                   >
@@ -440,12 +473,12 @@ export default function LandingPage() {
             Redo att sticka ut?
           </h2>
           <p className="text-xl text-violet-200 mb-8 max-w-2xl mx-auto">
-            Skapa din professionella portfolio på under 10 minuter. 
+            Skapa din professionella portfolio på under 10 minuter.
             Ingen kodkunskap krävs.
           </p>
           <Link href="/onboarding">
-            <Button 
-              size="xl" 
+            <Button
+              size="xl"
               className="bg-white text-violet-600 hover:bg-gray-100"
               rightIcon={<ArrowRight className="h-5 w-5" />}
             >
@@ -473,7 +506,7 @@ export default function LandingPage() {
                 AI-driven portfolio- och CV-builder för studenter och nyexaminerade.
               </p>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Produkt</h4>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -482,7 +515,7 @@ export default function LandingPage() {
                 <li><a href="#examples" className="hover:text-white">Exempel</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Resurser</h4>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -491,7 +524,7 @@ export default function LandingPage() {
                 <li><a href="/guides" className="hover:text-white">Guider</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Kontakt</h4>
               <ul className="space-y-2 text-sm text-gray-400">
@@ -505,7 +538,7 @@ export default function LandingPage() {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-gray-400">
             <p>© 2026 PORTFOLYO.SE. Alla rättigheter förbehållna.</p>
             <div className="flex gap-6 mt-4 md:mt-0">
