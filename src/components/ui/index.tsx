@@ -50,7 +50,7 @@ import {
 // ============ BUTTON ============
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'outline';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'outline' | 'ink';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -68,22 +68,23 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-40 disabled:cursor-not-allowed select-none';
 
   const variants = {
-    primary: 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700 focus:ring-violet-500 shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5',
-    secondary: 'bg-white text-gray-900 border-2 border-gray-200 hover:border-violet-300 hover:bg-violet-50 focus:ring-violet-500',
-    ghost: 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-500',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-    success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500',
-    outline: 'border-2 border-violet-600 text-violet-600 hover:bg-violet-600 hover:text-white focus:ring-violet-500',
+    primary: 'bg-slate-900 text-white hover:bg-slate-800 focus-visible:ring-slate-900 shadow-sm hover:shadow-md active:scale-[0.98]',
+    secondary: 'bg-white text-slate-900 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-slate-500 shadow-sm',
+    ghost: 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus-visible:ring-slate-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 shadow-sm',
+    success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-500 shadow-sm',
+    outline: 'border border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white focus-visible:ring-slate-900',
+    ink: 'bg-[#0b0d12] text-white hover:bg-[#1a1d24] focus-visible:ring-slate-900 shadow-sm hover:shadow-md active:scale-[0.98]',
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm gap-1.5',
-    md: 'px-4 py-2.5 text-sm gap-2',
-    lg: 'px-6 py-3 text-base gap-2',
-    xl: 'px-8 py-4 text-lg gap-3',
+    sm: 'px-3 py-1.5 text-xs gap-1.5',
+    md: 'px-4 py-2 text-sm gap-2',
+    lg: 'px-5 py-2.5 text-sm gap-2',
+    xl: 'px-6 py-3 text-base gap-2.5',
   };
 
   return (
@@ -126,37 +127,37 @@ export function Input({
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700">
+        <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
           {label}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
             {leftIcon}
           </div>
         )}
         <input
           id={inputId}
           className={cn(
-            'w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-900 placeholder-gray-400',
-            'focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10',
-            'transition-all duration-200',
+            'w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder-slate-400',
+            'focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5',
+            'transition-all duration-200 text-sm',
             leftIcon && 'pl-10',
             rightIcon && 'pr-10',
-            error && 'border-red-500 focus:border-red-500 focus:ring-red-500/10',
+            error && 'border-red-400 focus:border-red-500 focus:ring-red-500/10',
             className
           )}
           {...props}
         />
         {rightIcon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
             {rightIcon}
           </div>
         )}
       </div>
-      {hint && !error && <p className="text-sm text-gray-500">{hint}</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {hint && !error && <p className="text-xs text-slate-500">{hint}</p>}
+      {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
 }
@@ -252,8 +253,8 @@ export function Card({ className, children, hover, onClick, padding = 'md' }: Ca
   const paddings = {
     none: '',
     sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
+    md: 'p-5',
+    lg: 'p-6',
   };
 
   return (
@@ -268,9 +269,9 @@ export function Card({ className, children, hover, onClick, padding = 'md' }: Ca
         }
       } : undefined}
       className={cn(
-        'bg-white rounded-2xl border border-gray-200 shadow-sm',
+        'bg-white rounded-xl border border-slate-200 shadow-sm',
         paddings[padding],
-        hover && 'hover:shadow-lg hover:border-violet-200 hover:-translate-y-1 transition-all duration-300 cursor-pointer',
+        hover && 'hover:shadow-md hover:border-slate-300 transition-all duration-300 cursor-pointer',
         className
       )}
     >
@@ -290,21 +291,21 @@ interface BadgeProps {
 
 export function Badge({ children, variant = 'default', size = 'md', className }: BadgeProps) {
   const variants = {
-    default: 'bg-gray-100 text-gray-700',
-    primary: 'bg-violet-100 text-violet-700',
-    success: 'bg-emerald-100 text-emerald-700',
-    warning: 'bg-amber-100 text-amber-700',
-    danger: 'bg-red-100 text-red-700',
-    outline: 'border-2 border-gray-200 text-gray-600',
+    default: 'bg-slate-100 text-slate-700',
+    primary: 'bg-slate-900 text-white',
+    success: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    warning: 'bg-amber-50 text-amber-700 border border-amber-200',
+    danger: 'bg-red-50 text-red-700 border border-red-200',
+    outline: 'border border-slate-300 text-slate-600 bg-transparent',
   };
 
   const sizes = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-3 py-1 text-sm',
+    sm: 'px-2 py-0.5 text-[10px] tracking-wide',
+    md: 'px-2.5 py-1 text-xs',
   };
 
   return (
-    <span className={cn('inline-flex items-center font-medium rounded-full', variants[variant], sizes[size], className)}>
+    <span className={cn('inline-flex items-center font-medium rounded-md', variants[variant], sizes[size], className)}>
       {children}
     </span>
   );

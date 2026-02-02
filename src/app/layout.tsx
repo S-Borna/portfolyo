@@ -3,13 +3,13 @@ import type { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
-  title: 'PORTFOLYO.SE - Skapa din professionella portfolio & CV',
-  description: 'AI-driven portfolio- och CV-builder för studenter och nyexaminerade. Skapa imponerande portfolios som saidborna.com på minuter.',
-  keywords: ['portfolio', 'CV', 'student', 'karriär', 'jobb', 'AI', 'Sverige'],
+  title: 'PORTFOLYO.SE — Professionell portfolio & CV, hostat åt dig',
+  description: 'En premiumplattform som skapar, hostar och håller din portfolio & CV uppdaterade. Enkelt, tryggt och redo att dela på portfolyo.se/{username}.',
+  keywords: ['portfolio', 'CV', 'karriär', 'professionell', 'hostad', 'Sverige'],
   authors: [{ name: 'PORTFOLYO.SE' }],
   openGraph: {
-    title: 'PORTFOLYO.SE - Skapa din professionella portfolio & CV',
-    description: 'AI-driven portfolio- och CV-builder för studenter och nyexaminerade.',
+    title: 'PORTFOLYO.SE — Professionell portfolio & CV, hostat åt dig',
+    description: 'Premium portfolio & CV med hosting, uppdateringar och support inkluderat.',
     url: 'https://portfolyo.se',
     siteName: 'PORTFOLYO.SE',
     locale: 'sv_SE',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'PORTFOLYO.SE',
-    description: 'AI-driven portfolio- och CV-builder för studenter och nyexaminerade.',
+    description: 'Premium portfolio & CV med hosting, uppdateringar och support inkluderat.',
   },
   robots: {
     index: true,
@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="sv">
-      <body className="min-h-screen bg-gray-50">
+      <body className="min-h-screen bg-white text-slate-900">
         {children}
         <Toaster
           position="bottom-right"
