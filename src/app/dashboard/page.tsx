@@ -90,13 +90,8 @@ export default function DashboardPage() {
         );
     }
 
-    // No portfolio yet - show creation prompt
-    if (!portfolio) {
-        return <EmptyDashboard user={user} />;
-    }
-
-    const isPublished = portfolio.status === 'published';
-    const portfolioUrl = isPublished
+    const isPublished = portfolio?.status === 'published';
+    const portfolioUrl = isPublished && portfolio
         ? `https://portfolyo.se/p/${portfolio.username}`
         : null;
 
@@ -127,72 +122,84 @@ export default function DashboardPage() {
             </header>
 
             <main className="max-w-5xl mx-auto px-6 py-12">
-                {/* Status Card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-12"
-                >
-                    <div className={`p-8 rounded-2xl border ${isPublished
-                        ? 'bg-emerald-500/5 border-emerald-500/20'
-                        : 'bg-amber-500/5 border-amber-500/20'
-                        }`}>
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <div className="flex items-center gap-3 mb-2">
-                                    {isPublished ? (
-                                        <>
-                                            <span className="relative flex h-3 w-3">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                                            </span>
-                                            <span className="text-emerald-400 font-medium">Live</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span className="w-3 h-3 rounded-full bg-amber-500"></span>
-                                            <span className="text-amber-400 font-medium">Utkast</span>
-                                        </>
+                {/* Welcome */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold mb-2">
+                        Välkommen{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}! 👋
+                    </h1>
+                    <p className="text-zinc-400">
+                        Härifrån hanterar du din portfolio och ditt CV.
+                    </p>
+                </div>
+
+                {/* Portfolio Status Card */}
+                {portfolio ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-12"
+                    >
+                        <div className={`p-8 rounded-2xl border ${isPublished
+                            ? 'bg-emerald-500/5 border-emerald-500/20'
+                            : 'bg-amber-500/5 border-amber-500/20'
+                            }`}>
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        {isPublished ? (
+                                            <>
+                                                <span className="relative flex h-3 w-3">
+                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                                </span>
+                                                <span className="text-emerald-400 font-medium">Live</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+                                                <span className="text-amber-400 font-medium">Utkast</span>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    <h2 className="text-2xl font-bold mb-1">{portfolio.title || 'Min Portfolio'}</h2>
+                                    <p className="text-zinc-400">{portfolio.tagline || 'Ingen tagline ännu'}</p>
+
+                                    {isPublished && portfolioUrl && (
+                                        <a
+                                            href={portfolioUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 mt-4 text-sm text-[#ff4d4d] hover:underline"
+                                        >
+                                            {portfolioUrl.replace('https://', '')}
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                        </a>
                                     )}
                                 </div>
 
-                                <h1 className="text-3xl font-bold mb-1">{portfolio.title}</h1>
-                                <p className="text-zinc-400">{portfolio.tagline}</p>
-
-                                {isPublished && portfolioUrl && (
-                                    <a
-                                        href={portfolioUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 mt-4 text-sm text-[#ff4d4d] hover:underline"
+                                <div className="flex gap-3">
+                                    <Link
+                                        href={`/portfolio/${portfolio.id}/edit`}
+                                        className="px-5 py-2.5 bg-zinc-800 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors"
                                     >
-                                        {portfolioUrl.replace('https://', '')}
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                        </svg>
-                                    </a>
-                                )}
-                            </div>
-
-                            <div className="flex gap-3">
-                                <Link
-                                    href={`/portfolio/${portfolio.id}/edit`}
-                                    className="px-5 py-2.5 bg-zinc-800 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors"
-                                >
-                                    Redigera
-                                </Link>
-                                {!isPublished && (
-                                    <button
-                                        onClick={() => setShowPublishModal(true)}
-                                        className="px-5 py-2.5 bg-[#ff4d4d] text-white text-sm font-medium rounded-lg hover:bg-[#ff3333] transition-colors"
-                                    >
-                                        Publicera
-                                    </button>
-                                )}
+                                        Redigera
+                                    </Link>
+                                    {!isPublished && (
+                                        <button
+                                            onClick={() => setShowPublishModal(true)}
+                                            className="px-5 py-2.5 bg-[#ff4d4d] text-white text-sm font-medium rounded-lg hover:bg-[#ff3333] transition-colors"
+                                        >
+                                            Publicera
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                ) : null}
 
                 {/* Stats Grid */}
                 {isPublished && analytics && (
@@ -233,18 +240,29 @@ export default function DashboardPage() {
                 >
                     <h2 className="text-lg font-semibold mb-4">Snabbåtgärder</h2>
                     <div className="grid grid-cols-3 gap-4">
-                        <ActionCard
-                            icon={<EditIcon />}
-                            title="Redigera innehåll"
-                            description="Uppdatera projekt, kompetenser och mer"
-                            href={`/portfolio/${portfolio.id}/edit`}
-                        />
-                        <ActionCard
-                            icon={<PaletteIcon />}
-                            title="Byt design"
-                            description="Välj bland 20+ premium templates"
-                            href={`/portfolio/${portfolio.id}/edit?tab=design`}
-                        />
+                        {portfolio ? (
+                            <>
+                                <ActionCard
+                                    icon={<EditIcon />}
+                                    title="Redigera innehåll"
+                                    description="Uppdatera projekt, kompetenser och mer"
+                                    href={`/portfolio/${portfolio.id}/edit`}
+                                />
+                                <ActionCard
+                                    icon={<PaletteIcon />}
+                                    title="Byt design"
+                                    description="Välj bland 20+ premium templates"
+                                    href={`/portfolio/${portfolio.id}/edit?tab=design`}
+                                />
+                            </>
+                        ) : (
+                            <ActionCard
+                                icon={<EditIcon />}
+                                title="Skapa portfolio"
+                                description="Bygg din professionella portfolio"
+                                href="/portfolio/new"
+                            />
+                        )}
                         <ActionCard
                             icon={<DocumentIcon />}
                             title="Skapa CV"
@@ -256,7 +274,7 @@ export default function DashboardPage() {
             </main>
 
             {/* Publish Modal */}
-            {showPublishModal && (
+            {showPublishModal && portfolio && (
                 <PublishModal
                     portfolio={portfolio}
                     onClose={() => setShowPublishModal(false)}
