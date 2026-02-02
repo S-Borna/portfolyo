@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
-export const runtime = 'edge';
-
 const anthropic = new Anthropic();
 
 const SYSTEM_PROMPT = `Du är en expert på att skriva professionella texter på svenska för portfolios och CV:n.

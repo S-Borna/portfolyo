@@ -1,7 +1,5 @@
 'use client';
 
-export const runtime = 'edge';
-
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -108,7 +106,7 @@ function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
         {/* Gradient bakgrund */}
         <div className="absolute inset-0 bg-gradient-to-br from-violet-600/20 via-gray-950 to-gray-950" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-violet-600/10 rounded-full blur-3xl" />
-        
+
         <div className="relative max-w-5xl mx-auto px-4 py-20 sm:py-32">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -270,7 +268,7 @@ function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
                     {project.name}
                   </h3>
                   <p className="text-gray-400 mb-4">{project.description}</p>
-                  
+
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {project.tags.map((tag) => (
@@ -329,7 +327,7 @@ function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
               </span>
               Erfarenhet & Utbildning
             </h2>
-            
+
             <div className="space-y-6">
               {timeline.map((entry, i) => (
                 <motion.div
@@ -341,12 +339,11 @@ function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
                   className="relative pl-8 border-l-2 border-gray-800"
                 >
                   {/* Dot */}
-                  <div className={`absolute left-[-9px] top-0 w-4 h-4 rounded-full border-2 ${
-                    entry.current
+                  <div className={`absolute left-[-9px] top-0 w-4 h-4 rounded-full border-2 ${entry.current
                       ? 'bg-emerald-500 border-emerald-500'
                       : 'bg-gray-900 border-gray-600'
-                  }`} />
-                  
+                    }`} />
+
                   <div className="pb-6">
                     <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                       <Calendar className="h-3 w-3" />
@@ -384,7 +381,7 @@ function PortfolioView({ portfolio }: { portfolio: Portfolio }) {
               ? `Jag söker ${profile.seekingDetails.type} ${profile.seekingDetails.period || ''}`
               : 'Jag är öppen för nya möjligheter'}
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-4">
             {contact.email && (
               <a

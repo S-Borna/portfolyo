@@ -1,7 +1,5 @@
 'use client';
 
-export const runtime = 'edge';
-
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -51,9 +49,9 @@ export default function PortfolioEditorPage() {
   const params = useParams();
   const portfolioId = params.id as string;
 
-  const { 
-    portfolios, 
-    updatePortfolio, 
+  const {
+    portfolios,
+    updatePortfolio,
     publishPortfolio,
     credits,
     useCredits,
@@ -300,16 +298,16 @@ export default function PortfolioEditorPage() {
 
           <div className="flex items-center gap-3">
             <CreditDisplay credits={credits} />
-            
+
             <a href={portfolioUrl} target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm" leftIcon={<Eye className="h-4 w-4" />}>
                 Förhandsgranska
               </Button>
             </a>
 
-            <Button 
-              variant="secondary" 
-              size="sm" 
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleSave}
               isLoading={isSaving}
               leftIcon={<Save className="h-4 w-4" />}
@@ -317,8 +315,8 @@ export default function PortfolioEditorPage() {
               Spara
             </Button>
 
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={handlePublish}
               isLoading={isSaving}
               leftIcon={<Globe className="h-4 w-4" />}
@@ -341,14 +339,14 @@ export default function PortfolioEditorPage() {
           <div className="space-y-6">
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Grundläggande information</h2>
-              
+
               <div className="grid gap-4">
                 <Input
                   label="Fullständigt namn"
                   value={profile.fullName}
                   onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
                 />
-                
+
                 <Input
                   label="Titel"
                   value={profile.title}
@@ -376,8 +374,8 @@ export default function PortfolioEditorPage() {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Om mig</h2>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={handleGenerateBio}
                   isLoading={isGenerating}
@@ -387,7 +385,7 @@ export default function PortfolioEditorPage() {
                   AI-generera (1 credit)
                 </Button>
               </div>
-              
+
               <Textarea
                 value={profile.bio}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
@@ -398,7 +396,7 @@ export default function PortfolioEditorPage() {
 
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Vad söker du?</h2>
-              
+
               <div className="grid gap-4">
                 <Input
                   label="Typ"
@@ -412,16 +410,16 @@ export default function PortfolioEditorPage() {
                     <Input
                       label="Period"
                       value={profile.seekingDetails.period}
-                      onChange={(e) => setProfile({ 
-                        ...profile, 
+                      onChange={(e) => setProfile({
+                        ...profile,
                         seekingDetails: { ...profile.seekingDetails!, period: e.target.value }
                       })}
                     />
                     <Input
                       label="Plats"
                       value={profile.seekingDetails.location}
-                      onChange={(e) => setProfile({ 
-                        ...profile, 
+                      onChange={(e) => setProfile({
+                        ...profile,
                         seekingDetails: { ...profile.seekingDetails!, location: e.target.value }
                       })}
                     />
@@ -482,7 +480,7 @@ export default function PortfolioEditorPage() {
                       <Input
                         label="Live URL"
                         value={project.links.live || ''}
-                        onChange={(e) => updateProject(project.id, { 
+                        onChange={(e) => updateProject(project.id, {
                           links: { ...project.links, live: e.target.value }
                         })}
                         leftIcon={<Globe className="h-4 w-4" />}
@@ -490,7 +488,7 @@ export default function PortfolioEditorPage() {
                       <Input
                         label="GitHub URL"
                         value={project.links.github || ''}
-                        onChange={(e) => updateProject(project.id, { 
+                        onChange={(e) => updateProject(project.id, {
                           links: { ...project.links, github: e.target.value }
                         })}
                         leftIcon={<Github className="h-4 w-4" />}
@@ -503,7 +501,7 @@ export default function PortfolioEditorPage() {
                       </label>
                       <Input
                         value={project.tags.join(', ')}
-                        onChange={(e) => updateProject(project.id, { 
+                        onChange={(e) => updateProject(project.id, {
                           tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
                         })}
                         placeholder="Next.js, TypeScript, TailwindCSS"
@@ -552,8 +550,8 @@ export default function PortfolioEditorPage() {
                   <div className="flex items-start justify-between mb-4">
                     <select
                       value={entry.type}
-                      onChange={(e) => updateTimelineEntry(entry.id, { 
-                        type: e.target.value as TimelineEntry['type'] 
+                      onChange={(e) => updateTimelineEntry(entry.id, {
+                        type: e.target.value as TimelineEntry['type']
                       })}
                       className="px-3 py-1 rounded-lg border border-gray-200 text-sm"
                     >
@@ -629,11 +627,10 @@ export default function PortfolioEditorPage() {
                         <button
                           key={tech.name}
                           onClick={() => toggleTechStack(tech)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                            isSelected
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${isSelected
                               ? 'bg-violet-600 text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
+                            }`}
                         >
                           {isSelected && <Check className="h-3 w-3" />}
                           {tech.name}
@@ -661,7 +658,7 @@ export default function PortfolioEditorPage() {
           <div className="space-y-6">
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Kontaktinformation</h2>
-              
+
               <div className="grid gap-4">
                 <Input
                   label="E-post"
@@ -702,7 +699,7 @@ export default function PortfolioEditorPage() {
 
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Inställningar</h2>
-              
+
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -721,7 +718,7 @@ export default function PortfolioEditorPage() {
           <div className="space-y-6">
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Färger</h2>
-              
+
               <div className="grid gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Primärfärg</label>
@@ -730,11 +727,10 @@ export default function PortfolioEditorPage() {
                       <button
                         key={color}
                         onClick={() => setSettings({ ...settings, primaryColor: color })}
-                        className={`w-10 h-10 rounded-full transition-all ${
-                          settings.primaryColor === color
+                        className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
                             ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
                             : 'hover:scale-105'
-                        }`}
+                          }`}
                         style={{ backgroundColor: color }}
                       />
                     ))}
@@ -745,7 +741,7 @@ export default function PortfolioEditorPage() {
 
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Tema</h2>
-              
+
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -759,7 +755,7 @@ export default function PortfolioEditorPage() {
 
             <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">SEO</h2>
-              
+
               <div className="grid gap-4">
                 <Input
                   label="SEO-titel"

@@ -1,7 +1,5 @@
 'use client';
 
-export const runtime = 'edge';
-
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -54,9 +52,9 @@ export default function CVEditorPage() {
   const params = useParams();
   const cvId = params.id as string;
 
-  const { 
-    cvs, 
-    updateCV, 
+  const {
+    cvs,
+    updateCV,
     credits,
     useCredits,
     isAuthenticated,
@@ -287,10 +285,10 @@ export default function CVEditorPage() {
 
           <div className="flex items-center gap-3">
             <CreditDisplay credits={credits} />
-            
-            <Button 
-              variant="secondary" 
-              size="sm" 
+
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleSave}
               isLoading={isSaving}
               leftIcon={<Save className="h-4 w-4" />}
@@ -298,8 +296,8 @@ export default function CVEditorPage() {
               Spara
             </Button>
 
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={handleDownloadPDF}
               leftIcon={<Download className="h-4 w-4" />}
             >
@@ -324,7 +322,7 @@ export default function CVEditorPage() {
               <>
                 <Card className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Personlig information</h2>
-                  
+
                   <div className="grid gap-4">
                     <Input
                       label="Fullständigt namn"
@@ -373,8 +371,8 @@ export default function CVEditorPage() {
                 <Card className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Sammanfattning</h2>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={handleGenerateSummary}
                       isLoading={isGenerating}
@@ -384,7 +382,7 @@ export default function CVEditorPage() {
                       AI-generera (1 credit)
                     </Button>
                   </div>
-                  
+
                   <Textarea
                     value={summary}
                     onChange={(e) => setSummary(e.target.value)}
@@ -454,7 +452,7 @@ export default function CVEditorPage() {
                       <Textarea
                         label="Achievements (en per rad)"
                         value={exp.achievements.join('\n')}
-                        onChange={(e) => updateExperienceItem(exp.id, { 
+                        onChange={(e) => updateExperienceItem(exp.id, {
                           achievements: e.target.value.split('\n').filter(Boolean)
                         })}
                         rows={3}
@@ -594,7 +592,7 @@ export default function CVEditorPage() {
 
                     <Input
                       value={category.skills.join(', ')}
-                      onChange={(e) => updateSkillCategory(index, { 
+                      onChange={(e) => updateSkillCategory(index, {
                         skills: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                       })}
                       placeholder="Python, JavaScript, React, Node.js"
@@ -626,11 +624,10 @@ export default function CVEditorPage() {
                       <button
                         key={t.id}
                         onClick={() => setTemplate(t.id)}
-                        className={`p-4 rounded-xl border-2 text-left transition-all ${
-                          template === t.id 
-                            ? 'border-violet-500 bg-violet-50' 
+                        className={`p-4 rounded-xl border-2 text-left transition-all ${template === t.id
+                            ? 'border-violet-500 bg-violet-50'
                             : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                          }`}
                       >
                         <h3 className="font-semibold text-gray-900">{t.name}</h3>
                         <p className="text-sm text-gray-500">{t.description}</p>
@@ -646,11 +643,10 @@ export default function CVEditorPage() {
                       <button
                         key={color}
                         onClick={() => setSettings({ ...settings, primaryColor: color })}
-                        className={`w-10 h-10 rounded-full transition-all ${
-                          settings.primaryColor === color
+                        className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
                             ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
                             : 'hover:scale-105'
-                        }`}
+                          }`}
                         style={{ backgroundColor: color }}
                       />
                     ))}
@@ -684,11 +680,11 @@ export default function CVEditorPage() {
                   <span className="text-sm font-medium text-gray-600">Förhandsvisning</span>
                   <Badge variant="outline" size="sm">{template}</Badge>
                 </div>
-                
+
                 {/* CV Preview */}
-                <div 
+                <div
                   className="p-8 bg-white min-h-[600px]"
-                  style={{ 
+                  style={{
                     fontSize: settings.fontSize === 'small' ? '12px' : settings.fontSize === 'large' ? '16px' : '14px'
                   }}
                 >
