@@ -97,7 +97,7 @@ export default function PortfolioEditorPage() {
 
   useEffect(() => {
     if (mounted && !isAuthenticated) {
-      router.push('/onboarding');
+      router.push('/login');
     }
   }, [mounted, isAuthenticated, router]);
 
@@ -628,8 +628,8 @@ export default function PortfolioEditorPage() {
                           key={tech.name}
                           onClick={() => toggleTechStack(tech)}
                           className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${isSelected
-                              ? 'bg-violet-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-violet-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         >
                           {isSelected && <Check className="h-3 w-3" />}
@@ -728,8 +728,8 @@ export default function PortfolioEditorPage() {
                         key={color}
                         onClick={() => setSettings({ ...settings, primaryColor: color })}
                         className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
-                            ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
-                            : 'hover:scale-105'
+                          ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
+                          : 'hover:scale-105'
                           }`}
                         style={{ backgroundColor: color }}
                       />

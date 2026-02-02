@@ -1,6 +1,6 @@
 /**
  * Portfolio Preview API
- * 
+ *
  * GET /api/portfolio-preview
  * GET /api/portfolio-preview?template=said-midnight
  * GET /api/portfolio-preview?lang=en
@@ -12,7 +12,7 @@ import { renderPortfolioV2, PortfolioDataV2 } from '@/lib/templates/portfolio-re
 // Sample data - EXAKT som saidborna.com
 const SAMPLE_DATA_SV: PortfolioDataV2 = {
     language: 'sv',
-    
+
     // Hero
     fullName: 'Said Borna',
     firstName: 'Said',
@@ -21,12 +21,12 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
     tagline: 'Jag automatiserar, övervakar och optimerar. Med en passion för CI/CD pipelines och infrastructure as code, bygger jag broar mellan utveckling och drift.',
     profileImageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
     cvUrl: '/cv.pdf',
-    
+
     metaItems: [
         { label: 'Baserad i', value: 'Malmö, Sverige' },
         { label: 'Tillgänglighet', value: 'LIA 2025' },
     ],
-    
+
     // About
     about: {
         paragraphs: [
@@ -56,7 +56,7 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
             }
         }
     },
-    
+
     // Stats
     stats: [
         { number: '15+', label: 'Projekt slutförda' },
@@ -64,7 +64,7 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
         { number: '10+', label: 'Teknologier behärskade' },
         { number: '∞', label: 'Koppar kaffe druckna' },
     ],
-    
+
     // LIA Seeking
     seeking: {
         active: true,
@@ -77,7 +77,7 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
         ],
         bgText: 'LIA',
     },
-    
+
     // Projects
     projects: [
         {
@@ -111,7 +111,7 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
             link: { url: 'https://github.com/saidborna/alert-system', label: 'Visa på GitHub' },
         },
     ],
-    
+
     // Timeline
     timeline: {
         intro: 'Från nätverkstekniker till DevOps — en resa fylld med lärande, utmaningar och oändligt mycket konfigurationsfiler.',
@@ -175,7 +175,7 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
             },
         ],
     },
-    
+
     // Tech Stack
     techStack: [
         { name: 'Docker', tier: 'Daglig användning', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', tooltip: 'Containerisering och lokala dev-miljöer' },
@@ -191,7 +191,7 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
         { name: 'Ansible', tier: 'Automation', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ansible/ansible-original.svg', tooltip: 'Configuration management' },
         { name: 'Node.js', tier: 'Grundläggande', iconUrl: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg', tooltip: 'Backend och tooling' },
     ],
-    
+
     // Contact
     contact: {
         title: "LET'S\nCONNECT",
@@ -202,7 +202,7 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
             { label: 'GitHub', url: 'https://github.com/saidborna', type: 'github' },
         ],
     },
-    
+
     // Footer
     footer: {
         copyright: '© 2025 Said Borna. Alla rättigheter förbehållna.',
@@ -215,12 +215,12 @@ const SAMPLE_DATA_EN: PortfolioDataV2 = {
     ...SAMPLE_DATA_SV,
     language: 'en',
     tagline: "I automate, monitor, and optimize. With a passion for CI/CD pipelines and infrastructure as code, I build bridges between development and operations.",
-    
+
     metaItems: [
         { label: 'Based in', value: 'Malmö, Sweden' },
         { label: 'Availability', value: 'Internship 2025' },
     ],
-    
+
     about: {
         paragraphs: [
             {
@@ -249,14 +249,14 @@ const SAMPLE_DATA_EN: PortfolioDataV2 = {
             }
         }
     },
-    
+
     stats: [
         { number: '15+', label: 'Projects completed' },
         { number: '500+', label: 'GitHub commits' },
         { number: '10+', label: 'Technologies mastered' },
         { number: '∞', label: 'Cups of coffee consumed' },
     ],
-    
+
     seeking: {
         active: true,
         title: '🔎 Seeking Internship 2025',
@@ -268,36 +268,96 @@ const SAMPLE_DATA_EN: PortfolioDataV2 = {
         ],
         bgText: 'LIA',
     },
-    
+
     projects: SAMPLE_DATA_SV.projects.map(p => ({
         ...p,
-        description: p.name === 'PORTFOLYO.SE' 
+        description: p.name === 'PORTFOLYO.SE'
             ? 'A platform for creating professional portfolios and CVs with AI assistance. Built with Next.js, Supabase and Cloudflare.'
             : p.name === 'K8S HOMELAB'
-            ? 'A complete Kubernetes cluster for home use with automated deployment, monitoring and logging.'
-            : p.name === 'CI/CD TEMPLATE'
-            ? 'Reusable GitHub Actions pipeline template for Node.js projects with automatic testing, building and deployment.'
-            : 'Proactive monitoring system with Slack integration for real-time notifications on system anomalies.',
+                ? 'A complete Kubernetes cluster for home use with automated deployment, monitoring and logging.'
+                : p.name === 'CI/CD TEMPLATE'
+                    ? 'Reusable GitHub Actions pipeline template for Node.js projects with automatic testing, building and deployment.'
+                    : 'Proactive monitoring system with Slack integration for real-time notifications on system anomalies.',
         link: {
             url: p.link.url,
             label: p.link.label.includes('Besök') ? 'Visit site' : 'View on GitHub'
         }
     })),
-    
+
     timeline: {
         ...SAMPLE_DATA_SV.timeline,
         intro: 'From network technician to DevOps — a journey filled with learning, challenges, and endless configuration files.',
     },
-    
+
     contact: {
         title: "LET'S\nCONNECT",
         subtitle: 'Have an exciting project or looking for a DevOps intern? I would love to hear from you!',
         links: SAMPLE_DATA_SV.contact.links,
     },
-    
+
     footer: {
         copyright: '© 2025 Said Borna. All rights reserved.',
         location: 'Malmö, Sweden',
+    },
+};
+
+// Fiktiva tech-profiler för preview - med högupplösta stockfoton
+const TECH_GURU_PROFILES: Record<string, { fullName: string; firstName: string; lastName: string; title: string; tagline: string; profileImageUrl: string }> = {
+    'said': {
+        fullName: 'Said Borna',
+        firstName: 'Said',
+        lastName: 'Borna',
+        title: 'DevOps Engineer',
+        tagline: 'Jag automatiserar, övervakar och optimerar. Med en passion för CI/CD pipelines och infrastructure as code.',
+        profileImageUrl: 'https://saidborna.com/Said.jpg',
+    },
+    'alex': {
+        fullName: 'Alex Lindqvist',
+        firstName: 'Alex',
+        lastName: 'Lindqvist',
+        title: 'Full Stack Developer',
+        tagline: 'Från databas till användargränssnitt. Jag bygger skalbara lösningar med moderna ramverk.',
+        profileImageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop&crop=face',
+    },
+    'maya': {
+        fullName: 'Maya Eriksson',
+        firstName: 'Maya',
+        lastName: 'Eriksson',
+        title: 'UX/UI Designer',
+        tagline: 'Design är inte hur det ser ut - det är hur det fungerar. Användaren först, alltid.',
+        profileImageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=800&fit=crop&crop=face',
+    },
+    'omar': {
+        fullName: 'Omar Johansson',
+        firstName: 'Omar',
+        lastName: 'Johansson',
+        title: 'ML Engineer',
+        tagline: 'Data är den nya oljan. Jag bygger AI-modeller som löser verkliga problem.',
+        profileImageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=800&fit=crop&crop=face',
+    },
+    'sofia': {
+        fullName: 'Sofia Andersson',
+        firstName: 'Sofia',
+        lastName: 'Andersson',
+        title: 'Cloud Architect',
+        tagline: 'Infrastruktur som kod, säkerhet som standard. Molnet är framtiden.',
+        profileImageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=800&fit=crop&crop=face',
+    },
+    'erik': {
+        fullName: 'Erik Nilsson',
+        firstName: 'Erik',
+        lastName: 'Nilsson',
+        title: 'Security Engineer',
+        tagline: 'Säkerhet är inte en produkt, det är en process. Jag skyddar det digitala.',
+        profileImageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=800&fit=crop&crop=face',
+    },
+    'lin': {
+        fullName: 'Lin Bergström',
+        firstName: 'Lin',
+        lastName: 'Bergström',
+        title: 'Frontend Specialist',
+        tagline: 'Pixelperfekt kod med tillgänglighet i fokus. React, Vue, och allt däremellan.',
+        profileImageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop&crop=face',
     },
 };
 
@@ -305,10 +365,25 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const template = searchParams.get('template') || 'said-dark';
     const lang = searchParams.get('lang') || 'sv';
+    const profile = searchParams.get('profile') || 'said';
+
+    const baseData = lang === 'en' ? SAMPLE_DATA_EN : SAMPLE_DATA_SV;
     
-    const data = lang === 'en' ? SAMPLE_DATA_EN : SAMPLE_DATA_SV;
-    const html = renderPortfolioV2(data, template);
-    
+    // Applicera profil om den finns
+    const guruProfile = TECH_GURU_PROFILES[profile] || TECH_GURU_PROFILES['said'];
+    const data: PortfolioDataV2 = {
+        ...baseData,
+        fullName: guruProfile.fullName,
+        firstName: guruProfile.firstName,
+        lastName: guruProfile.lastName,
+        title: guruProfile.title,
+        tagline: guruProfile.tagline,
+        profileImageUrl: guruProfile.profileImageUrl,
+    };
+
+    // Rendera portfolion med previewMode för kompakta sektioner
+    const html = renderPortfolioV2(data, template, { previewMode: true });
+
     return new NextResponse(html, {
         headers: {
             'Content-Type': 'text/html; charset=utf-8',

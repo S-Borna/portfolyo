@@ -25,7 +25,102 @@ const {
   Lock,
   Crown,
   Zap,
+  ChevronUp,
+  ChevronDown,
 } = Icons;
+
+// Portfolio sections med scroll-positioner (pixlar i iframe-dokumentet)
+// Med previewMode: Hero=700px, sektioner behöver större offset
+const PORTFOLIO_SECTIONS = [
+  { name: 'Hero', offset: 0 },
+  { name: 'Om mig', offset: 700 },       // Efter hero (700px)
+  { name: 'Projekt', offset: 1700 },     // About - ökat
+  { name: 'Tidslinje', offset: 2950 },   // Projects - ökat kraftigt
+  { name: 'Tech Stack', offset: 4550 },  // Timeline - ökat kraftigt
+  { name: 'Kontakt', offset: 5800 },     // Stack - ökat kraftigt
+];
+
+// Portfolio Preview Card med navigering
+function PortfolioPreviewCard({ template }: { template: { id: string; title: string; label: string; profile?: string } }) {
+  const [currentSection, setCurrentSection] = useState(0);
+
+  const goUp = () => {
+    if (currentSection > 0) {
+      setCurrentSection(currentSection - 1);
+    }
+  };
+
+  const goDown = () => {
+    if (currentSection < PORTFOLIO_SECTIONS.length - 1) {
+      setCurrentSection(currentSection + 1);
+    }
+  };
+
+  // Beräkna offset för nuvarande sektion
+  const currentOffset = PORTFOLIO_SECTIONS[currentSection].offset;
+  const profileParam = template.profile ? `&profile=${template.profile}` : '';
+
+  return (
+    <Card className="overflow-hidden bg-white group" hover>
+      <div className="aspect-[4/3] relative overflow-hidden bg-slate-900">
+        {/*
+          Portfolio preview med scroll-navigering:
+          - Iframe: 1200x8000px (rymmer hela portfolion)
+          - Scale 0.25 för att passa i kortet
+          - TranslateY scrollar till olika sektioner
+        */}
+        <div
+          className="absolute origin-top-left transition-transform duration-500 ease-out"
+          style={{
+            width: '1200px',
+            height: '8000px',
+            transform: `scale(0.25) translateY(-${currentOffset}px)`
+          }}
+        >
+          <iframe
+            src={`/api/portfolio-preview?template=${template.id}${profileParam}`}
+            style={{
+              border: 'none',
+              width: '1200px',
+              height: '8000px'
+            }}
+            className="pointer-events-none"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+
+        {/* Navigation arrows */}
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10">
+          <button
+            onClick={goUp}
+            disabled={currentSection === 0}
+            className="w-7 h-7 rounded-full bg-white/90 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            aria-label="Föregående sektion"
+          >
+            <ChevronUp className="w-4 h-4 text-slate-700" />
+          </button>
+          <button
+            onClick={goDown}
+            disabled={currentSection === PORTFOLIO_SECTIONS.length - 1}
+            className="w-7 h-7 rounded-full bg-white/90 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            aria-label="Nästa sektion"
+          >
+            <ChevronDown className="w-4 h-4 text-slate-700" />
+          </button>
+        </div>
+
+        {/* Section indicator */}
+        <div className="absolute left-2 bottom-2 px-2 py-1 bg-black/60 rounded text-[10px] text-white/90 font-medium">
+          {PORTFOLIO_SECTIONS[currentSection].name}
+        </div>
+      </div>
+      <div className="p-4">
+        <p className="font-semibold text-ink">{template.title}</p>
+        <p className="text-xs text-slate-500">{template.label}</p>
+      </div>
+    </Card>
+  );
+}
 
 const HIGHLIGHTS = [
   { label: 'Portfolio', value: '1', description: 'Hostad på portfolyo.se/{username}' },
@@ -136,7 +231,7 @@ export default function LandingPage() {
               <Link href="/login">
                 <Button variant="ghost" size="sm">Logga in</Button>
               </Link>
-              <Link href="/onboarding">
+              <Link href="/register">
                 <Button size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
                   Starta nu
                 </Button>
@@ -160,7 +255,7 @@ export default function LandingPage() {
                 Vi levererar ett resultat som matchar senior nivå — snabbt, tryggt och redo att dela.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4 mb-10">
-                <Link href="/onboarding">
+                <Link href="/register">
                   <Button size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
                     Skapa min portfolio
                   </Button>
@@ -276,7 +371,7 @@ export default function LandingPage() {
             <div>
               <Badge variant="outline" className="mb-4">Templates</Badge>
               <h2 className="text-3xl md:text-4xl font-semibold text-ink mb-3">
-                20 portfolio + 50 CV — ett och samma DNA
+                44 portfolio + 42 CV — ett och samma DNA
               </h2>
               <p className="text-slate-600 max-w-xl">
                 Varje template är unik, men alla känns premium. Inget generiskt. Ingen Canva-känsla.
@@ -288,28 +383,49 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { title: 'Architect', label: 'Strukturerad, tydlig, ledarskap' },
-              { title: 'Studio', label: 'Visuell, mjuk, designfokus' },
-              { title: 'Editorial', label: 'Redaktionell, seriös, klassisk' },
-              { title: 'Signal', label: 'Teknisk, snabb, modern' },
-              { title: 'Atlas', label: 'Senior, robust, rådgivande' },
-              { title: 'Mono', label: 'Minimal, stark, fokuserad' },
-            ].map((template) => (
-              <Card key={template.title} className="p-6 bg-white" hover>
-                <div className="aspect-[4/3] rounded-xl bg-slate-100 mb-4" />
-                <div className="flex items-center justify-between">
-                  <div>
+          {/* Portfolio Templates - with scroll animation */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+              <Globe className="h-5 w-5" /> Portfolio Templates
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                { id: 'said-dark', title: 'Alex Lindqvist', label: 'Full Stack Developer', profile: 'alex' },
+                { id: 'flag-sweden', title: 'Maya Eriksson', label: 'UX/UI Designer', profile: 'maya' },
+                { id: 'flag-magenta', title: 'Omar Johansson', label: 'ML Engineer', profile: 'omar' },
+              ].map((template) => (
+                <PortfolioPreviewCard key={template.id} template={template} />
+              ))}
+            </div>
+          </div>
+
+          {/* CV Templates - static preview, no click */}
+          <div>
+            <h3 className="text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5" /> CV Templates
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                { id: 'said-dark', title: 'Sofia Andersson', label: 'Cloud Architect', profile: 'sofia' },
+                { id: 'flag-emerald', title: 'Erik Nilsson', label: 'Security Engineer', profile: 'erik' },
+                { id: 'flag-turquoise', title: 'Lin Bergström', label: 'Frontend Specialist', profile: 'lin' },
+              ].map((template) => (
+                <Card key={template.id} className="overflow-hidden bg-white" hover>
+                  <div className="aspect-[4/3] relative overflow-hidden bg-slate-50">
+                    <iframe
+                      src={`/api/cv-preview?template=${template.id}&profile=${template.profile}`}
+                      className="absolute inset-0 w-[200%] h-[200%] origin-top-left scale-50 pointer-events-none"
+                      style={{ border: 'none' }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/30 to-transparent pointer-events-none" />
+                  </div>
+                  <div className="p-4">
                     <p className="font-semibold text-ink">{template.title}</p>
                     <p className="text-xs text-slate-500">{template.label}</p>
                   </div>
-                  <Button variant="ghost" size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
-                    Visa
-                  </Button>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -378,7 +494,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/onboarding" className="block">
+              <Link href="/register" className="block">
                 <Button variant="secondary" className="w-full">
                   Kom igång
                 </Button>
@@ -402,7 +518,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/onboarding?plan=starter" className="block">
+              <Link href="/register?plan=starter" className="block">
                 <Button className="w-full">
                   Välj Starter
                 </Button>
@@ -426,7 +542,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/onboarding?plan=pro" className="block">
+              <Link href="/register?plan=pro" className="block">
                 <Button variant="secondary" className="w-full">
                   Välj Pro
                 </Button>
@@ -466,7 +582,7 @@ export default function LandingPage() {
           <p className="text-slate-200 max-w-2xl mx-auto mb-8">
             Ett premiumresultat utan att du behöver tänka på teknik, design eller struktur.
           </p>
-          <Link href="/onboarding">
+          <Link href="/register">
             <Button variant="secondary" size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
               Starta nu
             </Button>

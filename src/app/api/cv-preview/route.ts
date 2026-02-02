@@ -132,14 +132,77 @@ const SAMPLE_CV_DATA: CVData = {
     ],
 };
 
+// Fiktiva tech-profiler för CV preview - med högupplösta stockfoton
+const CV_GURU_PROFILES: Record<string, { fullName: string; title: string; subtitle: string; tagline: string; photoUrl: string }> = {
+    'said': {
+        fullName: 'Said Borna',
+        title: 'DEVOPS',
+        subtitle: 'ENGINEER',
+        tagline: 'DEVOPS · LEDARSKAP · AI',
+        photoUrl: 'https://saidborna.com/Said.jpg',
+    },
+    'alex': {
+        fullName: 'Alex Lindqvist',
+        title: 'FULL STACK',
+        subtitle: 'DEVELOPER',
+        tagline: 'REACT · NODE · POSTGRESQL',
+        photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop&crop=face',
+    },
+    'maya': {
+        fullName: 'Maya Eriksson',
+        title: 'UX/UI',
+        subtitle: 'DESIGNER',
+        tagline: 'FIGMA · DESIGN SYSTEMS · A11Y',
+        photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=800&fit=crop&crop=face',
+    },
+    'omar': {
+        fullName: 'Omar Johansson',
+        title: 'ML',
+        subtitle: 'ENGINEER',
+        tagline: 'PYTHON · TENSORFLOW · DATA',
+        photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=800&fit=crop&crop=face',
+    },
+    'sofia': {
+        fullName: 'Sofia Andersson',
+        title: 'CLOUD',
+        subtitle: 'ARCHITECT',
+        tagline: 'AWS · TERRAFORM · K8S',
+        photoUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=800&fit=crop&crop=face',
+    },
+    'erik': {
+        fullName: 'Erik Nilsson',
+        title: 'SECURITY',
+        subtitle: 'ENGINEER',
+        tagline: 'PENTEST · SIEM · ZERO TRUST',
+        photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=800&fit=crop&crop=face',
+    },
+    'lin': {
+        fullName: 'Lin Bergström',
+        title: 'FRONTEND',
+        subtitle: 'SPECIALIST',
+        tagline: 'REACT · VUE · TYPESCRIPT',
+        photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop&crop=face',
+    },
+};
+
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const templateId = searchParams.get('template') || 'said-dark';
     const showPhoto = searchParams.get('photo') !== 'false';
     const showSeeking = searchParams.get('seeking') !== 'false';
+    const profile = searchParams.get('profile') || 'said';
 
     // Clone data and adjust based on params
     const cvData = { ...SAMPLE_CV_DATA };
+    
+    // Applicera profil om den finns
+    const guruProfile = CV_GURU_PROFILES[profile] || CV_GURU_PROFILES['said'];
+    cvData.fullName = guruProfile.fullName;
+    cvData.title = guruProfile.title;
+    cvData.subtitle = guruProfile.subtitle;
+    cvData.tagline = guruProfile.tagline;
+    cvData.photoUrl = guruProfile.photoUrl;
+    
     if (!showSeeking && cvData.seeking) {
         cvData.seeking = { ...cvData.seeking, active: false };
     }

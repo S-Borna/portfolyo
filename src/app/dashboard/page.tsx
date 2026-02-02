@@ -318,7 +318,7 @@ function EmptyDashboard({ user }: { user: DbProfile | null }) {
                                 Processen tar ungefär 5-10 minuter.
                             </p>
                             <Link
-                                href="/onboarding"
+                                href="/portfolio/new"
                                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff4d4d] text-white font-medium rounded-lg hover:bg-[#ff3333] transition-colors"
                             >
                                 Skapa portfolio

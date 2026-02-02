@@ -92,7 +92,7 @@ export default function CVEditorPage() {
 
   useEffect(() => {
     if (mounted && !isAuthenticated) {
-      router.push('/onboarding');
+      router.push('/login');
     }
   }, [mounted, isAuthenticated, router]);
 
@@ -625,8 +625,8 @@ export default function CVEditorPage() {
                         key={t.id}
                         onClick={() => setTemplate(t.id)}
                         className={`p-4 rounded-xl border-2 text-left transition-all ${template === t.id
-                            ? 'border-violet-500 bg-violet-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-violet-500 bg-violet-50'
+                          : 'border-gray-200 hover:border-gray-300'
                           }`}
                       >
                         <h3 className="font-semibold text-gray-900">{t.name}</h3>
@@ -644,8 +644,8 @@ export default function CVEditorPage() {
                         key={color}
                         onClick={() => setSettings({ ...settings, primaryColor: color })}
                         className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
-                            ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
-                            : 'hover:scale-105'
+                          ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
+                          : 'hover:scale-105'
                           }`}
                         style={{ backgroundColor: color }}
                       />
