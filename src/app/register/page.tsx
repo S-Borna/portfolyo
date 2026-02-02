@@ -84,8 +84,11 @@ export default function RegisterPage() {
                 },
             });
 
+            console.log('SignUp response:', { data, error });
+
             if (error) {
-                toast.error(error.message);
+                console.error('Supabase error:', error);
+                toast.error(error.message || 'Registreringsfel');
                 setIsLoading(false);
                 return;
             }
@@ -112,9 +115,9 @@ export default function RegisterPage() {
                 // Email confirmation required - redirect to verification page
                 router.push(`/verify-email?email=${encodeURIComponent(email)}`);
             }
-        } catch (err) {
-            console.error('Signup error:', err);
-            toast.error('Ett fel uppstod. Försök igen.');
+        } catch (err: any) {
+            console.error('Signup exception:', err);
+            toast.error(err?.message || 'Ett fel uppstod. Försök igen.');
         } finally {
             setIsLoading(false);
         }
