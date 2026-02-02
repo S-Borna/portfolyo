@@ -32,14 +32,22 @@ export default function RegisterPage() {
 
     const handleOAuthSignup = async (provider: 'github' | 'google') => {
         setIsLoading(true);
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider,
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        });
-        if (error) {
-            toast.error('Kunde inte registrera med ' + provider);
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider,
+                options: {
+                    redirectTo: `${window.location.origin}/auth/callback`,
+                },
+            });
+            if (error) {
+                console.error('OAuth error:', error);
+                toast.error('Kunde inte registrera med ' + provider);
+                setIsLoading(false);
+            }
+            // Note: On success, user is redirected - no need to setIsLoading(false)
+        } catch (err) {
+            console.error('OAuth exception:', err);
+            toast.error('Ett oväntat fel uppstod');
             setIsLoading(false);
         }
     };
@@ -64,36 +72,51 @@ export default function RegisterPage() {
 
         setIsLoading(true);
 
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                    },
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
                 },
-            },
-        });
-
-        if (error) {
-            toast.error(error.message);
-            setIsLoading(false);
-            return;
-        }
-
-        if (data.user) {
-            login({
-                id: data.user.id,
-                email: data.user.email || '',
-                name: fullName,
-                createdAt: new Date(data.user.created_at),
-                updatedAt: new Date(),
-                plan: 'free',
-                credits: 3,
-                creditsUsed: 0,
             });
 
-            toast.success('Konto skapat! Välkommen till Portfolyo!');
-            router.push('/dashboard');
+            if (error) {
+                toast.error(error.message);
+                setIsLoading(false);
+                return;
+            }
+
+            // Check if email confirmation is required
+            // If session exists, user is logged in directly (email confirmation disabled)
+            // If no session but user exists, email confirmation is required
+            if (data.session) {
+                // Direct login - no email confirmation required
+                login({
+                    id: data.user!.id,
+                    email: data.user!.email || '',
+                    name: fullName,
+                    createdAt: new Date(data.user!.created_at),
+                    updatedAt: new Date(),
+                    plan: 'free',
+                    credits: 3,
+                    creditsUsed: 0,
+                });
+
+                toast.success('Konto skapat! Välkommen till Portfolyo!');
+                router.push('/dashboard');
+            } else if (data.user) {
+                // Email confirmation required - redirect to verification page
+                router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+            }
+        } catch (err) {
+            console.error('Signup error:', err);
+            toast.error('Ett fel uppstod. Försök igen.');
+        } finally {
+            setIsLoading(false);
         }
     };
 

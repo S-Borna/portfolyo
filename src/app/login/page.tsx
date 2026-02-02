@@ -36,14 +36,22 @@ export default function LoginPage() {
 
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (error) {
-      toast.error('Kunde inte logga in med ' + provider);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        console.error('OAuth error:', error);
+        toast.error('Kunde inte logga in med ' + provider);
+        setIsLoading(false);
+      }
+      // Note: On success, user is redirected - no need to setIsLoading(false)
+    } catch (err) {
+      console.error('OAuth exception:', err);
+      toast.error('Ett oväntat fel uppstod');
       setIsLoading(false);
     }
   };
@@ -63,31 +71,47 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast.error('Fel e-post eller lösenord');
-      setIsLoading(false);
-      return;
-    }
-
-    if (data.user) {
-      login({
-        id: data.user.id,
-        email: data.user.email || '',
-        name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || '',
-        createdAt: new Date(data.user.created_at),
-        updatedAt: new Date(),
-        plan: 'free',
-        credits: 3,
-        creditsUsed: 0,
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      toast.success('Välkommen tillbaka!');
-      router.push('/dashboard');
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          toast.error('E-postadressen är inte bekräftad');
+          setTimeout(() => {
+            router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+          }, 1500);
+        } else if (error.message.includes('Invalid login credentials')) {
+          toast.error('Fel e-post eller lösenord');
+        } else {
+          toast.error(error.message);
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.user && data.session) {
+        login({
+          id: data.user.id,
+          email: data.user.email || '',
+          name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || '',
+          createdAt: new Date(data.user.created_at),
+          updatedAt: new Date(),
+          plan: 'free',
+          credits: 3,
+          creditsUsed: 0,
+        });
+
+        toast.success('Välkommen tillbaka!');
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error('Ett fel uppstod. Försök igen.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
