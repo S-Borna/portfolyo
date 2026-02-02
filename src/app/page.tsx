@@ -104,7 +104,14 @@ export default function LandingPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Timeout efter 3 sekunder för att undvika oändlig laddning
+        const timeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth timeout')), 3000)
+        );
+        
+        const authCheck = supabase.auth.getSession();
+        
+        const { data: { session } } = await Promise.race([authCheck, timeout]) as Awaited<typeof authCheck>;
 
         if (session?.user) {
           router.replace('/dashboard');
@@ -112,6 +119,7 @@ export default function LandingPage() {
         }
       } catch (error) {
         console.error('Auth check error:', error);
+        // Vid fel - visa landningssidan ändå
       }
       setIsChecking(false);
     };
