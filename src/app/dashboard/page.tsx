@@ -22,12 +22,19 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const init = async () => {
-            const { data: { user: authUser } } = await supabase.auth.getUser();
+            try {
+                // Timeout efter 5 sekunder
+                const timeout = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Auth timeout')), 5000)
+                );
+                
+                const authCheck = supabase.auth.getUser();
+                const { data: { user: authUser } } = await Promise.race([authCheck, timeout]) as Awaited<typeof authCheck>;
 
-            if (!authUser) {
-                router.push('/login');
-                return;
-            }
+                if (!authUser) {
+                    router.push('/login');
+                    return;
+                }
 
             // Get profile
             const { data: profile } = await supabase
@@ -60,6 +67,11 @@ export default function DashboardPage() {
             }
 
             setLoading(false);
+            } catch (error) {
+                console.error('Dashboard init error:', error);
+                // Vid timeout eller fel - skicka till login
+                router.push('/login');
+            }
         };
 
         init();
