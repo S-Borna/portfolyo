@@ -3,488 +3,521 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Button,
-  Card,
-  Badge,
-  Progress,
-  Avatar,
-  StatCard,
-  CreditDisplay,
-  EmptyState,
-  Icons,
-} from '@/components/ui';
-import ActivatePortfolioModal from '@/components/ActivatePortfolioModal';
-import { usePortfolyoStore } from '@/lib/store';
-import { PRICING, LEARNING_RESOURCES } from '@/lib/types';
-import { getGreeting, formatNumber, getPortfolioUrl } from '@/lib/utils';
-import { getUserPortfolios, getPortfolioAnalytics, type DbPortfolio, type DbAnalytics } from '@/lib/supabase';
+import { motion } from 'framer-motion';
+import { supabase } from '@/lib/supabase';
+import type { DbPortfolio, DbAnalytics, DbProfile } from '@/lib/models';
 
-const {
-  Plus,
-  Eye,
-  Edit3,
-  ExternalLink,
-  Download,
-  Trash2,
-  Settings,
-  LogOut,
-  Zap,
-  Star,
-  BookOpen,
-  User,
-  Briefcase,
-  Menu,
-  ArrowRight,
-  Copy,
-  Check,
-  Globe,
-  Sparkles,
-} = Icons;
+// ============================================
+// DASHBOARD - SIMPLIFIED
+// Focus: Status → Action
+// ============================================
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const {
-    user,
-    isAuthenticated,
-    portfolios: localPortfolios,
-    cvs,
-    credits,
-    logout,
-    deletePortfolio,
-    deleteCV,
-    setActivePortfolio,
-    setActiveCV,
-  } = usePortfolyoStore();
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<DbProfile | null>(null);
+    const [portfolio, setPortfolio] = useState<DbPortfolio | null>(null);
+    const [analytics, setAnalytics] = useState<DbAnalytics | null>(null);
+    const [showPublishModal, setShowPublishModal] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'portfolios' | 'cvs' | 'resources'>('portfolios');
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const [showActivateModal, setShowActivateModal] = useState(false);
-  const [dbPortfolios, setDbPortfolios] = useState<DbPortfolio[]>([]);
-  const [portfolioAnalytics, setPortfolioAnalytics] = useState<Record<string, DbAnalytics>>({});
-  const [loadingPortfolios, setLoadingPortfolios] = useState(true);
+    useEffect(() => {
+        const init = async () => {
+            const { data: { user: authUser } } = await supabase.auth.getUser();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+            if (!authUser) {
+                router.push('/login');
+                return;
+            }
 
-  // Fetch portfolios from Supabase
-  useEffect(() => {
-    if (mounted && isAuthenticated && user) {
-      const fetchPortfolios = async () => {
-        setLoadingPortfolios(true);
-        const portfolios = await getUserPortfolios(user.id);
-        setDbPortfolios(portfolios);
+            // Get profile
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', authUser.id)
+                .single();
 
-        // Fetch analytics for each portfolio
-        const analyticsMap: Record<string, DbAnalytics> = {};
-        for (const p of portfolios) {
-          const analytics = await getPortfolioAnalytics(p.id);
-          if (analytics) {
-            analyticsMap[p.id] = analytics;
-          }
-        }
-        setPortfolioAnalytics(analyticsMap);
-        setLoadingPortfolios(false);
-      };
-      fetchPortfolios();
+            if (profile) setUser(profile);
+
+            // Get portfolio (first one)
+            const { data: portfolios } = await supabase
+                .from('portfolios')
+                .select('*')
+                .eq('user_id', authUser.id)
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            if (portfolios && portfolios.length > 0) {
+                setPortfolio(portfolios[0]);
+
+                // Get analytics
+                const { data: analyticsData } = await supabase
+                    .from('portfolio_analytics')
+                    .select('*')
+                    .eq('portfolio_id', portfolios[0].id)
+                    .single();
+
+                if (analyticsData) setAnalytics(analyticsData);
+            }
+
+            setLoading(false);
+        };
+
+        init();
+    }, [router]);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        router.push('/');
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-[#ff4d4d] border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
     }
-  }, [mounted, isAuthenticated, user]);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (mounted && !isAuthenticated) {
-      router.push('/login');
+    // No portfolio yet - show creation prompt
+    if (!portfolio) {
+        return <EmptyDashboard user={user} />;
     }
-  }, [mounted, isAuthenticated, router]);
 
-  const handleActivateSuccess = (username: string) => {
-    setShowActivateModal(false);
-    // Refresh portfolios
-    if (user) {
-      getUserPortfolios(user.id).then(setDbPortfolios);
-    }
-  };
+    const isPublished = portfolio.status === 'published';
+    const portfolioUrl = isPublished
+        ? `https://portfolyo.se/p/${portfolio.username}`
+        : null;
 
-  if (!mounted || !isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
-      </div>
-    );
-  }
-
-  const copyToClipboard = async (url: string) => {
-    await navigator.clipboard.writeText(url);
-    setCopiedUrl(url);
-    setTimeout(() => setCopiedUrl(null), 2000);
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
-
-  const totalViews = Object.values(portfolioAnalytics).reduce((sum, a) => sum + a.total_views, 0);
-  const totalDownloads = Object.values(portfolioAnalytics).reduce((sum, a) => sum + a.cv_downloads, 0);
-  const hasActivePortfolio = dbPortfolios.some(p => p.is_published);
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
-        {/* Logo */}
-        <div className="p-6 border-b border-gray-200">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">P</span>
-            </div>
-            <span className="font-bold text-xl text-gray-900">PORTFOLYO</span>
-          </Link>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
-          <button
-            onClick={() => setActiveTab('portfolios')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'portfolios'
-              ? 'bg-violet-100 text-violet-700'
-              : 'text-gray-600 hover:bg-gray-100'
-              }`}
-          >
-            <Globe className="h-5 w-5" />
-            Portfolios
-          </button>
-          <button
-            onClick={() => setActiveTab('cvs')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'cvs'
-              ? 'bg-violet-100 text-violet-700'
-              : 'text-gray-600 hover:bg-gray-100'
-              }`}
-          >
-            <Briefcase className="h-5 w-5" />
-            CV:n
-          </button>
-          <button
-            onClick={() => setActiveTab('resources')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === 'resources'
-              ? 'bg-violet-100 text-violet-700'
-              : 'text-gray-600 hover:bg-gray-100'
-              }`}
-          >
-            <BookOpen className="h-5 w-5" />
-            Lärresurser
-          </button>
-        </nav>
-
-        {/* Credits & Plan */}
-        <div className="p-4 border-t border-gray-200">
-          <Card className="p-4 bg-gradient-to-br from-violet-50 to-indigo-50 border-violet-200">
-            <div className="flex items-center justify-between mb-3">
-              <Badge variant="primary" size="sm">
-                {user.plan === 'free' ? 'Gratis' : user.plan === 'starter' ? 'Starter' : 'Pro'}
-              </Badge>
-              <CreditDisplay credits={credits} />
-            </div>
-            {user.plan === 'free' && (
-              <Link href="/upgrade">
-                <Button size="sm" className="w-full" leftIcon={<Zap className="h-4 w-4" />}>
-                  Uppgradera
-                </Button>
-              </Link>
-            )}
-          </Card>
-        </div>
-
-        {/* User */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center gap-3">
-            <Avatar name={user.name} size="md" />
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 truncate">{user.name}</p>
-              <p className="text-sm text-gray-500 truncate">{user.email}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Logga ut"
-            >
-              <LogOut className="h-5 w-5 text-gray-400" />
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="md:ml-64 p-6">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {getGreeting()}, {user.name.split(/[\s.@]/)[0].charAt(0).toUpperCase() + user.name.split(/[\s.@]/)[0].slice(1).toLowerCase()}!
-          </h1>
-          <p className="text-gray-600">
-            Hantera dina portfolios och CV:n
-          </p>
-        </header>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <StatCard
-            icon={<Globe className="h-5 w-5" />}
-            value={dbPortfolios.length}
-            label="Portfolios"
-          />
-          <StatCard
-            icon={<Briefcase className="h-5 w-5" />}
-            value={cvs.length}
-            label="CV:n"
-          />
-          <StatCard
-            icon={<Eye className="h-5 w-5" />}
-            value={formatNumber(totalViews)}
-            label="Totala visningar"
-          />
-          <StatCard
-            icon={<Download className="h-5 w-5" />}
-            value={formatNumber(totalDownloads)}
-            label="CV-nedladdningar"
-          />
-        </div>
-
-        {/* Portfolios Tab */}
-        {activeTab === 'portfolios' && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Min Portfolio</h2>
-              {!hasActivePortfolio && (
-                <Button
-                  leftIcon={<Sparkles className="h-4 w-4" />}
-                  onClick={() => setShowActivateModal(true)}
-                >
-                  Aktivera Portfolio
-                </Button>
-              )}
-            </div>
-
-            {loadingPortfolios ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
-              </div>
-            ) : dbPortfolios.length === 0 ? (
-              <EmptyState
-                icon={<Globe className="h-8 w-8" />}
-                title="Ingen aktiv portfolio"
-                description="Skapa din portfolio för att visa upp dig för företag och visa att du söker LIA."
-                action={{
-                  label: 'Skapa Portfolio',
-                  onClick: () => router.push('/portfolio/new'),
-                }}
-              />
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {dbPortfolios.map((portfolio) => {
-                  const url = `https://${portfolio.username}.portfolyo.se`;
-                  const analytics = portfolioAnalytics[portfolio.id];
-                  return (
-                    <Card key={portfolio.id} className="overflow-hidden" hover>
-                      {/* Preview */}
-                      <div className="aspect-video bg-gray-900 p-6 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <Avatar name={portfolio.title} size="lg" className="mx-auto mb-2" />
-                          <h3 className="font-bold">{portfolio.title || 'Din Portfolio'}</h3>
-                          <p className="text-sm text-gray-400">{portfolio.tagline || 'YH-student'}</p>
+        <div className="min-h-screen bg-[#0a0a0a] text-white">
+            {/* Header */}
+            <header className="border-b border-zinc-800">
+                <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-[#ff4d4d] rounded-lg flex items-center justify-center font-bold">
+                            P
                         </div>
-                      </div>
+                        <span className="font-bold text-lg tracking-tight">PORTFOLYO</span>
+                    </Link>
 
-                      {/* Info */}
-                      <div className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <Badge variant={portfolio.is_published ? 'success' : 'warning'}>
-                            {portfolio.is_published ? 'Publicerad' : 'Utkast'}
-                          </Badge>
-                          <span className="text-xs text-gray-500">
-                            {analytics?.total_views || 0} visningar
-                          </span>
-                        </div>
-
-                        {/* URL */}
-                        <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg mb-4">
-                          <span className="text-sm text-gray-600 truncate flex-1">
-                            {portfolio.username}.portfolyo.se
-                          </span>
-                          <button
-                            onClick={() => copyToClipboard(url)}
-                            className="p-1 hover:bg-gray-200 rounded"
-                          >
-                            {copiedUrl === url ? (
-                              <Check className="h-4 w-4 text-emerald-500" />
-                            ) : (
-                              <Copy className="h-4 w-4 text-gray-400" />
-                            )}
-                          </button>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-2">
-                          <Link href={`/portfolio/${portfolio.id}/edit`} className="flex-1">
-                            <Button variant="secondary" size="sm" className="w-full" leftIcon={<Edit3 className="h-4 w-4" />}>
-                              Redigera
-                            </Button>
-                          </Link>
-                          <a href={url} target="_blank" rel="noopener noreferrer">
-                            <Button variant="ghost" size="sm">
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                          </a>
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* CVs Tab */}
-        {activeTab === 'cvs' && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Mina CV:n</h2>
-              <Link href="/cv/new">
-                <Button leftIcon={<Plus className="h-4 w-4" />}>
-                  Nytt CV
-                </Button>
-              </Link>
-            </div>
-
-            {cvs.length === 0 ? (
-              <EmptyState
-                icon={<Briefcase className="h-8 w-8" />}
-                title="Inga CV:n än"
-                description="Skapa ett ATS-optimerat CV som imponerar på rekryterare."
-                action={{
-                  label: 'Skapa CV',
-                  onClick: () => router.push('/cv/new'),
-                }}
-              />
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {cvs.map((cv) => (
-                  <Card key={cv.id} className="p-6" hover>
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{cv.name}</h3>
-                        <p className="text-sm text-gray-500">{cv.template} mall</p>
-                      </div>
-                      <Badge variant="outline">{cv.template}</Badge>
+                    <div className="flex items-center gap-4">
+                        <span className="text-sm text-zinc-500">
+                            {user?.email}
+                        </span>
+                        <button
+                            onClick={handleLogout}
+                            className="text-sm text-zinc-400 hover:text-white transition-colors"
+                        >
+                            Logga ut
+                        </button>
                     </div>
-
-                    <div className="space-y-2 mb-4 text-sm text-gray-600">
-                      <p>{cv.personalInfo.fullName || 'Namn ej angivet'}</p>
-                      <p>{cv.personalInfo.title || 'Titel ej angiven'}</p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Link href={`/cv/${cv.id}/edit`} className="flex-1">
-                        <Button variant="secondary" size="sm" className="w-full" leftIcon={<Edit3 className="h-4 w-4" />}>
-                          Redigera
-                        </Button>
-                      </Link>
-                      <Button variant="ghost" size="sm" leftIcon={<Download className="h-4 w-4" />}>
-                        PDF
-                      </Button>
-                      <button
-                        onClick={() => {
-                          if (confirm('Är du säker på att du vill ta bort detta CV?')) {
-                            deleteCV(cv.id);
-                          }
-                        }}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Resources Tab */}
-        {activeTab === 'resources' && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Lärresurser</h2>
-              <p className="text-gray-600">
-                Förbättra dina skills med våra kurser och guider
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {LEARNING_RESOURCES.map((resource) => (
-                <Card key={resource.id} className="p-6" hover>
-                  <div className="flex items-start gap-4">
-                    <div className="text-4xl">{resource.icon}</div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-gray-900">{resource.title}</h3>
-                        {resource.featured && (
-                          <Badge variant="primary" size="sm">
-                            <Star className="h-3 w-3 mr-1" />
-                            Featured
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-gray-600 text-sm mb-4">{resource.description}</p>
-                      <a
-                        href={resource.url}
-                        target={resource.url.startsWith('http') ? '_blank' : undefined}
-                        rel={resource.url.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      >
-                        <Button variant="outline" size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
-                          Utforska
-                        </Button>
-                      </a>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            {/* Pro resources teaser */}
-            {user.plan === 'free' && (
-              <Card className="mt-8 p-6 bg-gradient-to-r from-violet-600 to-indigo-600 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xl font-bold mb-2">Få tillgång till fler resurser</h3>
-                    <p className="text-violet-200">
-                      Uppgradera till Pro för fler AI-credits och exklusiva guider.
-                    </p>
-                  </div>
-                  <Link href="/upgrade">
-                    <Button className="bg-white text-violet-600 hover:bg-violet-50">
-                      Uppgradera nu
-                    </Button>
-                  </Link>
                 </div>
-              </Card>
-            )}
-          </div>
-        )}
-      </main>
+            </header>
 
-      {/* Activate Portfolio Modal */}
-      <ActivatePortfolioModal
-        isOpen={showActivateModal}
-        onClose={() => setShowActivateModal(false)}
-        onSuccess={handleActivateSuccess}
-        userId={user.id}
-        userEmail={user.email}
-        userName={user.name}
-      />
-    </div>
-  );
+            <main className="max-w-5xl mx-auto px-6 py-12">
+                {/* Status Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-12"
+                >
+                    <div className={`p-8 rounded-2xl border ${isPublished
+                            ? 'bg-emerald-500/5 border-emerald-500/20'
+                            : 'bg-amber-500/5 border-amber-500/20'
+                        }`}>
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <div className="flex items-center gap-3 mb-2">
+                                    {isPublished ? (
+                                        <>
+                                            <span className="relative flex h-3 w-3">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                            </span>
+                                            <span className="text-emerald-400 font-medium">Live</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+                                            <span className="text-amber-400 font-medium">Utkast</span>
+                                        </>
+                                    )}
+                                </div>
+
+                                <h1 className="text-3xl font-bold mb-1">{portfolio.title}</h1>
+                                <p className="text-zinc-400">{portfolio.tagline}</p>
+
+                                {isPublished && portfolioUrl && (
+                                    <a
+                                        href={portfolioUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 mt-4 text-sm text-[#ff4d4d] hover:underline"
+                                    >
+                                        {portfolioUrl.replace('https://', '')}
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+                                )}
+                            </div>
+
+                            <div className="flex gap-3">
+                                <Link
+                                    href={`/portfolio/${portfolio.id}/edit`}
+                                    className="px-5 py-2.5 bg-zinc-800 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors"
+                                >
+                                    Redigera
+                                </Link>
+                                {!isPublished && (
+                                    <button
+                                        onClick={() => setShowPublishModal(true)}
+                                        className="px-5 py-2.5 bg-[#ff4d4d] text-white text-sm font-medium rounded-lg hover:bg-[#ff3333] transition-colors"
+                                    >
+                                        Publicera
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Stats Grid */}
+                {isPublished && analytics && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="grid grid-cols-4 gap-4 mb-12"
+                    >
+                        <StatCard
+                            label="Visningar"
+                            value={analytics.total_views}
+                            icon={<EyeIcon />}
+                        />
+                        <StatCard
+                            label="Unika besökare"
+                            value={analytics.unique_visitors}
+                            icon={<UserIcon />}
+                        />
+                        <StatCard
+                            label="CV nedladdningar"
+                            value={analytics.cv_downloads}
+                            icon={<DownloadIcon />}
+                        />
+                        <StatCard
+                            label="Kontakt-klick"
+                            value={analytics.contact_clicks}
+                            icon={<MailIcon />}
+                        />
+                    </motion.div>
+                )}
+
+                {/* Quick Actions */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <h2 className="text-lg font-semibold mb-4">Snabbåtgärder</h2>
+                    <div className="grid grid-cols-3 gap-4">
+                        <ActionCard
+                            icon={<EditIcon />}
+                            title="Redigera innehåll"
+                            description="Uppdatera projekt, kompetenser och mer"
+                            href={`/portfolio/${portfolio.id}/edit`}
+                        />
+                        <ActionCard
+                            icon={<PaletteIcon />}
+                            title="Byt design"
+                            description="Välj bland 20+ premium templates"
+                            href={`/portfolio/${portfolio.id}/edit?tab=design`}
+                        />
+                        <ActionCard
+                            icon={<DocumentIcon />}
+                            title="Skapa CV"
+                            description="Generera PDF baserat på din portfolio"
+                            href="/cv/new"
+                        />
+                    </div>
+                </motion.div>
+            </main>
+
+            {/* Publish Modal */}
+            {showPublishModal && (
+                <PublishModal
+                    portfolio={portfolio}
+                    onClose={() => setShowPublishModal(false)}
+                    onPublished={(username) => {
+                        setPortfolio(prev => prev ? { ...prev, status: 'published', username } : null);
+                        setShowPublishModal(false);
+                    }}
+                />
+            )}
+        </div>
+    );
+}
+
+// ============================================
+// COMPONENTS
+// ============================================
+
+function EmptyDashboard({ user }: { user: DbProfile | null }) {
+    const router = useRouter();
+
+    return (
+        <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
+            <div className="max-w-md text-center">
+                <div className="w-20 h-20 bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-10 h-10 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+
+                <h1 className="text-2xl font-bold mb-2">Ingen portfolio ännu</h1>
+                <p className="text-zinc-400 mb-8">
+                    Skapa din professionella portfolio på under 5 minuter. Välj design, lägg till innehåll, publicera.
+                </p>
+
+                <Link
+                    href="/onboarding"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-[#ff4d4d] text-white font-semibold rounded-xl hover:bg-[#ff3333] transition-colors"
+                >
+                    Kom igång
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+function StatCard({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
+    return (
+        <div className="p-5 bg-zinc-900 rounded-xl border border-zinc-800">
+            <div className="flex items-center justify-between mb-3">
+                <span className="text-zinc-500">{icon}</span>
+            </div>
+            <div className="text-3xl font-bold mb-1">{value.toLocaleString()}</div>
+            <div className="text-sm text-zinc-500">{label}</div>
+        </div>
+    );
+}
+
+function ActionCard({
+    icon,
+    title,
+    description,
+    href
+}: {
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    href: string;
+}) {
+    return (
+        <Link
+            href={href}
+            className="p-5 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors group"
+        >
+            <div className="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center text-zinc-400 group-hover:text-white group-hover:bg-zinc-700 transition-colors mb-3">
+                {icon}
+            </div>
+            <div className="font-medium mb-1">{title}</div>
+            <div className="text-sm text-zinc-500">{description}</div>
+        </Link>
+    );
+}
+
+function PublishModal({
+    portfolio,
+    onClose,
+    onPublished
+}: {
+    portfolio: DbPortfolio;
+    onClose: () => void;
+    onPublished: (username: string) => void;
+}) {
+    const [username, setUsername] = useState('');
+    const [checking, setChecking] = useState(false);
+    const [available, setAvailable] = useState<boolean | null>(null);
+    const [publishing, setPublishing] = useState(false);
+    const [error, setError] = useState('');
+
+    const checkAvailability = async (value: string) => {
+        if (value.length < 3) {
+            setAvailable(null);
+            return;
+        }
+
+        setChecking(true);
+        const { data } = await supabase
+            .rpc('check_username_available', { p_username: value });
+        setAvailable(data);
+        setChecking(false);
+    };
+
+    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+        setUsername(value);
+        setError('');
+        checkAvailability(value);
+    };
+
+    const handlePublish = async () => {
+        if (!available || username.length < 3) return;
+
+        setPublishing(true);
+        setError('');
+
+        const { data, error: publishError } = await supabase
+            .rpc('publish_portfolio', {
+                p_portfolio_id: portfolio.id,
+                p_username: username
+            });
+
+        if (publishError || !data) {
+            setError('Kunde inte publicera. Försök igen.');
+            setPublishing(false);
+            return;
+        }
+
+        onPublished(username);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-zinc-900 rounded-2xl border border-zinc-800 p-8 max-w-md w-full"
+            >
+                <h2 className="text-2xl font-bold mb-2">Publicera din portfolio</h2>
+                <p className="text-zinc-400 mb-6">
+                    Välj ett användarnamn för din publika URL.
+                </p>
+
+                <div className="mb-6">
+                    <label className="block text-sm font-medium text-zinc-300 mb-2">
+                        Användarnamn
+                    </label>
+                    <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
+                            portfolyo.se/p/
+                        </span>
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={handleUsernameChange}
+                            placeholder="dittnamn"
+                            className="w-full pl-32 pr-12 py-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:border-[#ff4d4d]"
+                            autoFocus
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2">
+                            {checking && (
+                                <svg className="w-5 h-5 animate-spin text-zinc-500" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                            )}
+                            {!checking && available === true && (
+                                <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            )}
+                            {!checking && available === false && (
+                                <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            )}
+                        </span>
+                    </div>
+                    {available === false && (
+                        <p className="text-sm text-red-400 mt-2">Det användarnamnet är upptaget</p>
+                    )}
+                    {error && (
+                        <p className="text-sm text-red-400 mt-2">{error}</p>
+                    )}
+                </div>
+
+                <div className="flex gap-3">
+                    <button
+                        onClick={onClose}
+                        className="flex-1 px-5 py-3 bg-zinc-800 text-white font-medium rounded-lg hover:bg-zinc-700 transition-colors"
+                    >
+                        Avbryt
+                    </button>
+                    <button
+                        onClick={handlePublish}
+                        disabled={!available || username.length < 3 || publishing}
+                        className="flex-1 px-5 py-3 bg-[#ff4d4d] text-white font-medium rounded-lg hover:bg-[#ff3333] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        {publishing ? 'Publicerar...' : 'Publicera'}
+                    </button>
+                </div>
+            </motion.div>
+        </div>
+    );
+}
+
+// ============================================
+// ICONS
+// ============================================
+
+function EyeIcon() {
+    return (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+    );
+}
+
+function UserIcon() {
+    return (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+    );
+}
+
+function DownloadIcon() {
+    return (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+    );
+}
+
+function MailIcon() {
+    return (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+    );
+}
+
+function EditIcon() {
+    return (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+    );
+}
+
+function PaletteIcon() {
+    return (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+    );
+}
+
+function DocumentIcon() {
+    return (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+    );
 }

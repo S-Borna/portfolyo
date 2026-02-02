@@ -9,10 +9,13 @@ import type { DbPortfolio } from '@/lib/models';
 // Serves rendered portfolio HTML
 // ============================================
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // Use service role for server-side
-);
+// Create Supabase client lazily (not at build time)
+function getSupabase() {
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+}
 
 export async function GET(
     request: NextRequest,
@@ -20,6 +23,7 @@ export async function GET(
 ) {
     const { username: rawUsername } = await params;
     const username = rawUsername.toLowerCase();
+    const supabase = getSupabase();
 
     try {
         // Fetch portfolio by username
