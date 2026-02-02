@@ -24,10 +24,10 @@ export default function DashboardPage() {
         const init = async () => {
             try {
                 // Timeout efter 5 sekunder
-                const timeout = new Promise((_, reject) => 
+                const timeout = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Auth timeout')), 5000)
                 );
-                
+
                 const authCheck = supabase.auth.getUser();
                 const { data: { user: authUser } } = await Promise.race([authCheck, timeout]) as Awaited<typeof authCheck>;
 
@@ -36,37 +36,37 @@ export default function DashboardPage() {
                     return;
                 }
 
-            // Get profile
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', authUser.id)
-                .single();
-
-            if (profile) setUser(profile);
-
-            // Get portfolio (first one)
-            const { data: portfolios } = await supabase
-                .from('portfolios')
-                .select('*')
-                .eq('user_id', authUser.id)
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (portfolios && portfolios.length > 0) {
-                setPortfolio(portfolios[0]);
-
-                // Get analytics
-                const { data: analyticsData } = await supabase
-                    .from('portfolio_analytics')
+                // Get profile
+                const { data: profile } = await supabase
+                    .from('profiles')
                     .select('*')
-                    .eq('portfolio_id', portfolios[0].id)
+                    .eq('id', authUser.id)
                     .single();
 
-                if (analyticsData) setAnalytics(analyticsData);
-            }
+                if (profile) setUser(profile);
 
-            setLoading(false);
+                // Get portfolio (first one)
+                const { data: portfolios } = await supabase
+                    .from('portfolios')
+                    .select('*')
+                    .eq('user_id', authUser.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (portfolios && portfolios.length > 0) {
+                    setPortfolio(portfolios[0]);
+
+                    // Get analytics
+                    const { data: analyticsData } = await supabase
+                        .from('portfolio_analytics')
+                        .select('*')
+                        .eq('portfolio_id', portfolios[0].id)
+                        .single();
+
+                    if (analyticsData) setAnalytics(analyticsData);
+                }
+
+                setLoading(false);
             } catch (error) {
                 console.error('Dashboard init error:', error);
                 // Vid timeout eller fel - skicka till login
@@ -134,8 +134,8 @@ export default function DashboardPage() {
                     className="mb-12"
                 >
                     <div className={`p-8 rounded-2xl border ${isPublished
-                            ? 'bg-emerald-500/5 border-emerald-500/20'
-                            : 'bg-amber-500/5 border-amber-500/20'
+                        ? 'bg-emerald-500/5 border-emerald-500/20'
+                        : 'bg-amber-500/5 border-amber-500/20'
                         }`}>
                         <div className="flex items-start justify-between">
                             <div>

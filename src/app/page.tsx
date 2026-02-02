@@ -99,41 +99,17 @@ const FAQS = [
 
 export default function LandingPage() {
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
 
+  // Check auth in background - NEVER block page render
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Timeout efter 3 sekunder för att undvika oändlig laddning
-        const timeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth timeout')), 3000)
-        );
-        
-        const authCheck = supabase.auth.getSession();
-        
-        const { data: { session } } = await Promise.race([authCheck, timeout]) as Awaited<typeof authCheck>;
-
-        if (session?.user) {
-          router.replace('/dashboard');
-          return;
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-        // Vid fel - visa landningssidan ändå
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        router.replace('/dashboard');
       }
-      setIsChecking(false);
-    };
-
-    checkAuth();
+    }).catch(() => {
+      // Ignore errors - just show landing page
+    });
   }, [router]);
-
-  if (isChecking) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-white">
