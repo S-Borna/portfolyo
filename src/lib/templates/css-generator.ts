@@ -7,9 +7,9 @@ import type { TemplateConfig } from './templates';
 import type { LayoutStyleBase, HoverEffectBase } from './effects';
 
 export function generateTemplateCSS(template: TemplateConfig): string {
-    const { colorScheme, typography, layout, backgroundPattern, animations } = template;
+  const { colorScheme, typography, layout, backgroundPattern, animations } = template;
 
-    return `
+  return `
 /* ============================================
    ${template.name} - Generated CSS
    Category: ${template.category}
@@ -346,8 +346,8 @@ nav {
 }
 
 function generateBackgroundAnimationCSS(animation: TemplateConfig['animations']['background']): string {
-    if (animation.id === 'floatingOrbs') {
-        return `
+  if (animation.id === 'floatingOrbs') {
+    return `
 .bg-animation .orb {
   position: absolute;
   border-radius: 50%;
@@ -390,10 +390,10 @@ function generateBackgroundAnimationCSS(animation: TemplateConfig['animations'][
   75% { transform: translate(-50px, -20px) scale(1.05); }
 }
 `;
-    }
+  }
 
-    if (animation.id === 'particleFloat') {
-        return `
+  if (animation.id === 'particleFloat') {
+    return `
 .bg-animation .particle {
   position: absolute;
   width: 4px;
@@ -410,9 +410,9 @@ function generateBackgroundAnimationCSS(animation: TemplateConfig['animations'][
   100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
 }
 `;
-    }
+  }
 
-    return `
+  return `
 .bg-animation {
   background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
   background-size: 400% 400%;
@@ -428,10 +428,10 @@ function generateBackgroundAnimationCSS(animation: TemplateConfig['animations'][
 }
 
 function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
-    const l = layout as LayoutStyleBase;
-    switch (l.id) {
-        case 'splitHero':
-            return `
+  const l = layout as LayoutStyleBase;
+  switch (l.id) {
+    case 'splitHero':
+      return `
 .hero {
   min-height: 100vh;
   display: flex;
@@ -472,8 +472,8 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 }
 `;
 
-        case 'centeredHero':
-            return `
+    case 'centeredHero':
+      return `
 .hero {
   min-height: 100vh;
   display: flex;
@@ -495,8 +495,8 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 }
 `;
 
-        case 'fullscreenImage':
-            return `
+    case 'fullscreenImage':
+      return `
 .hero {
   min-height: 100vh;
   display: flex;
@@ -528,8 +528,8 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 }
 `;
 
-        case 'asymmetric':
-            return `
+    case 'asymmetric':
+      return `
 .hero {
   min-height: 100vh;
   display: flex;
@@ -563,8 +563,8 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
 }
 `;
 
-        default:
-            return `
+    default:
+      return `
 .hero {
   min-height: 100vh;
   display: flex;
@@ -572,52 +572,52 @@ function generateHeroLayoutCSS(layout: TemplateConfig['layout']): string {
   padding: 0 4rem;
 }
 `;
-    }
+  }
 }
 
 // Export CSS som Tailwind-kompatibla klasser
 export function generateTailwindConfig(template: TemplateConfig) {
-    const { colorScheme } = template;
+  const { colorScheme } = template;
 
-    return {
-        theme: {
-            extend: {
-                colors: {
-                    'bg-primary': colorScheme.bgPrimary,
-                    'bg-secondary': colorScheme.bgSecondary,
-                    'bg-card': colorScheme.bgCard,
-                    'accent': colorScheme.accent,
-                    'text-primary': colorScheme.textPrimary,
-                    'text-secondary': colorScheme.textSecondary,
-                    'text-muted': colorScheme.textMuted,
-                },
-                fontFamily: {
-                    heading: [template.typography.headingFont],
-                    body: [template.typography.bodyFont],
-                },
-                animation: {
-                    'float-orb': 'float-orb 20s ease-in-out infinite',
-                    'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
-                    'gradient-shift': 'gradient-shift 8s ease infinite',
-                },
-                keyframes: {
-                    'float-orb': {
-                        '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-                        '25%': { transform: 'translate(50px, -30px) scale(1.1)' },
-                        '50%': { transform: 'translate(-30px, 50px) scale(0.9)' },
-                        '75%': { transform: 'translate(-50px, -20px) scale(1.05)' },
-                    },
-                    'fade-in-up': {
-                        from: { opacity: '0', transform: 'translateY(30px)' },
-                        to: { opacity: '1', transform: 'translateY(0)' },
-                    },
-                    'gradient-shift': {
-                        '0%': { backgroundPosition: '0% 50%' },
-                        '50%': { backgroundPosition: '100% 50%' },
-                        '100%': { backgroundPosition: '0% 50%' },
-                    },
-                },
-            },
+  return {
+    theme: {
+      extend: {
+        colors: {
+          'bg-primary': colorScheme.bgPrimary,
+          'bg-secondary': colorScheme.bgSecondary,
+          'bg-card': colorScheme.bgCard,
+          'accent': colorScheme.accent,
+          'text-primary': colorScheme.textPrimary,
+          'text-secondary': colorScheme.textSecondary,
+          'text-muted': colorScheme.textMuted,
         },
-    };
+        fontFamily: {
+          heading: [template.typography.headingFont],
+          body: [template.typography.bodyFont],
+        },
+        animation: {
+          'float-orb': 'float-orb 20s ease-in-out infinite',
+          'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+          'gradient-shift': 'gradient-shift 8s ease infinite',
+        },
+        keyframes: {
+          'float-orb': {
+            '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+            '25%': { transform: 'translate(50px, -30px) scale(1.1)' },
+            '50%': { transform: 'translate(-30px, 50px) scale(0.9)' },
+            '75%': { transform: 'translate(-50px, -20px) scale(1.05)' },
+          },
+          'fade-in-up': {
+            from: { opacity: '0', transform: 'translateY(30px)' },
+            to: { opacity: '1', transform: 'translateY(0)' },
+          },
+          'gradient-shift': {
+            '0%': { backgroundPosition: '0% 50%' },
+            '50%': { backgroundPosition: '100% 50%' },
+            '100%': { backgroundPosition: '0% 50%' },
+          },
+        },
+      },
+    },
+  };
 }

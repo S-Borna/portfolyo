@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { usePortfolyoStore } from '@/lib/store';
 import { supabase } from '@/lib/supabase';
 
+// Force dynamic rendering - this page needs runtime env vars
+export const dynamic = 'force-dynamic';
+
 export default function AuthCallbackPage() {
     const router = useRouter();
     const { login } = usePortfolyoStore();

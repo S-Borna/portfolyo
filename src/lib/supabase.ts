@@ -1,9 +1,31 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Lazy initialization to avoid build-time errors when env vars are missing
+let _supabase: SupabaseClient | null = null;
+
+function getSupabaseClient(): SupabaseClient {
+    if (!_supabase) {
+        if (!supabaseUrl || !supabaseAnonKey) {
+            throw new Error('Supabase environment variables are not configured');
+        }
+        _supabase = createClient(supabaseUrl, supabaseAnonKey);
+    }
+    return _supabase;
+}
+
+export const supabase = new Proxy({} as SupabaseClient, {
+    get(_, prop) {
+        const client = getSupabaseClient();
+        const value = client[prop as keyof SupabaseClient];
+        if (typeof value === 'function') {
+            return value.bind(client);
+        }
+        return value;
+    }
+});
 
 // Database types based on schema
 export interface DbProfile {
