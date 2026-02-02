@@ -220,8 +220,10 @@
   0% {
     transform: translateY(0);
   }
+
   100% {
-    transform: translateY(-3000px); /* Scroll through entire portfolio height */
+    transform: translateY(-3000px);
+    /* Scroll through entire portfolio height */
   }
 }
 

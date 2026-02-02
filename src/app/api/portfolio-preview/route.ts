@@ -368,7 +368,7 @@ export async function GET(request: Request) {
     const profile = searchParams.get('profile') || 'said';
 
     const baseData = lang === 'en' ? SAMPLE_DATA_EN : SAMPLE_DATA_SV;
-    
+
     // Applicera profil om den finns
     const guruProfile = TECH_GURU_PROFILES[profile] || TECH_GURU_PROFILES['said'];
     const data: PortfolioDataV2 = {

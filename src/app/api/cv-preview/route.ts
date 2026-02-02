@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
 
     // Clone data and adjust based on params
     const cvData = { ...SAMPLE_CV_DATA };
-    
+
     // Applicera profil om den finns
     const guruProfile = CV_GURU_PROFILES[profile] || CV_GURU_PROFILES['said'];
     cvData.fullName = guruProfile.fullName;
@@ -202,7 +202,7 @@ export async function GET(request: NextRequest) {
     cvData.subtitle = guruProfile.subtitle;
     cvData.tagline = guruProfile.tagline;
     cvData.photoUrl = guruProfile.photoUrl;
-    
+
     if (!showSeeking && cvData.seeking) {
         cvData.seeking = { ...cvData.seeking, active: false };
     }

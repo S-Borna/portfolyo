@@ -519,7 +519,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
     // ============================================
     // FLAG & COLOR COLLECTION - 15 nya templates
     // ============================================
-    
+
     // 1. ROYAL BLUE
     {
         id: 'flag-royal-blue',
@@ -535,7 +535,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Inter', sans-serif",
     },
-    
+
     // 2. BEIGE CARDIGAN
     {
         id: 'flag-beige',
@@ -551,7 +551,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
-    
+
     // 3. EMERALD GREEN
     {
         id: 'flag-emerald',
@@ -567,7 +567,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Inter', sans-serif",
     },
-    
+
     // 4. MAGENTA PURPLE
     {
         id: 'flag-magenta',
@@ -583,7 +583,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
-    
+
     // 5. SKY BLUE
     {
         id: 'flag-sky',
@@ -599,7 +599,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Inter', sans-serif",
     },
-    
+
     // 6. TURQUOISE TEAL
     {
         id: 'flag-turquoise',
@@ -615,7 +615,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
-    
+
     // 7. COTTON CANDY PINK
     {
         id: 'flag-pink-cloud',
@@ -631,7 +631,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
-    
+
     // 8. SWEDEN
     {
         id: 'flag-sweden',
@@ -647,7 +647,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Inter', sans-serif",
     },
-    
+
     // 9. IRAN
     {
         id: 'flag-iran',
@@ -663,7 +663,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
-    
+
     // 10. USA
     {
         id: 'flag-usa',
@@ -679,7 +679,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Inter', sans-serif",
     },
-    
+
     // 11. DEEP VIOLET
     {
         id: 'flag-deep-violet',
@@ -695,7 +695,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
-    
+
     // 12. SUNSET FROST
     {
         id: 'flag-sunset-frost',
@@ -711,7 +711,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
-    
+
     // 13. CREAM GRADIENT
     {
         id: 'flag-cream',
@@ -727,7 +727,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Space Grotesk', sans-serif",
     },
-    
+
     // 14. MINT SAGE
     {
         id: 'flag-mint-sage',
@@ -743,7 +743,7 @@ export const CV_TEMPLATES_V2: CVTemplateConfig[] = [
         fontHeading: "'Bebas Neue', 'Arial Black', sans-serif",
         fontBody: "'Inter', sans-serif",
     },
-    
+
     // 15. NORDIC AURORA
     {
         id: 'flag-aurora',
