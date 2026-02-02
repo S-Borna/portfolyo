@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 
 const { Mail, ArrowRight, Sparkles, Loader2 } = Icons;
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
     const searchParams = useSearchParams();
     const email = searchParams.get('email') || '';
     const [isResending, setIsResending] = useState(false);
@@ -136,5 +136,17 @@ export default function VerifyEmailPage() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function VerifyEmailPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+            </div>
+        }>
+            <VerifyEmailContent />
+        </Suspense>
     );
 }
