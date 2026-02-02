@@ -275,32 +275,141 @@ export default function DashboardPage() {
 // ============================================
 
 function EmptyDashboard({ user }: { user: DbProfile | null }) {
-    const router = useRouter();
+    const [showTips, setShowTips] = useState(false);
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
-            <div className="max-w-md text-center">
-                <div className="w-20 h-20 bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-10 h-10 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
+        <div className="min-h-screen bg-[#0a0a0a] text-white">
+            {/* Header */}
+            <header className="border-b border-zinc-800">
+                <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-[#ff4d4d] rounded-lg flex items-center justify-center font-bold">
+                            P
+                        </div>
+                        <span className="font-bold text-lg tracking-tight">PORTFOLYO</span>
+                    </Link>
+                    <span className="text-sm text-zinc-500">{user?.email}</span>
+                </div>
+            </header>
+
+            <main className="max-w-4xl mx-auto px-6 py-12">
+                {/* Welcome */}
+                <div className="mb-12">
+                    <h1 className="text-3xl font-bold mb-2">
+                        Välkommen{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}! 👋
+                    </h1>
+                    <p className="text-zinc-400 text-lg">
+                        Det här är din dashboard. Härifrån hanterar du din portfolio och ditt CV.
+                    </p>
                 </div>
 
-                <h1 className="text-2xl font-bold mb-2">Ingen portfolio ännu</h1>
-                <p className="text-zinc-400 mb-8">
-                    Skapa din professionella portfolio på under 5 minuter. Välj design, lägg till innehåll, publicera.
-                </p>
+                {/* Main card */}
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 mb-8">
+                    <div className="flex items-start gap-6">
+                        <div className="w-14 h-14 bg-gradient-to-br from-[#ff4d4d]/20 to-[#ff4d4d]/5 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg className="w-7 h-7 text-[#ff4d4d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-xl font-semibold mb-2">Redo att skapa din portfolio?</h2>
+                            <p className="text-zinc-400 mb-6 leading-relaxed">
+                                Ta din tid. Du kan börja när du vill och spara utkast längs vägen. 
+                                Processen tar ungefär 5-10 minuter.
+                            </p>
+                            <Link
+                                href="/onboarding"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff4d4d] text-white font-medium rounded-lg hover:bg-[#ff3333] transition-colors"
+                            >
+                                Skapa portfolio
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                </svg>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
 
-                <Link
-                    href="/onboarding"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-[#ff4d4d] text-white font-semibold rounded-xl hover:bg-[#ff3333] transition-colors"
-                >
-                    Kom igång
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                </Link>
-            </div>
+                {/* Why portfolio matters */}
+                <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl overflow-hidden">
+                    <button
+                        onClick={() => setShowTips(!showTips)}
+                        className="w-full px-6 py-4 flex items-center justify-between hover:bg-zinc-800/20 transition-colors"
+                    >
+                        <div className="flex items-center gap-3">
+                            <span className="text-xl">💡</span>
+                            <span className="font-medium">Osäker? Så här tänker rekryterare</span>
+                        </div>
+                        <svg 
+                            className={`w-5 h-5 text-zinc-500 transition-transform ${showTips ? 'rotate-180' : ''}`} 
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    
+                    {showTips && (
+                        <div className="px-6 pb-6 border-t border-zinc-800/50">
+                            <div className="pt-6 space-y-6 text-zinc-300">
+                                <div>
+                                    <h3 className="font-medium text-white mb-2">Verkligheten: 6 sekunder</h3>
+                                    <p className="text-sm leading-relaxed">
+                                        En rekryterare lägger i snitt 6 sekunder på ett CV innan de bestämmer sig. 
+                                        Med 200+ ansökningar per tjänst behöver du sticka ut — inte med tricks, 
+                                        utan genom att göra det enkelt att se din kompetens.
+                                    </p>
+                                </div>
+                                
+                                <div>
+                                    <h3 className="font-medium text-white mb-2">Vad de letar efter först</h3>
+                                    <ul className="text-sm space-y-2">
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-[#ff4d4d] mt-1">→</span>
+                                            <span><strong>Relevans</strong> — Matchar du rollen? Snabb skanning av titel och skills.</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-[#ff4d4d] mt-1">→</span>
+                                            <span><strong>Tydlighet</strong> — Kan de förstå vad du gjort på 10 sekunder?</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="text-[#ff4d4d] mt-1">→</span>
+                                            <span><strong>Professionalitet</strong> — Ser det seriöst ut? Småfel = varningsflagga.</span>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h3 className="font-medium text-white mb-2">Varför en portfolio gör skillnad</h3>
+                                    <p className="text-sm leading-relaxed">
+                                        Ett CV säger vad du gjort. En portfolio <em>visar</em> det. 
+                                        Den som tar sig tid att presentera sitt arbete ordentligt signalerar något viktigt: 
+                                        du bryr dig om kvalitet. Det är samma egenskap arbetsgivare vill ha i teamet.
+                                    </p>
+                                </div>
+
+                                <div className="pt-2 border-t border-zinc-800/50">
+                                    <p className="text-sm text-zinc-400 italic">
+                                        "Den enda ansökan med portfolio fastnade direkt. 
+                                        Det var inte ens den mest erfarna kandidaten — men den enda 
+                                        som visade att de brydde sig."
+                                        <span className="block mt-1 text-zinc-500 not-italic">— Tech Lead, startup i Stockholm</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Quick links */}
+                <div className="mt-8 flex items-center gap-6 text-sm text-zinc-500">
+                    <Link href="/cv/new" className="hover:text-white transition-colors">
+                        Skapa bara CV →
+                    </Link>
+                    <a href="mailto:support@portfolyo.se" className="hover:text-white transition-colors">
+                        Behöver du hjälp?
+                    </a>
+                </div>
+            </main>
         </div>
     );
 }
