@@ -1180,6 +1180,638 @@ export function downloadPortfolioHTML(data: PortfolioData, filename?: string): v
 // Uses browser print API for high-quality output
 // ============================================
 
+import { getCVTemplateById, type CVTemplateDefinition } from './templates';
+
+export interface CVExportData {
+  fullName: string;
+  title: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  linkedin?: string;
+  github?: string;
+  website?: string;
+  photo?: string;
+  summary?: string;
+  experience?: {
+    company: string;
+    title: string;
+    location?: string;
+    startDate: string;
+    endDate?: string;
+    current: boolean;
+    description?: string;
+    achievements: string[];
+  }[];
+  education?: {
+    institution: string;
+    degree: string;
+    field?: string;
+    location?: string;
+    startDate: string;
+    endDate?: string;
+    current: boolean;
+    description?: string;
+    gpa?: string;
+  }[];
+  skills?: {
+    category: string;
+    items: string[];
+  }[];
+  languages?: {
+    language: string;
+    level: string;
+  }[];
+  certifications?: {
+    name: string;
+    issuer?: string;
+    date?: string;
+    url?: string;
+  }[];
+  projects?: {
+    name: string;
+    description: string;
+    technologies?: string[];
+    url?: string;
+  }[];
+}
+
+export function generateCVHTML(
+  data: CVExportData,
+  templateId: string = 'cv-professional-blue'
+): string {
+  const template = getCVTemplateById(templateId);
+  const colors = template?.colors || {
+    primary: '#1e40af',
+    secondary: '#3b82f6',
+    accent: '#60a5fa',
+    background: '#ffffff',
+    text: '#1f2937',
+    muted: '#6b7280',
+  };
+  const fonts = template?.fonts || {
+    heading: 'Inter, sans-serif',
+    body: 'Inter, sans-serif',
+  };
+  const layout = template?.layout || 'two-column';
+  const isTwoColumn = layout === 'two-column' || layout === 'sidebar';
+
+  const html = `<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV - ${data.fullName}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: ${fonts.body};
+      background: ${colors.background};
+      color: ${colors.text};
+      font-size: 10pt;
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .cv-page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: ${colors.background};
+      position: relative;
+    }
+
+    @media print {
+      body { background: white; }
+      .cv-page {
+        width: 100%;
+        min-height: 100vh;
+        box-shadow: none;
+      }
+    }
+
+    @media screen {
+      .cv-page {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        margin: 20px auto;
+      }
+    }
+
+    /* Two Column Layout */
+    .cv-two-column {
+      display: flex;
+      min-height: 297mm;
+    }
+
+    .cv-sidebar {
+      width: 35%;
+      background: ${colors.primary};
+      color: white;
+      padding: 30px 20px;
+    }
+
+    .cv-main {
+      width: 65%;
+      padding: 30px 25px;
+    }
+
+    /* Single Column Layout */
+    .cv-single-column {
+      padding: 40px 50px;
+    }
+
+    /* Profile Section */
+    .cv-photo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      display: block;
+    }
+
+    .cv-photo-placeholder {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .cv-name {
+      font-family: ${fonts.heading};
+      font-size: 22pt;
+      font-weight: 700;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .cv-title {
+      font-size: 12pt;
+      opacity: 0.9;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    /* Contact Info */
+    .cv-contact {
+      margin-bottom: 25px;
+    }
+
+    .cv-contact-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 9pt;
+    }
+
+    .cv-contact-icon {
+      width: 14px;
+      height: 14px;
+      opacity: 0.8;
+    }
+
+    /* Section Styles */
+    .cv-section {
+      margin-bottom: 20px;
+    }
+
+    .cv-section-title {
+      font-family: ${fonts.heading};
+      font-size: 11pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid ${colors.primary};
+      color: ${colors.primary};
+    }
+
+    .cv-sidebar .cv-section-title {
+      color: white;
+      border-bottom-color: rgba(255,255,255,0.3);
+    }
+
+    /* Experience & Education */
+    .cv-entry {
+      margin-bottom: 15px;
+      page-break-inside: avoid;
+    }
+
+    .cv-entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+
+    .cv-entry-title {
+      font-weight: 600;
+      font-size: 10pt;
+      color: ${colors.text};
+    }
+
+    .cv-entry-date {
+      font-size: 9pt;
+      color: ${colors.muted};
+      white-space: nowrap;
+    }
+
+    .cv-entry-company {
+      font-size: 10pt;
+      color: ${colors.secondary};
+      margin-bottom: 4px;
+    }
+
+    .cv-entry-description {
+      font-size: 9pt;
+      color: ${colors.muted};
+      margin-bottom: 6px;
+    }
+
+    .cv-achievements {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .cv-achievements li {
+      font-size: 9pt;
+      margin-bottom: 4px;
+      padding-left: 12px;
+      position: relative;
+      color: ${colors.text};
+    }
+
+    .cv-achievements li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: ${colors.accent};
+    }
+
+    /* Skills */
+    .cv-skill-category {
+      margin-bottom: 12px;
+    }
+
+    .cv-skill-category-name {
+      font-weight: 600;
+      font-size: 9pt;
+      margin-bottom: 6px;
+    }
+
+    .cv-sidebar .cv-skill-category-name {
+      color: white;
+    }
+
+    .cv-skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .cv-skill-tag {
+      font-size: 8pt;
+      padding: 3px 8px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+    }
+
+    .cv-main .cv-skill-tag {
+      background: ${colors.primary}15;
+      color: ${colors.primary};
+    }
+
+    /* Languages */
+    .cv-language-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9pt;
+      margin-bottom: 6px;
+    }
+
+    /* Summary */
+    .cv-summary {
+      font-size: 10pt;
+      line-height: 1.6;
+      color: ${colors.text};
+      margin-bottom: 20px;
+    }
+
+    /* Single Column Header */
+    .cv-header-single {
+      text-align: center;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid ${colors.primary};
+    }
+
+    .cv-header-single .cv-name {
+      color: ${colors.text};
+      font-size: 28pt;
+      margin-bottom: 8px;
+    }
+
+    .cv-header-single .cv-title {
+      color: ${colors.primary};
+      font-size: 14pt;
+      margin-bottom: 15px;
+    }
+
+    .cv-header-contact {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      font-size: 9pt;
+      color: ${colors.muted};
+    }
+
+    .cv-header-contact span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Projects */
+    .cv-project {
+      margin-bottom: 12px;
+    }
+
+    .cv-project-name {
+      font-weight: 600;
+      font-size: 10pt;
+    }
+
+    .cv-project-desc {
+      font-size: 9pt;
+      color: ${colors.muted};
+    }
+
+    /* Footer */
+    .cv-footer {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 7pt;
+      color: ${colors.muted};
+    }
+  </style>
+</head>
+<body>
+  <div class="cv-page">
+    ${isTwoColumn ? generateTwoColumnCV(data, colors) : generateSingleColumnCV(data, colors)}
+    <div class="cv-footer">Skapad med PORTFOLYO.SE</div>
+  </div>
+</body>
+</html>`;
+
+  return html;
+}
+
+function generateTwoColumnCV(data: CVExportData, colors: any): string {
+  return `
+    <div class="cv-two-column">
+      <!-- Sidebar -->
+      <div class="cv-sidebar">
+        ${data.photo
+          ? `<img src="${data.photo}" alt="${data.fullName}" class="cv-photo">`
+          : `<div class="cv-photo-placeholder">${data.fullName.charAt(0)}</div>`
+        }
+        <h1 class="cv-name">${data.fullName}</h1>
+        <p class="cv-title">${data.title}</p>
+
+        <!-- Contact -->
+        <div class="cv-contact">
+          ${data.email ? `
+          <div class="cv-contact-item">
+            <svg class="cv-contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>${data.email}</span>
+          </div>
+          ` : ''}
+          ${data.phone ? `
+          <div class="cv-contact-item">
+            <svg class="cv-contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            <span>${data.phone}</span>
+          </div>
+          ` : ''}
+          ${data.location ? `
+          <div class="cv-contact-item">
+            <svg class="cv-contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>${data.location}</span>
+          </div>
+          ` : ''}
+          ${data.linkedin ? `
+          <div class="cv-contact-item">
+            <svg class="cv-contact-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            <span>LinkedIn</span>
+          </div>
+          ` : ''}
+          ${data.github ? `
+          <div class="cv-contact-item">
+            <svg class="cv-contact-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            <span>GitHub</span>
+          </div>
+          ` : ''}
+        </div>
+
+        <!-- Skills -->
+        ${data.skills?.length ? `
+        <div class="cv-section">
+          <h2 class="cv-section-title">Kompetenser</h2>
+          ${data.skills.map(cat => `
+          <div class="cv-skill-category">
+            <div class="cv-skill-category-name">${cat.category}</div>
+            <div class="cv-skill-tags">
+              ${cat.items.map(skill => `<span class="cv-skill-tag">${skill}</span>`).join('')}
+            </div>
+          </div>
+          `).join('')}
+        </div>
+        ` : ''}
+
+        <!-- Languages -->
+        ${data.languages?.length ? `
+        <div class="cv-section">
+          <h2 class="cv-section-title">Språk</h2>
+          ${data.languages.map(lang => `
+          <div class="cv-language-item">
+            <span>${lang.language}</span>
+            <span>${lang.level}</span>
+          </div>
+          `).join('')}
+        </div>
+        ` : ''}
+      </div>
+
+      <!-- Main Content -->
+      <div class="cv-main">
+        <!-- Summary -->
+        ${data.summary ? `
+        <div class="cv-section">
+          <h2 class="cv-section-title">Profil</h2>
+          <p class="cv-summary">${data.summary}</p>
+        </div>
+        ` : ''}
+
+        <!-- Experience -->
+        ${data.experience?.length ? `
+        <div class="cv-section">
+          <h2 class="cv-section-title">Erfarenhet</h2>
+          ${data.experience.map(exp => `
+          <div class="cv-entry">
+            <div class="cv-entry-header">
+              <span class="cv-entry-title">${exp.title}</span>
+              <span class="cv-entry-date">${exp.startDate} - ${exp.current ? 'Nu' : exp.endDate}</span>
+            </div>
+            <div class="cv-entry-company">${exp.company}${exp.location ? `, ${exp.location}` : ''}</div>
+            ${exp.description ? `<p class="cv-entry-description">${exp.description}</p>` : ''}
+            ${exp.achievements.length ? `
+            <ul class="cv-achievements">
+              ${exp.achievements.map(a => `<li>${a}</li>`).join('')}
+            </ul>
+            ` : ''}
+          </div>
+          `).join('')}
+        </div>
+        ` : ''}
+
+        <!-- Education -->
+        ${data.education?.length ? `
+        <div class="cv-section">
+          <h2 class="cv-section-title">Utbildning</h2>
+          ${data.education.map(edu => `
+          <div class="cv-entry">
+            <div class="cv-entry-header">
+              <span class="cv-entry-title">${edu.degree}${edu.field ? ` - ${edu.field}` : ''}</span>
+              <span class="cv-entry-date">${edu.startDate} - ${edu.current ? 'Nu' : edu.endDate}</span>
+            </div>
+            <div class="cv-entry-company">${edu.institution}${edu.location ? `, ${edu.location}` : ''}</div>
+            ${edu.gpa ? `<p class="cv-entry-description">GPA: ${edu.gpa}</p>` : ''}
+          </div>
+          `).join('')}
+        </div>
+        ` : ''}
+
+        <!-- Certifications -->
+        ${data.certifications?.length ? `
+        <div class="cv-section">
+          <h2 class="cv-section-title">Certifieringar</h2>
+          ${data.certifications.map(cert => `
+          <div class="cv-entry">
+            <div class="cv-entry-header">
+              <span class="cv-entry-title">${cert.name}</span>
+              ${cert.date ? `<span class="cv-entry-date">${cert.date}</span>` : ''}
+            </div>
+            ${cert.issuer ? `<div class="cv-entry-company">${cert.issuer}</div>` : ''}
+          </div>
+          `).join('')}
+        </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function generateSingleColumnCV(data: CVExportData, colors: any): string {
+  return `
+    <div class="cv-single-column">
+      <!-- Header -->
+      <div class="cv-header-single">
+        <h1 class="cv-name">${data.fullName}</h1>
+        <p class="cv-title">${data.title}</p>
+        <div class="cv-header-contact">
+          ${data.email ? `<span>${data.email}</span>` : ''}
+          ${data.phone ? `<span>${data.phone}</span>` : ''}
+          ${data.location ? `<span>${data.location}</span>` : ''}
+        </div>
+      </div>
+
+      <!-- Summary -->
+      ${data.summary ? `
+      <div class="cv-section">
+        <h2 class="cv-section-title">Sammanfattning</h2>
+        <p class="cv-summary">${data.summary}</p>
+      </div>
+      ` : ''}
+
+      <!-- Experience -->
+      ${data.experience?.length ? `
+      <div class="cv-section">
+        <h2 class="cv-section-title">Erfarenhet</h2>
+        ${data.experience.map(exp => `
+        <div class="cv-entry">
+          <div class="cv-entry-header">
+            <span class="cv-entry-title">${exp.title}</span>
+            <span class="cv-entry-date">${exp.startDate} - ${exp.current ? 'Nuvarande' : exp.endDate}</span>
+          </div>
+          <div class="cv-entry-company">${exp.company}</div>
+          ${exp.achievements.length ? `
+          <ul class="cv-achievements">
+            ${exp.achievements.map(a => `<li>${a}</li>`).join('')}
+          </ul>
+          ` : ''}
+        </div>
+        `).join('')}
+      </div>
+      ` : ''}
+
+      <!-- Education -->
+      ${data.education?.length ? `
+      <div class="cv-section">
+        <h2 class="cv-section-title">Utbildning</h2>
+        ${data.education.map(edu => `
+        <div class="cv-entry">
+          <div class="cv-entry-header">
+            <span class="cv-entry-title">${edu.degree}</span>
+            <span class="cv-entry-date">${edu.startDate} - ${edu.current ? 'Pågående' : edu.endDate}</span>
+          </div>
+          <div class="cv-entry-company">${edu.institution}</div>
+        </div>
+        `).join('')}
+      </div>
+      ` : ''}
+
+      <!-- Skills -->
+      ${data.skills?.length ? `
+      <div class="cv-section">
+        <h2 class="cv-section-title">Kompetenser</h2>
+        ${data.skills.map(cat => `
+        <div class="cv-skill-category" style="margin-bottom: 8px;">
+          <strong>${cat.category}:</strong> ${cat.items.join(', ')}
+        </div>
+        `).join('')}
+      </div>
+      ` : ''}
+    </div>
+  `;
+}
+
 export function printCV(elementId: string): void {
   const element = document.getElementById(elementId);
   if (!element) return;
@@ -1229,8 +1861,39 @@ export function printCV(elementId: string): void {
   }, 250);
 }
 
+export function downloadCVHTML(data: CVExportData, templateId?: string, filename?: string): void {
+  const html = generateCVHTML(data, templateId);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename || `${data.fullName.replace(/\s+/g, '-').toLowerCase()}-cv.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export function openCVPrintPreview(data: CVExportData, templateId?: string): void {
+  const html = generateCVHTML(data, templateId);
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) return;
+
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+
+  setTimeout(() => {
+    printWindow.print();
+  }, 500);
+}
+
 export default {
   generatePortfolioHTML,
   downloadPortfolioHTML,
+  generateCVHTML,
+  downloadCVHTML,
+  openCVPrintPreview,
   printCV,
 };
