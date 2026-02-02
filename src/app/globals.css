@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,12 +10,20 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-white text-slate-900 antialiased;
+    font-family: 'Manrope', system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: 'Sora', system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
 
   ::selection {
-    @apply bg-violet-200 text-violet-900;
+    @apply bg-slate-200 text-slate-900;
   }
 }
 
@@ -26,11 +34,30 @@
 
   /* Gradient text */
   .text-gradient {
-    @apply bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 bg-clip-text text-transparent;
   }
 
   .text-gradient-gold {
     @apply bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent;
+  }
+
+  .text-ink {
+    color: #0b0d12;
+  }
+
+  .bg-ink {
+    background-color: #0b0d12;
+  }
+
+  .bg-porcelain {
+    background-color: #f7f7f5;
+  }
+
+  .bg-aurora {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(15, 23, 42, 0.10), transparent 60%),
+      radial-gradient(900px 500px at 90% 0%, rgba(99, 102, 241, 0.12), transparent 55%),
+      radial-gradient(700px 400px at 50% 90%, rgba(14, 116, 144, 0.10), transparent 60%);
   }
 
   /* Animations */
@@ -66,8 +93,8 @@
   /* Background patterns */
   .bg-grid {
     background-image:
-      linear-gradient(to right, rgba(139, 92, 246, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+      linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 
@@ -89,7 +116,7 @@
 
   /* Glassmorphism */
   .glass {
-    @apply bg-white/80 backdrop-blur-lg border border-white/20;
+    @apply bg-white/70 backdrop-blur-lg border border-white/40;
   }
 
   .glass-dark {
@@ -121,9 +148,12 @@
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-20px);
   }
@@ -133,6 +163,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -143,6 +174,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -154,6 +186,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -164,6 +197,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -174,6 +208,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -198,7 +233,7 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  
+
   .no-print {
     display: none !important;
   }
@@ -215,18 +250,20 @@
 }
 
 /* Form elements reset */
-input, textarea, select {
+input,
+textarea,
+select {
   @apply outline-none;
 }
 
 /* Link styles */
 a {
-  @apply text-violet-600 hover:text-violet-700 transition-colors;
+  @apply text-slate-700 hover:text-slate-900 transition-colors;
 }
 
 /* Code blocks */
 code {
-  @apply px-1.5 py-0.5 bg-gray-100 text-violet-600 rounded text-sm font-mono;
+  @apply px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded text-sm font-mono;
 }
 
 pre code {
