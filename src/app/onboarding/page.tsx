@@ -40,6 +40,7 @@ export default function OnboardingPage() {
     const [step, setStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [userId, setUserId] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     // State
     const [state, setState] = useState<OnboardingState>({
@@ -167,12 +168,16 @@ export default function OnboardingPage() {
                 .select()
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                console.error('Supabase error:', error);
+                throw new Error(error.message || 'Kunde inte skapa portfolio');
+            }
 
             // Redirect to dashboard
             router.push('/dashboard');
-        } catch (error) {
-            console.error('Error creating portfolio:', error);
+        } catch (err: any) {
+            console.error('Error creating portfolio:', err);
+            setError(err.message || 'Något gick fel. Försök igen.');
         } finally {
             setIsLoading(false);
         }
@@ -181,6 +186,17 @@ export default function OnboardingPage() {
     // Render based on step
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white">
+            {/* Error toast */}
+            {error && (
+                <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/90 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{error}</span>
+                    <button onClick={() => setError(null)} className="ml-2 hover:opacity-70">✕</button>
+                </div>
+            )}
+
             {/* Progress bar */}
             <div className="fixed top-0 left-0 right-0 h-1 bg-zinc-800 z-50">
                 <motion.div
