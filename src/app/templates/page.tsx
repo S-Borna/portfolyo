@@ -3,7 +3,8 @@
 // ============================================
 // PORTFOLYO.SE - TEMPLATE GALLERY PAGE
 // Fullständig mobilanpassning med premium UX
-// + Hover Preview Modal med snygga effekter
+// Preview Modal med snygga effekter
+// Build trigger: 2026-02-03-v2
 // ============================================
 
 import React, { useState, useMemo, useEffect, Suspense, useRef, useCallback } from 'react';
