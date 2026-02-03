@@ -955,12 +955,6 @@ export function CVPreviewV2({ templateId, data, className, scale = 0.5 }: CVPrev
     return renderCVV2(cvData, templateId, { showPhoto: false, pageSize: 'a4' });
   }, [cvData, templateId]);
 
-  // Create a data URL for the iframe
-  const iframeSrc = useMemo(() => {
-    const blob = new Blob([html], { type: 'text/html' });
-    return URL.createObjectURL(blob);
-  }, [html]);
-
   // Find template to check if dark
   const template = CV_TEMPLATES_V2.find(t => t.id === templateId) || CV_TEMPLATES_V2[0];
   const isDark = template.sidebarBg.toLowerCase().startsWith('#0') ||
@@ -975,25 +969,27 @@ export function CVPreviewV2({ templateId, data, className, scale = 0.5 }: CVPrev
   return (
     <div
       className={cn(
-        'rounded-lg overflow-hidden shadow-2xl',
+        'rounded-lg overflow-hidden shadow-2xl bg-white',
         isDark ? 'border border-gray-700' : 'border border-gray-200',
         className
       )}
       style={{
         width: `${scaledWidth}px`,
         height: `${scaledHeight}px`,
+        position: 'relative',
       }}
     >
       <iframe
-        src={iframeSrc}
+        srcDoc={html}
         style={{
           width: `${iframeWidth}px`,
           height: `${iframeHeight}px`,
           transform: `scale(${scale})`,
           transformOrigin: 'top left',
+          border: 'none',
+          display: 'block',
         }}
         title="CV Preview"
-        sandbox="allow-same-origin"
       />
     </div>
   );
@@ -1155,12 +1151,6 @@ export function PortfolioPreviewV2({ templateId, data, className, scale = 0.35 }
     return renderPortfolioV2(portfolioData, templateId, { previewMode: true });
   }, [portfolioData, templateId]);
 
-  // Create a data URL for the iframe
-  const iframeSrc = useMemo(() => {
-    const blob = new Blob([html], { type: 'text/html' });
-    return URL.createObjectURL(blob);
-  }, [html]);
-
   // Find template to check if dark
   const template = PORTFOLIO_TEMPLATES_V2.find(t => t.id === templateId) || PORTFOLIO_TEMPLATES_V2[0];
   const isDark = template.bgPrimary.toLowerCase().startsWith('#0') ||
@@ -1176,24 +1166,26 @@ export function PortfolioPreviewV2({ templateId, data, className, scale = 0.35 }
     <div
       className={cn(
         'rounded-xl overflow-hidden shadow-2xl',
-        isDark ? 'border border-gray-700' : 'border border-gray-200',
+        isDark ? 'border border-gray-700 bg-gray-900' : 'border border-gray-200 bg-white',
         className
       )}
       style={{
         width: `${scaledWidth}px`,
         height: `${scaledHeight}px`,
+        position: 'relative',
       }}
     >
       <iframe
-        src={iframeSrc}
+        srcDoc={html}
         style={{
           width: `${iframeWidth}px`,
           height: `${iframeHeight}px`,
           transform: `scale(${scale})`,
           transformOrigin: 'top left',
+          border: 'none',
+          display: 'block',
         }}
         title="Portfolio Preview"
-        sandbox="allow-same-origin"
       />
     </div>
   );

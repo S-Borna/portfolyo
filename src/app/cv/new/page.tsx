@@ -869,7 +869,7 @@ function NewCVPageContent() {
                     </div>
                   </div>
 
-                  <div className="overflow-hidden rounded-xl bg-gray-100" style={{ height: '600px' }}>
+                  <div className="overflow-hidden rounded-xl bg-white">
                     <CVPreviewV2
                       templateId={selectedTemplateId}
                       data={previewData}

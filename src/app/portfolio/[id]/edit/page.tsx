@@ -853,7 +853,7 @@ export default function PortfolioEditorPage() {
                     </div>
                   </div>
 
-                  <div className="overflow-hidden rounded-xl bg-gray-900" style={{ height: '500px' }}>
+                  <div className="overflow-hidden rounded-xl">
                     <PortfolioPreviewV2
                       templateId={selectedTemplateId}
                       data={previewData}
