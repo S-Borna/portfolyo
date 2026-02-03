@@ -2,10 +2,10 @@
 
 // ============================================
 // PORTFOLYO.SE - TEMPLATE GALLERY PAGE
-// Visa ALLA templates innan onboarding
+// Fullständig mobilanpassning med premium UX
 // ============================================
 
-import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import React, { useState, useMemo, useEffect, Suspense, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +24,7 @@ const {
     Check,
     Sparkles,
     Zap,
+    X,
 } = Icons;
 
 // ============================================
@@ -35,15 +36,15 @@ type CategoryFilter = 'all' | string;
 
 // Helper to determine tier based on template index
 function getTemplateTier(index: number, total: number): 'free' | 'starter' | 'pro' {
-    const freeCount = Math.ceil(total * 0.1); // 10% free
-    const starterCount = Math.ceil(total * 0.4); // 40% starter
+    const freeCount = Math.ceil(total * 0.1);
+    const starterCount = Math.ceil(total * 0.4);
     if (index < freeCount) return 'free';
     if (index < freeCount + starterCount) return 'starter';
     return 'pro';
 }
 
 // ============================================
-// PORTFOLIO TEMPLATE CARD
+// PORTFOLIO TEMPLATE CARD - Mobile Optimized
 // ============================================
 
 interface PortfolioCardProps {
@@ -51,12 +52,11 @@ interface PortfolioCardProps {
     index: number;
     totalCount: number;
     isSelected: boolean;
-    isLocked: boolean;
     onSelect: () => void;
     onPreview: () => void;
 }
 
-function PortfolioTemplateCard({ template, index, totalCount, isSelected, isLocked, onSelect, onPreview }: PortfolioCardProps) {
+function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSelect, onPreview }: PortfolioCardProps) {
     const { colorScheme } = template;
     const tier = getTemplateTier(index, totalCount);
 
@@ -64,44 +64,45 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, isLock
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`relative group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border-2 ${isSelected
-                    ? 'border-violet-500 ring-4 ring-violet-500/20'
-                    : 'border-slate-200 hover:border-slate-300'
+            className={`relative group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border-2 active:scale-[0.98] ${isSelected
+                ? 'border-violet-500 ring-4 ring-violet-500/20'
+                : 'border-slate-200 hover:border-slate-300'
                 }`}
             onClick={onSelect}
-            whileHover={{ y: -4, scale: 1.02 }}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.98 }}
         >
             {/* Preview area */}
             <div
-                className="aspect-[4/3] p-4 relative overflow-hidden"
+                className="aspect-[4/3] p-3 sm:p-4 relative overflow-hidden"
                 style={{ backgroundColor: colorScheme.bgPrimary }}
             >
                 {/* Mini layout preview */}
-                <div className="absolute inset-4">
+                <div className="absolute inset-3 sm:inset-4">
                     <div
-                        className="h-2 w-16 rounded mb-3"
+                        className="h-1.5 sm:h-2 w-12 sm:w-16 rounded mb-2 sm:mb-3"
                         style={{ backgroundColor: colorScheme.accent }}
                     />
                     <div
-                        className="h-4 w-32 rounded mb-2"
+                        className="h-3 sm:h-4 w-24 sm:w-32 rounded mb-1.5 sm:mb-2"
                         style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.8 }}
                     />
                     <div
-                        className="h-2 w-24 rounded mb-4"
+                        className="h-1.5 sm:h-2 w-16 sm:w-24 rounded mb-3 sm:mb-4"
                         style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.5 }}
                     />
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5 sm:gap-2">
                         <div
-                            className="h-12 w-12 rounded"
+                            className="h-8 w-8 sm:h-12 sm:w-12 rounded"
                             style={{ backgroundColor: colorScheme.bgSecondary }}
                         />
                         <div className="flex-1 space-y-1">
                             <div
-                                className="h-2 w-full rounded"
+                                className="h-1.5 sm:h-2 w-full rounded"
                                 style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }}
                             />
                             <div
-                                className="h-2 w-3/4 rounded"
+                                className="h-1.5 sm:h-2 w-3/4 rounded"
                                 style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }}
                             />
                         </div>
@@ -110,32 +111,28 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, isLock
 
                 {/* Accent orb */}
                 <div
-                    className="absolute -bottom-8 -right-8 w-24 h-24 rounded-full blur-2xl opacity-30"
+                    className="absolute -bottom-6 -right-6 sm:-bottom-8 sm:-right-8 w-16 h-16 sm:w-24 sm:h-24 rounded-full blur-2xl opacity-30"
                     style={{ backgroundColor: colorScheme.accent }}
                 />
 
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onPreview();
-                        }}
-                        leftIcon={<Eye className="w-4 h-4" />}
-                    >
-                        Förhandsgranska
-                    </Button>
-                </div>
+                {/* Touch-friendly preview button - visible on mobile */}
+                <button
+                    className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 p-2 sm:p-2.5 rounded-xl bg-black/60 backdrop-blur-sm text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all active:scale-95"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onPreview();
+                    }}
+                >
+                    <Eye className="w-4 h-4" />
+                </button>
             </div>
 
             {/* Info */}
-            <div className="p-4 bg-white">
-                <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-semibold text-slate-900 text-sm">{template.name}</h3>
+            <div className="p-3 sm:p-4 bg-white">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                    <h3 className="font-semibold text-slate-900 text-sm leading-tight line-clamp-1">{template.name}</h3>
                     {tier !== 'free' && (
-                        <Badge variant={tier === 'pro' ? 'default' : 'outline'} className="text-xs">
+                        <Badge variant={tier === 'pro' ? 'default' : 'outline'} className="text-[10px] sm:text-xs shrink-0">
                             {tier === 'pro' ? 'PRO' : 'STARTER'}
                         </Badge>
                     )}
@@ -143,120 +140,120 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, isLock
                 <p className="text-xs text-slate-500 line-clamp-1">{template.description}</p>
 
                 {/* Color swatches */}
-                <div className="flex gap-1 mt-3">
+                <div className="flex gap-1 mt-2 sm:mt-3">
                     <div
-                        className="w-4 h-4 rounded-full border border-slate-200"
+                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-slate-200"
                         style={{ backgroundColor: colorScheme.bgPrimary }}
-                        title="Bakgrund"
                     />
                     <div
-                        className="w-4 h-4 rounded-full border border-slate-200"
+                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-slate-200"
                         style={{ backgroundColor: colorScheme.accent }}
-                        title="Accent"
                     />
                     <div
-                        className="w-4 h-4 rounded-full border border-slate-200"
+                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-slate-200"
                         style={{ backgroundColor: colorScheme.textPrimary }}
-                        title="Text"
                     />
                 </div>
             </div>
 
             {/* Selected indicator */}
             {isSelected && (
-                <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-lg">
-                    <Check className="w-4 h-4 text-white" />
-                </div>
+                <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute top-2 right-2 sm:top-3 sm:right-3 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-lg"
+                >
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                </motion.div>
             )}
-
         </motion.div>
     );
 }
 
 // ============================================
-// CV TEMPLATE CARD
+// CV TEMPLATE CARD - Mobile Optimized
 // ============================================
 
 interface CVCardProps {
     template: CVTemplate;
     isSelected: boolean;
-    isLocked: boolean;
     onSelect: () => void;
 }
 
-function CVTemplateCard({ template, isSelected, isLocked, onSelect }: CVCardProps) {
+function CVTemplateCard({ template, isSelected, onSelect }: CVCardProps) {
     const { colors, layout } = template;
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`relative group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border-2 ${isSelected
-                    ? 'border-violet-500 ring-4 ring-violet-500/20'
-                    : 'border-slate-200 hover:border-slate-300'
+            className={`relative group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border-2 active:scale-[0.98] ${isSelected
+                ? 'border-violet-500 ring-4 ring-violet-500/20'
+                : 'border-slate-200 hover:border-slate-300'
                 }`}
             onClick={onSelect}
-            whileHover={{ y: -4, scale: 1.02 }}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.98 }}
         >
             {/* A4 Preview */}
             <div
-                className="aspect-[1/1.2] p-3 relative"
+                className="aspect-[1/1.2] p-2 sm:p-3 relative"
                 style={{ backgroundColor: colors.background }}
             >
                 {layout === 'two-column' || layout === 'sidebar' ? (
-                    <div className="flex h-full gap-2">
+                    <div className="flex h-full gap-1.5 sm:gap-2">
                         {/* Sidebar */}
                         <div
-                            className="w-1/3 p-2 rounded"
+                            className="w-1/3 p-1.5 sm:p-2 rounded"
                             style={{ backgroundColor: colors.primary }}
                         >
-                            <div className="w-8 h-8 rounded-full mx-auto mb-2 bg-white/20" />
-                            <div className="space-y-1">
-                                <div className="h-1.5 w-full rounded bg-white/30" />
-                                <div className="h-1 w-3/4 rounded bg-white/20 mx-auto" />
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1.5 sm:mb-2 bg-white/20" />
+                            <div className="space-y-0.5 sm:space-y-1">
+                                <div className="h-1 sm:h-1.5 w-full rounded bg-white/30" />
+                                <div className="h-0.5 sm:h-1 w-3/4 rounded bg-white/20 mx-auto" />
                             </div>
-                            <div className="mt-3 space-y-1">
-                                <div className="h-1 w-full rounded bg-white/15" />
-                                <div className="h-1 w-2/3 rounded bg-white/15" />
-                                <div className="h-1 w-4/5 rounded bg-white/15" />
+                            <div className="mt-2 sm:mt-3 space-y-0.5 sm:space-y-1">
+                                <div className="h-0.5 sm:h-1 w-full rounded bg-white/15" />
+                                <div className="h-0.5 sm:h-1 w-2/3 rounded bg-white/15" />
+                                <div className="h-0.5 sm:h-1 w-4/5 rounded bg-white/15" />
                             </div>
                         </div>
                         {/* Main content */}
-                        <div className="flex-1 p-2">
+                        <div className="flex-1 p-1.5 sm:p-2">
                             <div
-                                className="h-2 w-3/4 rounded mb-2"
+                                className="h-1.5 sm:h-2 w-3/4 rounded mb-1.5 sm:mb-2"
                                 style={{ backgroundColor: colors.primary }}
                             />
-                            <div className="space-y-1">
-                                <div className="h-1 w-full rounded" style={{ backgroundColor: colors.muted }} />
-                                <div className="h-1 w-5/6 rounded" style={{ backgroundColor: colors.muted }} />
-                                <div className="h-1 w-4/6 rounded" style={{ backgroundColor: colors.muted }} />
+                            <div className="space-y-0.5 sm:space-y-1">
+                                <div className="h-0.5 sm:h-1 w-full rounded" style={{ backgroundColor: colors.muted }} />
+                                <div className="h-0.5 sm:h-1 w-5/6 rounded" style={{ backgroundColor: colors.muted }} />
+                                <div className="h-0.5 sm:h-1 w-4/6 rounded" style={{ backgroundColor: colors.muted }} />
                             </div>
                         </div>
                     </div>
                 ) : (
                     <div className="h-full">
                         <div
-                            className="text-center pb-2 mb-2 border-b"
+                            className="text-center pb-1.5 sm:pb-2 mb-1.5 sm:mb-2 border-b"
                             style={{ borderColor: colors.primary }}
                         >
                             <div
-                                className="h-2 w-1/2 rounded mx-auto mb-1"
+                                className="h-1.5 sm:h-2 w-1/2 rounded mx-auto mb-0.5 sm:mb-1"
                                 style={{ backgroundColor: colors.text }}
                             />
                             <div
-                                className="h-1.5 w-1/3 rounded mx-auto"
+                                className="h-1 sm:h-1.5 w-1/3 rounded mx-auto"
                                 style={{ backgroundColor: colors.primary }}
                             />
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5 sm:space-y-2">
                             <div
-                                className="h-1.5 w-1/4 rounded"
+                                className="h-1 sm:h-1.5 w-1/4 rounded"
                                 style={{ backgroundColor: colors.accent }}
                             />
-                            <div className="space-y-1">
-                                <div className="h-1 w-full rounded" style={{ backgroundColor: colors.muted }} />
-                                <div className="h-1 w-5/6 rounded" style={{ backgroundColor: colors.muted }} />
+                            <div className="space-y-0.5 sm:space-y-1">
+                                <div className="h-0.5 sm:h-1 w-full rounded" style={{ backgroundColor: colors.muted }} />
+                                <div className="h-0.5 sm:h-1 w-5/6 rounded" style={{ backgroundColor: colors.muted }} />
                             </div>
                         </div>
                     </div>
@@ -264,17 +261,17 @@ function CVTemplateCard({ template, isSelected, isLocked, onSelect }: CVCardProp
             </div>
 
             {/* Info */}
-            <div className="p-4 bg-white">
-                <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-semibold text-slate-900 text-sm">{template.name}</h3>
-                    <div className="flex gap-1">
+            <div className="p-3 sm:p-4 bg-white">
+                <div className="flex items-start justify-between gap-1 mb-1">
+                    <h3 className="font-semibold text-slate-900 text-sm leading-tight line-clamp-1">{template.name}</h3>
+                    <div className="flex gap-0.5 sm:gap-1 shrink-0">
                         {template.atsOptimized && (
-                            <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-200">
+                            <Badge variant="outline" className="text-[10px] sm:text-xs text-emerald-600 border-emerald-200 px-1.5 sm:px-2">
                                 ATS
                             </Badge>
                         )}
                         {template.tier !== 'free' && (
-                            <Badge variant={template.tier === 'pro' ? 'default' : 'outline'} className="text-xs">
+                            <Badge variant={template.tier === 'pro' ? 'default' : 'outline'} className="text-[10px] sm:text-xs px-1.5 sm:px-2">
                                 {template.tier === 'pro' ? 'PRO' : 'STARTER'}
                             </Badge>
                         )}
@@ -283,33 +280,119 @@ function CVTemplateCard({ template, isSelected, isLocked, onSelect }: CVCardProp
                 <p className="text-xs text-slate-500 line-clamp-1">{template.description}</p>
 
                 {/* Color swatches */}
-                <div className="flex gap-1 mt-3">
+                <div className="flex gap-1 mt-2 sm:mt-3">
                     <div
-                        className="w-4 h-4 rounded-full border border-slate-200"
+                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-slate-200"
                         style={{ backgroundColor: colors.primary }}
-                        title="Primär"
                     />
                     <div
-                        className="w-4 h-4 rounded-full border border-slate-200"
+                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-slate-200"
                         style={{ backgroundColor: colors.accent }}
-                        title="Accent"
                     />
                     <div
-                        className="w-4 h-4 rounded-full border border-slate-200"
+                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-slate-200"
                         style={{ backgroundColor: colors.background }}
-                        title="Bakgrund"
                     />
                 </div>
             </div>
 
             {/* Selected indicator */}
             {isSelected && (
-                <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-lg">
-                    <Check className="w-4 h-4 text-white" />
-                </div>
+                <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute top-2 right-2 sm:top-3 sm:right-3 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-lg"
+                >
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                </motion.div>
             )}
-
         </motion.div>
+    );
+}
+
+// ============================================
+// MOBILE FILTER DRAWER
+// ============================================
+
+interface FilterDrawerProps {
+    isOpen: boolean;
+    onClose: () => void;
+    categories: string[];
+    categoryLabels: Record<string, string>;
+    selectedCategory: string;
+    onSelectCategory: (cat: string) => void;
+}
+
+function FilterDrawer({
+    isOpen,
+    onClose,
+    categories,
+    categoryLabels,
+    selectedCategory,
+    onSelectCategory,
+}: FilterDrawerProps) {
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <>
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 lg:hidden"
+                        onClick={onClose}
+                    />
+                    {/* Drawer */}
+                    <motion.div
+                        initial={{ y: '100%' }}
+                        animate={{ y: 0 }}
+                        exit={{ y: '100%' }}
+                        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-50 lg:hidden max-h-[80vh] overflow-y-auto"
+                    >
+                        {/* Handle */}
+                        <div className="flex justify-center pt-3 pb-2">
+                            <div className="w-12 h-1.5 rounded-full bg-slate-200" />
+                        </div>
+
+                        <div className="px-6 pb-8">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-lg font-bold text-slate-900">Filter</h3>
+                                <button
+                                    onClick={onClose}
+                                    className="p-2 hover:bg-slate-100 rounded-full transition-colors active:scale-95"
+                                >
+                                    <X className="w-5 h-5 text-slate-500" />
+                                </button>
+                            </div>
+
+                            {/* Categories */}
+                            <div className="mb-6">
+                                <h4 className="text-sm font-medium text-slate-700 mb-3">Kategorier</h4>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {categories.map((cat) => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => {
+                                                onSelectCategory(cat);
+                                                onClose();
+                                            }}
+                                            className={`px-4 py-3 rounded-xl text-sm font-medium transition-all active:scale-95 ${selectedCategory === cat
+                                                ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30'
+                                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                                }`}
+                                        >
+                                            {categoryLabels[cat] || cat}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
     );
 }
 
@@ -325,7 +408,7 @@ function TemplatesPageContent() {
     const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
     const [selectedPortfolioTemplate, setSelectedPortfolioTemplate] = useState<string | null>(null);
     const [selectedCVTemplate, setSelectedCVTemplate] = useState<string | null>(null);
-    const [showLockedTemplates, setShowLockedTemplates] = useState(true);
+    const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
     // Check URL for initial view mode
     useEffect(() => {
@@ -335,14 +418,8 @@ function TemplatesPageContent() {
         }
     }, [searchParams]);
 
-    // User tier - set to 'pro' during development so all templates are accessible
-    // TODO: Connect to actual user subscription tier from auth
+    // User tier - set to 'pro' during development
     const userTier: 'free' | 'starter' | 'pro' = 'pro';
-
-    const canUseTier = (tier: 'free' | 'starter' | 'pro') => {
-        const tierHierarchy = { free: 0, starter: 1, pro: 2 };
-        return tierHierarchy[tier] <= tierHierarchy[userTier];
-    };
 
     // Portfolio categories
     const portfolioCategories = useMemo(() => {
@@ -373,12 +450,8 @@ function TemplatesPageContent() {
             filtered = filtered.filter(t => t.category === categoryFilter);
         }
 
-        if (!showLockedTemplates) {
-            filtered = filtered.filter(t => canUseTier(getTemplateTier(t._index, templates.length)));
-        }
-
         return filtered;
-    }, [searchQuery, categoryFilter, showLockedTemplates, userTier]);
+    }, [searchQuery, categoryFilter]);
 
     // Filtered CV templates
     const filteredCVTemplates = useMemo(() => {
@@ -396,12 +469,8 @@ function TemplatesPageContent() {
             filtered = filtered.filter(t => t.category === categoryFilter);
         }
 
-        if (!showLockedTemplates) {
-            filtered = filtered.filter(t => canUseTier(t.tier));
-        }
-
         return filtered;
-    }, [searchQuery, categoryFilter, showLockedTemplates, userTier]);
+    }, [searchQuery, categoryFilter]);
 
     // Category labels
     const categoryLabels: Record<string, string> = {
@@ -442,15 +511,6 @@ function TemplatesPageContent() {
         ? templates.find(t => t.id === selectedPortfolioTemplate)
         : ALL_CV_TEMPLATES.find(t => t.id === selectedCVTemplate);
 
-    const selectedPortfolioIndex = templates.findIndex(t => t.id === selectedPortfolioTemplate);
-    const selectedPortfolioTier = selectedPortfolioIndex >= 0 ? getTemplateTier(selectedPortfolioIndex, templates.length) : 'free';
-
-    const isSelectedTemplateLocked = selectedTemplate && (
-        viewMode === 'portfolio'
-            ? !canUseTier(selectedPortfolioTier)
-            : !canUseTier((selectedTemplate as CVTemplate).tier)
-    );
-
     // Stats
     const freePortfolioCount = Math.ceil(templates.length * 0.1);
     const freeCVCount = ALL_CV_TEMPLATES.filter(t => t.tier === 'free').length;
@@ -459,66 +519,64 @@ function TemplatesPageContent() {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            {/* Header */}
-            <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-6 py-4">
+            {/* Header - Mobile Optimized */}
+            <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <Link href="/dashboard" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                        {/* Left: Back + Title */}
+                        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                            <Link 
+                                href="/dashboard" 
+                                className="p-2 hover:bg-slate-100 rounded-xl transition-colors shrink-0 active:scale-95"
+                            >
                                 <ArrowLeft className="h-5 w-5 text-slate-600" />
                             </Link>
-                            <div>
-                                <h1 className="text-xl font-bold text-slate-900">Välj Template</h1>
-                                <p className="text-sm text-slate-500">
+                            <div className="min-w-0">
+                                <h1 className="text-base sm:text-xl font-bold text-slate-900 truncate">Välj Template</h1>
+                                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">
                                     {freeCount} gratis • {totalCount} totalt
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            {userTier === 'free' && (
-                                <Link href="/upgrade">
-                                    <Badge variant="outline" className="gap-1.5 cursor-pointer hover:bg-violet-50 hover:border-violet-300">
-                                        <Crown className="h-3.5 w-3.5 text-violet-500" />
-                                        Lås upp alla templates
-                                    </Badge>
-                                </Link>
-                            )}
-
+                        {/* Right: Actions */}
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            {/* Mobile: Show count badge */}
+                            <span className="text-xs text-slate-500 sm:hidden">{totalCount} templates</span>
+                            
+                            {/* Desktop: Full button */}
                             <Button
                                 onClick={handleStartCreation}
-                                disabled={!!isSelectedTemplateLocked}
+                                size="sm"
+                                className="hidden sm:flex"
                                 rightIcon={<ArrowRight className="h-4 w-4" />}
                             >
-                                {selectedTemplate
-                                    ? `Skapa med ${selectedTemplate.name}`
-                                    : `Skapa ${viewMode === 'portfolio' ? 'Portfolio' : 'CV'}`
-                                }
+                                {selectedTemplate ? `Skapa` : `Skapa ${viewMode === 'portfolio' ? 'Portfolio' : 'CV'}`}
                             </Button>
                         </div>
                     </div>
                 </div>
             </header>
 
-            {/* View mode toggle + filters */}
-            <div className="bg-white border-b border-slate-200">
-                <div className="max-w-7xl mx-auto px-6 py-4">
-                    {/* View mode toggle */}
-                    <div className="flex items-center justify-center gap-2 mb-6">
+            {/* View Mode Toggle - Mobile Optimized */}
+            <div className="bg-white border-b border-slate-200 sticky top-[57px] sm:top-[65px] z-30">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+                    {/* Toggle buttons - Full width on mobile */}
+                    <div className="flex gap-2 mb-4">
                         <button
                             onClick={() => {
                                 setViewMode('portfolio');
                                 setCategoryFilter('all');
                                 setSearchQuery('');
                             }}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${viewMode === 'portfolio'
-                                    ? 'bg-slate-900 text-white shadow-lg'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-medium transition-all active:scale-[0.98] ${viewMode === 'portfolio'
+                                ? 'bg-slate-900 text-white shadow-lg'
+                                : 'bg-slate-100 text-slate-600'
                                 }`}
                         >
-                            <Globe className="h-5 w-5" />
-                            Portfolio Templates
-                            <Badge variant={viewMode === 'portfolio' ? 'default' : 'outline'} className="ml-1">
+                            <Globe className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <span className="text-sm sm:text-base">Portfolio</span>
+                            <Badge variant={viewMode === 'portfolio' ? 'default' : 'outline'} className="text-[10px] sm:text-xs ml-1">
                                 {templates.length}
                             </Badge>
                         </button>
@@ -528,127 +586,168 @@ function TemplatesPageContent() {
                                 setCategoryFilter('all');
                                 setSearchQuery('');
                             }}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${viewMode === 'cv'
-                                    ? 'bg-slate-900 text-white shadow-lg'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-medium transition-all active:scale-[0.98] ${viewMode === 'cv'
+                                ? 'bg-slate-900 text-white shadow-lg'
+                                : 'bg-slate-100 text-slate-600'
                                 }`}
                         >
-                            <FileText className="h-5 w-5" />
-                            CV Templates
-                            <Badge variant={viewMode === 'cv' ? 'default' : 'outline'} className="ml-1">
+                            <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <span className="text-sm sm:text-base">CV</span>
+                            <Badge variant={viewMode === 'cv' ? 'default' : 'outline'} className="text-[10px] sm:text-xs ml-1">
                                 {ALL_CV_TEMPLATES.length}
                             </Badge>
                         </button>
                     </div>
 
-                    {/* Search and filters */}
-                    <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                    {/* Search + Filter row */}
+                    <div className="flex gap-2 sm:gap-4">
                         {/* Search */}
-                        <div className="relative flex-1 max-w-md">
+                        <div className="relative flex-1">
                             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <input
                                 type="text"
-                                placeholder="Sök templates..."
+                                placeholder="Sök..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+                                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
                             />
                         </div>
 
-                        {/* Categories */}
-                        <div className="flex flex-wrap gap-2">
-                            {currentCategories.slice(0, 8).map((cat) => (
+                        {/* Mobile: Filter button */}
+                        <button
+                            onClick={() => setIsFilterDrawerOpen(true)}
+                            className="lg:hidden p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors active:scale-95"
+                        >
+                            <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Desktop: Category pills - Scrollable */}
+                    <div className="hidden lg:flex gap-2 mt-4 overflow-x-auto pb-2 -mb-2 scrollbar-hide">
+                        {currentCategories.map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setCategoryFilter(cat)}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${categoryFilter === cat
+                                    ? 'bg-violet-600 text-white'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
+                                {categoryLabels[cat] || cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Mobile: Horizontal scroll categories */}
+                    <div className="lg:hidden -mx-4 sm:-mx-6 px-4 sm:px-6 mt-3 overflow-x-auto scrollbar-hide">
+                        <div className="flex gap-2 pb-2">
+                            {currentCategories.map((cat) => (
                                 <button
                                     key={cat}
                                     onClick={() => setCategoryFilter(cat)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${categoryFilter === cat
-                                            ? 'bg-violet-600 text-white'
-                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap active:scale-95 ${categoryFilter === cat
+                                        ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20'
+                                        : 'bg-slate-100 text-slate-600'
                                         }`}
                                 >
                                     {categoryLabels[cat] || cat}
                                 </button>
                             ))}
                         </div>
-
-                        {/* Show locked toggle */}
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={showLockedTemplates}
-                                onChange={(e) => setShowLockedTemplates(e.target.checked)}
-                                className="rounded border-slate-300 text-violet-600 focus:ring-violet-500"
-                            />
-                            <span className="text-sm text-slate-600">Visa låsta</span>
-                        </label>
                     </div>
                 </div>
             </div>
 
+            {/* Filter Drawer - Mobile */}
+            <FilterDrawer
+                isOpen={isFilterDrawerOpen}
+                onClose={() => setIsFilterDrawerOpen(false)}
+                categories={currentCategories}
+                categoryLabels={categoryLabels}
+                selectedCategory={categoryFilter}
+                onSelectCategory={setCategoryFilter}
+            />
+
             {/* Template Grid */}
-            <main className="max-w-7xl mx-auto px-6 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 pb-32">
                 {viewMode === 'portfolio' ? (
                     <>
-                        {/* Portfolio templates */}
-                        <div className="mb-6">
-                            <p className="text-sm text-slate-500">
+                        {/* Count */}
+                        <div className="mb-4 sm:mb-6">
+                            <p className="text-xs sm:text-sm text-slate-500">
                                 Visar {filteredPortfolioTemplates.length} av {templates.length} portfolio-templates
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {/* Grid - 2 columns on mobile, scales up */}
+                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                             <AnimatePresence mode="popLayout">
-                                {filteredPortfolioTemplates.map((template, displayIndex) => {
-                                    const tier = getTemplateTier(template._index, templates.length);
-                                    return (
-                                        <motion.div
-                                            key={template.id}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, scale: 0.9 }}
-                                            transition={{ delay: displayIndex * 0.02 }}
-                                        >
-                                            <PortfolioTemplateCard
-                                                template={template}
-                                                index={template._index}
-                                                totalCount={templates.length}
-                                                isSelected={selectedPortfolioTemplate === template.id}
-                                                isLocked={!canUseTier(tier)}
-                                                onSelect={() => setSelectedPortfolioTemplate(template.id)}
-                                                onPreview={() => console.log('Preview:', template.id)}
-                                            />
-                                        </motion.div>
-                                    );
-                                })}
+                                {filteredPortfolioTemplates.map((template, displayIndex) => (
+                                    <motion.div
+                                        key={template.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        transition={{ delay: Math.min(displayIndex * 0.02, 0.3) }}
+                                    >
+                                        <PortfolioTemplateCard
+                                            template={template}
+                                            index={template._index}
+                                            totalCount={templates.length}
+                                            isSelected={selectedPortfolioTemplate === template.id}
+                                            onSelect={() => setSelectedPortfolioTemplate(template.id)}
+                                            onPreview={() => console.log('Preview:', template.id)}
+                                        />
+                                    </motion.div>
+                                ))}
                             </AnimatePresence>
                         </div>
 
+                        {/* Empty state */}
                         {filteredPortfolioTemplates.length === 0 && (
-                            <div className="text-center py-16">
-                                <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                    <Globe className="w-8 h-8 text-slate-400" />
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="text-center py-12 sm:py-16"
+                            >
+                                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <Globe className="w-7 h-7 sm:w-8 sm:h-8 text-slate-400" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-slate-900 mb-2">Inga templates hittades</h3>
-                                <p className="text-slate-500">Prova att ändra dina filter eller sökord</p>
-                            </div>
+                                <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">Inga templates hittades</h3>
+                                <p className="text-sm text-slate-500 px-4">Prova att ändra filter eller sökord</p>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    className="mt-4"
+                                    onClick={() => {
+                                        setCategoryFilter('all');
+                                        setSearchQuery('');
+                                    }}
+                                >
+                                    Återställ filter
+                                </Button>
+                            </motion.div>
                         )}
                     </>
                 ) : (
                     <>
-                        {/* CV templates */}
-                        <div className="mb-6 flex items-center justify-between">
-                            <p className="text-sm text-slate-500">
+                        {/* CV info banner - Mobile optimized */}
+                        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <p className="text-xs sm:text-sm text-slate-500">
                                 Visar {filteredCVTemplates.length} av {ALL_CV_TEMPLATES.length} CV-templates
                             </p>
-                            <div className="flex items-center gap-2 text-sm text-emerald-600">
-                                <Sparkles className="w-4 h-4" />
+                            <div className="flex items-center gap-1.5 text-xs sm:text-sm text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg self-start sm:self-auto">
+                                <Sparkles className="w-3.5 h-3.5" />
                                 <span>ATS = Optimerad för rekryteringssystem</span>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {/* Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
                             <AnimatePresence mode="popLayout">
                                 {filteredCVTemplates.map((template, index) => (
                                     <motion.div
@@ -656,12 +755,11 @@ function TemplatesPageContent() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
-                                        transition={{ delay: index * 0.02 }}
+                                        transition={{ delay: Math.min(index * 0.02, 0.3) }}
                                     >
                                         <CVTemplateCard
                                             template={template}
                                             isSelected={selectedCVTemplate === template.id}
-                                            isLocked={!canUseTier(template.tier)}
                                             onSelect={() => setSelectedCVTemplate(template.id)}
                                         />
                                     </motion.div>
@@ -669,95 +767,119 @@ function TemplatesPageContent() {
                             </AnimatePresence>
                         </div>
 
+                        {/* Empty state */}
                         {filteredCVTemplates.length === 0 && (
-                            <div className="text-center py-16">
-                                <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                    <FileText className="w-8 h-8 text-slate-400" />
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="text-center py-12 sm:py-16"
+                            >
+                                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <FileText className="w-7 h-7 sm:w-8 sm:h-8 text-slate-400" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-slate-900 mb-2">Inga templates hittades</h3>
-                                <p className="text-slate-500">Prova att ändra dina filter eller sökord</p>
-                            </div>
+                                <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">Inga templates hittades</h3>
+                                <p className="text-sm text-slate-500 px-4">Prova att ändra filter eller sökord</p>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    className="mt-4"
+                                    onClick={() => {
+                                        setCategoryFilter('all');
+                                        setSearchQuery('');
+                                    }}
+                                >
+                                    Återställ filter
+                                </Button>
+                            </motion.div>
                         )}
                     </>
                 )}
-
-                {/* Upgrade CTA for free users */}
-                {userTier === 'free' && (
-                    <div className="mt-12 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-8 text-white text-center">
-                        <Crown className="w-12 h-12 mx-auto mb-4 opacity-80" />
-                        <h3 className="text-2xl font-bold mb-2">Lås upp alla {totalCount} templates</h3>
-                        <p className="text-violet-100 mb-6 max-w-md mx-auto">
-                            Uppgradera till Starter eller Pro för tillgång till premium-templates och fler funktioner.
-                        </p>
-                        <Link href="/upgrade">
-                            <Button variant="outline" size="lg" rightIcon={<Zap className="w-5 h-5" />} className="bg-white text-violet-600 border-white hover:bg-violet-50">
-                                Se planer & priser
-                            </Button>
-                        </Link>
-                    </div>
-                )}
             </main>
 
-            {/* Fixed bottom bar when template is selected */}
+            {/* Fixed Bottom Bar - Mobile First Design */}
             <AnimatePresence>
                 {selectedTemplate && (
                     <motion.div
                         initial={{ y: 100, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 100, opacity: 0 }}
-                        className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-2xl z-50"
+                        className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 shadow-2xl"
                     >
-                        <div className="max-w-7xl mx-auto flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div
-                                    className="w-12 h-12 rounded-xl"
-                                    style={{
-                                        backgroundColor: viewMode === 'portfolio'
-                                            ? (selectedTemplate as TemplateConfig).colorScheme?.bgPrimary
-                                            : (selectedTemplate as CVTemplate).colors?.primary
-                                    }}
-                                />
-                                <div>
-                                    <h4 className="font-semibold text-slate-900">{selectedTemplate.name}</h4>
-                                    <p className="text-sm text-slate-500">{selectedTemplate.description}</p>
-                                </div>
-                                {isSelectedTemplateLocked && (
-                                    <Badge variant="outline" className="text-amber-600 border-amber-200">
-                                        <Lock className="w-3 h-3 mr-1" />
-                                        Kräver uppgradering
-                                    </Badge>
-                                )}
-                            </div>
+                        {/* Safe area padding for iPhone notch */}
+                        <div className="px-4 sm:px-6 py-3 sm:py-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:pb-4">
+                            <div className="max-w-7xl mx-auto">
+                                {/* Mobile layout - Stacked */}
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                                    {/* Template info */}
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                        <motion.div
+                                            initial={{ scale: 0.8 }}
+                                            animate={{ scale: 1 }}
+                                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl shrink-0 shadow-lg"
+                                            style={{
+                                                backgroundColor: viewMode === 'portfolio'
+                                                    ? (selectedTemplate as TemplateConfig).colorScheme?.bgPrimary
+                                                    : (selectedTemplate as CVTemplate).colors?.primary
+                                            }}
+                                        />
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className="font-semibold text-slate-900 text-sm sm:text-base truncate">{selectedTemplate.name}</h4>
+                                            <p className="text-xs text-slate-500 truncate">{selectedTemplate.description}</p>
+                                        </div>
+                                    </div>
 
-                            <div className="flex items-center gap-3">
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => {
-                                        if (viewMode === 'portfolio') {
-                                            setSelectedPortfolioTemplate(null);
-                                        } else {
-                                            setSelectedCVTemplate(null);
-                                        }
-                                    }}
-                                >
-                                    Avbryt val
-                                </Button>
-                                {isSelectedTemplateLocked ? (
-                                    <Link href="/upgrade">
-                                        <Button rightIcon={<Crown className="w-4 h-4" />}>
-                                            Uppgradera för att använda
+                                    {/* Actions */}
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="flex-1 sm:flex-none"
+                                            onClick={() => {
+                                                if (viewMode === 'portfolio') {
+                                                    setSelectedPortfolioTemplate(null);
+                                                } else {
+                                                    setSelectedCVTemplate(null);
+                                                }
+                                            }}
+                                        >
+                                            <X className="w-4 h-4 sm:mr-1" />
+                                            <span className="hidden sm:inline">Avbryt</span>
                                         </Button>
-                                    </Link>
-                                ) : (
-                                    <Button
-                                        onClick={handleStartCreation}
-                                        rightIcon={<ArrowRight className="w-4 h-4" />}
-                                    >
-                                        Fortsätt med {selectedTemplate.name}
-                                    </Button>
-                                )}
+                                        <Button
+                                            onClick={handleStartCreation}
+                                            size="sm"
+                                            className="flex-1 sm:flex-none shadow-lg shadow-violet-500/20"
+                                            rightIcon={<ArrowRight className="w-4 h-4" />}
+                                        >
+                                            <span className="sm:hidden">Fortsätt</span>
+                                            <span className="hidden sm:inline">Fortsätt med {selectedTemplate.name}</span>
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Floating action button when nothing selected - Mobile only */}
+            <AnimatePresence>
+                {!selectedTemplate && (
+                    <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="fixed bottom-6 right-4 sm:hidden z-40"
+                        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+                    >
+                        <Button
+                            onClick={handleStartCreation}
+                            size="lg"
+                            className="rounded-full shadow-2xl shadow-violet-500/30 pl-5 pr-4"
+                            rightIcon={<ArrowRight className="w-5 h-5" />}
+                        >
+                            Skapa
+                        </Button>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -773,7 +895,14 @@ export default function TemplatesPage() {
     return (
         <Suspense fallback={
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-center"
+                >
+                    <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-sm text-slate-500">Laddar templates...</p>
+                </motion.div>
             </div>
         }>
             <TemplatesPageContent />
