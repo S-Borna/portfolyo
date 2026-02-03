@@ -128,20 +128,20 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex items-center justify-center p-4">
+        <div className="min-h-screen bg-porcelain flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
-                <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-                    <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-violet-700 rounded-xl flex items-center justify-center">
-                        <Sparkles className="h-6 w-6 text-white" />
+                <Link href="/" className="flex items-center justify-center gap-2.5 mb-8">
+                    <div className="w-10 h-10 bg-ink rounded-xl flex items-center justify-center text-white font-bold">
+                        P
                     </div>
-                    <span className="text-2xl font-bold text-gray-900">PORTFOLYO</span>
+                    <span className="text-2xl font-semibold text-ink tracking-tight">PORTFOLYO</span>
                 </Link>
 
-                <Card className="p-8">
+                <Card className="p-8 bg-white border-slate-200">
                     <div className="text-center mb-8">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">Skapa konto</h1>
-                        <p className="text-gray-600">Kom igång gratis på under en minut</p>
+                        <h1 className="text-2xl font-semibold text-ink mb-2">Skapa konto</h1>
+                        <p className="text-slate-500">Kom igång gratis på under en minut</p>
                     </div>
 
                     {/* OAuth Buttons */}
@@ -149,7 +149,7 @@ export default function RegisterPage() {
                         <button
                             onClick={() => handleOAuthSignup('github')}
                             disabled={isLoading}
-                            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+                            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50"
                         >
                             <Github className="h-5 w-5" />
                             <span className="font-medium">Fortsätt med GitHub</span>
@@ -157,7 +157,7 @@ export default function RegisterPage() {
                         <button
                             onClick={() => handleOAuthSignup('google')}
                             disabled={isLoading}
-                            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+                            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50"
                         >
                             <svg className="h-5 w-5" viewBox="0 0 24 24">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -171,10 +171,10 @@ export default function RegisterPage() {
 
                     <div className="relative mb-6">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200"></div>
+                            <div className="w-full border-t border-slate-200"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-white text-gray-500">eller med e-post</span>
+                            <span className="px-4 bg-white text-slate-500">eller med e-post</span>
                         </div>
                     </div>
 
@@ -221,19 +221,19 @@ export default function RegisterPage() {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <p className="text-gray-600">
+                        <p className="text-slate-600">
                             Har du redan ett konto?{' '}
-                            <Link href="/login" className="text-violet-600 hover:text-violet-700 font-medium">
+                            <Link href="/login" className="text-ink hover:underline font-medium">
                                 Logga in
                             </Link>
                         </p>
                     </div>
 
-                    <p className="text-xs text-gray-500 text-center mt-4">
+                    <p className="text-xs text-slate-400 text-center mt-4">
                         Genom att skapa konto godkänner du våra{' '}
-                        <Link href="/terms" className="text-violet-600 hover:underline">villkor</Link>
+                        <Link href="/terms" className="text-ink hover:underline">villkor</Link>
                         {' '}och{' '}
-                        <Link href="/privacy" className="text-violet-600 hover:underline">integritetspolicy</Link>.
+                        <Link href="/privacy" className="text-ink hover:underline">integritetspolicy</Link>.
                     </p>
                 </Card>
             </div>

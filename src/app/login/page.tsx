@@ -125,21 +125,21 @@ export default function LoginPage() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-porcelain flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-ink border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-porcelain flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-violet-700 rounded-xl flex items-center justify-center">
-            <Sparkles className="h-6 w-6 text-white" />
+        <Link href="/" className="flex items-center justify-center gap-2.5 mb-8">
+          <div className="w-10 h-10 bg-ink rounded-xl flex items-center justify-center text-white font-bold">
+            P
           </div>
-          <span className="text-2xl font-bold text-gray-900">PORTFOLYO</span>
+          <span className="text-2xl font-semibold text-ink tracking-tight">PORTFOLYO</span>
         </Link>
 
         <Card className="p-8">
@@ -207,11 +207,11 @@ export default function LoginPage() {
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                  className="rounded border-slate-300 text-ink focus:ring-ink"
                 />
-                <span className="text-gray-600">Kom ihåg mig</span>
+                <span className="text-slate-600">Kom ihåg mig</span>
               </label>
-              <a href="#" className="text-violet-600 hover:text-violet-700">
+              <a href="#" className="text-ink hover:underline">
                 Glömt lösenord?
               </a>
             </div>
@@ -228,9 +228,9 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-slate-600">
               Har du inget konto?{' '}
-              <Link href="/register" className="text-violet-600 hover:text-violet-700 font-medium">
+              <Link href="/register" className="text-ink hover:underline font-medium">
                 Skapa konto gratis
               </Link>
             </p>

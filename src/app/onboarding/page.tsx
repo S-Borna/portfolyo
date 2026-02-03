@@ -1,28 +1,51 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
+import { Button, Card, Badge, Icons } from '@/components/ui';
 import type { OnboardingState, CurrentSituation, SeekingType, OnboardingEducation, OnboardingExperience, OnboardingProject } from '@/lib/models';
 import { TEMPLATES, getTemplatesForTier, getFamily } from '@/lib/templates/system';
 import { TECH_STACK_OPTIONS } from '@/lib/models';
+
+const {
+    ArrowRight,
+    ArrowLeft,
+    Check,
+    Plus,
+    X,
+    Briefcase,
+    GraduationCap,
+    Zap,
+    Palette,
+    User,
+    MapPin,
+    Mail,
+    Phone,
+    Globe,
+    Code,
+    Eye,
+    Crown,
+    FileText,
+    Calendar,
+    Star,
+} = Icons;
 
 // ============================================
 // CONFIGURATION
 // ============================================
 
 const STEPS = [
-    { id: 'basics', title: 'Grundläggande', description: 'Vem är du?' },
-    { id: 'content', title: 'Innehåll', description: 'Vad har du gjort?' },
-    { id: 'design', title: 'Design', description: 'Hur ska det se ut?' },
+    { id: 'basics', title: 'Om dig', icon: User },
+    { id: 'content', title: 'Innehåll', icon: FileText },
+    { id: 'design', title: 'Design', icon: Palette },
 ] as const;
 
-const SITUATIONS: Array<{ value: CurrentSituation; label: string; emoji: string }> = [
-    { value: 'student', label: 'Student', emoji: '🎓' },
-    { value: 'job-seeking', label: 'Arbetssökande', emoji: '🔍' },
-    { value: 'employed', label: 'Anställd', emoji: '💼' },
-    { value: 'freelance', label: 'Frilansare', emoji: '🚀' },
+const SITUATIONS: Array<{ value: CurrentSituation; label: string; description: string }> = [
+    { value: 'student', label: 'Student', description: 'Studerar just nu' },
+    { value: 'job-seeking', label: 'Arbetssökande', description: 'Letar efter jobb' },
+    { value: 'employed', label: 'Anställd', description: 'Jobbar idag' },
+    { value: 'freelance', label: 'Frilansare', description: 'Driver eget' },
 ];
 
 const SEEKING_TYPES: Array<{ value: SeekingType; label: string }> = [
@@ -84,9 +107,9 @@ export default function OnboardingPage() {
     }, [router]);
 
     // Update state helper
-    const update = <K extends keyof OnboardingState>(key: K, value: OnboardingState[K]) => {
+    const update = useCallback(<K extends keyof OnboardingState>(key: K, value: OnboardingState[K]) => {
         setState(prev => ({ ...prev, [key]: value }));
-    };
+    }, []);
 
     // Navigation
     const canProceed = useMemo(() => {
@@ -116,14 +139,12 @@ export default function OnboardingPage() {
         setError(null);
 
         try {
-            // Generate a temporary username from name
             const baseUsername = state.full_name
                 .toLowerCase()
                 .replace(/[^a-z0-9]/g, '')
                 .slice(0, 20) || 'user';
             const username = `${baseUsername}${Date.now().toString(36)}`;
 
-            // Create portfolio in Supabase - match ACTUAL database schema
             const { data: portfolio, error } = await supabase
                 .from('portfolios')
                 .insert({
@@ -147,7 +168,7 @@ export default function OnboardingPage() {
                         order: i,
                     })),
                     timeline: [
-                        ...state.education.map((e, i) => ({
+                        ...state.education.map((e) => ({
                             id: crypto.randomUUID(),
                             type: 'education',
                             title: e.degree,
@@ -157,7 +178,7 @@ export default function OnboardingPage() {
                             endDate: e.current ? null : e.end_date,
                             current: e.current,
                         })),
-                        ...state.experience.map((e, i) => ({
+                        ...state.experience.map((e) => ({
                             id: crypto.randomUUID(),
                             type: 'work',
                             title: e.title,
@@ -182,7 +203,6 @@ export default function OnboardingPage() {
                 throw new Error(error.message || 'Kunde inte skapa portfolio');
             }
 
-            // Redirect to dashboard
             router.push('/dashboard');
         } catch (err: any) {
             console.error('Error creating portfolio:', err);
@@ -192,125 +212,116 @@ export default function OnboardingPage() {
         }
     };
 
-    // Render based on step
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white">
+        <div className="min-h-screen bg-porcelain">
             {/* Error toast */}
             {error && (
-                <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/90 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>{error}</span>
-                    <button onClick={() => setError(null)} className="ml-2 hover:opacity-70">✕</button>
+                <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-red-50 border border-red-200 text-red-700 px-6 py-3 rounded-xl shadow-lg flex items-center gap-3">
+                    <span className="text-sm">{error}</span>
+                    <button onClick={() => setError(null)} className="hover:opacity-70">
+                        <X className="w-4 h-4" />
+                    </button>
                 </div>
             )}
 
-            {/* Progress bar */}
-            <div className="fixed top-0 left-0 right-0 h-1 bg-zinc-800 z-50">
-                <motion.div
-                    className="h-full bg-[#ff4d4d]"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
-                    transition={{ duration: 0.3 }}
-                />
-            </div>
-
             {/* Header */}
-            <header className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-zinc-800/50">
-                <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <button
-                        onClick={() => router.push('/dashboard')}
-                        className="text-sm text-zinc-500 hover:text-white transition-colors"
-                    >
-                        Avbryt
-                    </button>
-                    <div className="flex items-center gap-6">
-                        {STEPS.map((s, i) => (
-                            <button
-                                key={s.id}
-                                onClick={() => i <= step && setStep(i)}
-                                className={`text-sm font-medium transition-colors ${i === step
-                                    ? 'text-white'
-                                    : i < step
-                                        ? 'text-[#ff4d4d]'
-                                        : 'text-zinc-600'
-                                    }`}
-                            >
-                                {s.title}
-                            </button>
-                        ))}
+            <header className="bg-white border-b border-slate-200">
+                <div className="max-w-4xl mx-auto px-6 py-4">
+                    <div className="flex items-center justify-between">
+                        <button
+                            onClick={() => router.push('/dashboard')}
+                            className="text-sm text-slate-500 hover:text-ink transition-colors"
+                        >
+                            ← Avbryt
+                        </button>
+
+                        {/* Progress Steps */}
+                        <div className="flex items-center gap-2">
+                            {STEPS.map((s, i) => (
+                                <React.Fragment key={s.id}>
+                                    <button
+                                        onClick={() => i <= step && setStep(i)}
+                                        disabled={i > step}
+                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                                            i === step
+                                                ? 'bg-ink text-white'
+                                                : i < step
+                                                    ? 'bg-emerald-50 text-emerald-700'
+                                                    : 'bg-slate-100 text-slate-400'
+                                        }`}
+                                    >
+                                        {i < step ? (
+                                            <Check className="w-4 h-4" />
+                                        ) : (
+                                            <s.icon className="w-4 h-4" />
+                                        )}
+                                        <span className="hidden sm:inline">{s.title}</span>
+                                    </button>
+                                    {i < STEPS.length - 1 && (
+                                        <div className={`w-8 h-0.5 ${i < step ? 'bg-emerald-500' : 'bg-slate-200'}`} />
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </div>
+
+                        <div className="w-16" />
                     </div>
-                    <div className="w-16" />
                 </div>
             </header>
 
             {/* Main content */}
-            <main className="pt-24 pb-32">
-                <div className="max-w-2xl mx-auto px-6">
-                    <AnimatePresence mode="wait">
-                        {step === 0 && (
-                            <StepBasics
-                                key="basics"
-                                state={state}
-                                update={update}
-                            />
-                        )}
-                        {step === 1 && (
-                            <StepContent
-                                key="content"
-                                state={state}
-                                update={update}
-                            />
-                        )}
-                        {step === 2 && (
-                            <StepDesign
-                                key="design"
-                                state={state}
-                                update={update}
-                            />
-                        )}
-                    </AnimatePresence>
-                </div>
+            <main className="max-w-4xl mx-auto px-6 py-10">
+                {step === 0 && (
+                    <StepBasics state={state} update={update} />
+                )}
+                {step === 1 && (
+                    <StepContent state={state} update={update} />
+                )}
+                {step === 2 && (
+                    <StepDesign state={state} update={update} />
+                )}
             </main>
 
             {/* Footer */}
-            <footer className="fixed bottom-0 left-0 right-0 bg-[#0a0a0a] border-t border-zinc-800">
-                <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <button
+            <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200">
+                <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <Button
+                        variant="ghost"
                         onClick={handleBack}
                         disabled={step === 0}
-                        className="px-6 py-3 text-sm font-medium text-zinc-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        className="gap-2"
                     >
+                        <ArrowLeft className="w-4 h-4" />
                         Tillbaka
-                    </button>
+                    </Button>
 
                     {step < STEPS.length - 1 ? (
-                        <button
+                        <Button
                             onClick={handleNext}
                             disabled={!canProceed}
-                            className="px-8 py-3 bg-[#ff4d4d] text-white text-sm font-semibold rounded-lg hover:bg-[#ff3333] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="gap-2"
                         >
                             Fortsätt
-                        </button>
+                            <ArrowRight className="w-4 h-4" />
+                        </Button>
                     ) : (
-                        <button
+                        <Button
                             onClick={handleComplete}
                             disabled={isLoading}
-                            className="px-8 py-3 bg-[#ff4d4d] text-white text-sm font-semibold rounded-lg hover:bg-[#ff3333] disabled:opacity-50 transition-colors flex items-center gap-2"
+                            className="gap-2"
                         >
                             {isLoading ? (
                                 <>
-                                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                    </svg>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                     Skapar...
                                 </>
                             ) : (
-                                'Skapa portfolio'
+                                <>
+                                    <Star className="w-4 h-4" />
+                                    Skapa portfolio
+                                </>
                             )}
-                        </button>
+                        </Button>
                     )}
                 </div>
             </footer>
@@ -329,26 +340,16 @@ interface StepProps {
 
 function StepBasics({ state, update }: StepProps) {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-8"
-        >
+        <div className="space-y-8 pb-24">
             <div>
-                <h1 className="text-4xl font-bold tracking-tight mb-2">
-                    Berätta om dig
-                </h1>
-                <p className="text-zinc-400">
-                    Informationen nedan kommer visas på din portfolio.
-                </p>
+                <h1 className="text-3xl font-semibold text-ink mb-2">Berätta om dig</h1>
+                <p className="text-slate-500">Denna information visas på din portfolio.</p>
             </div>
 
-            <div className="space-y-6">
+            <div className="grid gap-6">
                 {/* Name */}
                 <div>
-                    <label className="block text-sm font-medium text-zinc-300 mb-2">
+                    <label className="block text-sm font-medium text-ink mb-2">
                         Fullständigt namn *
                     </label>
                     <input
@@ -356,41 +357,40 @@ function StepBasics({ state, update }: StepProps) {
                         value={state.full_name}
                         onChange={(e) => update('full_name', e.target.value)}
                         placeholder="Said Borna"
-                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#ff4d4d] transition-colors"
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl text-ink placeholder:text-slate-400 focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink transition-all"
                     />
                 </div>
 
                 {/* Title */}
                 <div>
-                    <label className="block text-sm font-medium text-zinc-300 mb-2">
+                    <label className="block text-sm font-medium text-ink mb-2">
                         Yrkestitel / Roll *
                     </label>
                     <input
                         type="text"
                         value={state.title}
                         onChange={(e) => update('title', e.target.value)}
-                        placeholder="DevOps-student @ YH"
-                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#ff4d4d] transition-colors"
+                        placeholder="DevOps Engineer"
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl text-ink placeholder:text-slate-400 focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink transition-all"
                     />
                 </div>
 
                 {/* Situation */}
                 <div>
-                    <label className="block text-sm font-medium text-zinc-300 mb-3">
-                        Nuvarande situation
-                    </label>
+                    <label className="block text-sm font-medium text-ink mb-3">Nuvarande situation</label>
                     <div className="grid grid-cols-2 gap-3">
                         {SITUATIONS.map((s) => (
                             <button
                                 key={s.value}
                                 onClick={() => update('current_situation', s.value)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all ${state.current_situation === s.value
-                                    ? 'bg-[#ff4d4d]/10 border-[#ff4d4d] text-white'
-                                    : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
-                                    }`}
+                                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                    state.current_situation === s.value
+                                        ? 'border-ink bg-slate-50'
+                                        : 'border-slate-200 hover:border-slate-300'
+                                }`}
                             >
-                                <span className="text-xl">{s.emoji}</span>
-                                <span className="font-medium">{s.label}</span>
+                                <span className="font-medium text-ink">{s.label}</span>
+                                <p className="text-xs text-slate-500 mt-0.5">{s.description}</p>
                             </button>
                         ))}
                     </div>
@@ -398,48 +398,82 @@ function StepBasics({ state, update }: StepProps) {
 
                 {/* Location */}
                 <div>
-                    <label className="block text-sm font-medium text-zinc-300 mb-2">
-                        Plats
-                    </label>
-                    <input
-                        type="text"
-                        value={state.location}
-                        onChange={(e) => update('location', e.target.value)}
-                        placeholder="Stockholm, Sverige"
-                        className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#ff4d4d] transition-colors"
-                    />
+                    <label className="block text-sm font-medium text-ink mb-2">Plats</label>
+                    <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            value={state.location}
+                            onChange={(e) => update('location', e.target.value)}
+                            placeholder="Stockholm, Sverige"
+                            className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl text-ink placeholder:text-slate-400 focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink transition-all"
+                        />
+                    </div>
+                </div>
+
+                {/* Contact */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-ink mb-2">E-post</label>
+                        <div className="relative">
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="email"
+                                value={state.email}
+                                onChange={(e) => update('email', e.target.value)}
+                                placeholder="namn@exempel.se"
+                                className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl text-ink placeholder:text-slate-400 focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink transition-all"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-ink mb-2">Telefon</label>
+                        <div className="relative">
+                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="tel"
+                                value={state.phone}
+                                onChange={(e) => update('phone', e.target.value)}
+                                placeholder="070-123 45 67"
+                                className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl text-ink placeholder:text-slate-400 focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink transition-all"
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 {/* Seeking toggle */}
-                <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
-                    <div className="flex items-center justify-between mb-3">
+                <Card className="p-5 bg-white border-slate-200">
+                    <div className="flex items-center justify-between mb-4">
                         <div>
-                            <div className="font-medium">Söker du något?</div>
-                            <div className="text-sm text-zinc-500">LIA, jobb eller uppdrag</div>
+                            <p className="font-medium text-ink">Söker du något?</p>
+                            <p className="text-sm text-slate-500">LIA, jobb eller uppdrag</p>
                         </div>
                         <button
                             onClick={() => update('is_seeking', !state.is_seeking)}
-                            className={`relative w-12 h-7 rounded-full transition-colors ${state.is_seeking ? 'bg-[#ff4d4d]' : 'bg-zinc-700'
-                                }`}
+                            className={`relative w-12 h-7 rounded-full transition-colors ${
+                                state.is_seeking ? 'bg-ink' : 'bg-slate-200'
+                            }`}
                         >
                             <span
-                                className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${state.is_seeking ? 'left-6' : 'left-1'
-                                    }`}
+                                className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                                    state.is_seeking ? 'left-6' : 'left-1'
+                                }`}
                             />
                         </button>
                     </div>
 
                     {state.is_seeking && (
-                        <div className="space-y-3 pt-3 border-t border-zinc-800">
+                        <div className="space-y-4 pt-4 border-t border-slate-100">
                             <div className="flex gap-2">
                                 {SEEKING_TYPES.map((t) => (
                                     <button
                                         key={t.value}
                                         onClick={() => update('seeking_type', t.value)}
-                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${state.seeking_type === t.value
-                                            ? 'bg-[#ff4d4d] text-white'
-                                            : 'bg-zinc-800 text-zinc-400 hover:text-white'
-                                            }`}
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                            state.seeking_type === t.value
+                                                ? 'bg-ink text-white'
+                                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        }`}
                                     >
                                         {t.label}
                                     </button>
@@ -451,31 +485,30 @@ function StepBasics({ state, update }: StepProps) {
                                     value={state.seeking_period}
                                     onChange={(e) => update('seeking_period', e.target.value)}
                                     placeholder="Period (ex: Mars - Maj 2025)"
-                                    className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#ff4d4d]"
+                                    className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-ink"
                                 />
                                 <input
                                     type="text"
                                     value={state.seeking_location}
                                     onChange={(e) => update('seeking_location', e.target.value)}
                                     placeholder="Plats (ex: Stockholm)"
-                                    className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#ff4d4d]"
+                                    className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-ink"
                                 />
                             </div>
                         </div>
                     )}
-                </div>
+                </Card>
             </div>
-        </motion.div>
+        </div>
     );
 }
 
 function StepContent({ state, update }: StepProps) {
     const [skillInput, setSkillInput] = useState('');
+    const [showEducationForm, setShowEducationForm] = useState(false);
+    const [showProjectForm, setShowProjectForm] = useState(false);
     const [newEducation, setNewEducation] = useState<OnboardingEducation>({
         institution: '', degree: '', field: '', start_date: '', end_date: '', current: false
-    });
-    const [newExperience, setNewExperience] = useState<OnboardingExperience>({
-        company: '', title: '', start_date: '', end_date: '', current: false, description: ''
     });
     const [newProject, setNewProject] = useState<OnboardingProject>({
         name: '', description: '', technologies: [], url: '', github: ''
@@ -496,6 +529,7 @@ function StepContent({ state, update }: StepProps) {
         if (newEducation.institution && newEducation.degree) {
             update('education', [...state.education, newEducation]);
             setNewEducation({ institution: '', degree: '', field: '', start_date: '', end_date: '', current: false });
+            setShowEducationForm(false);
         }
     };
 
@@ -503,21 +537,11 @@ function StepContent({ state, update }: StepProps) {
         update('education', state.education.filter((_, i) => i !== index));
     };
 
-    const addExperience = () => {
-        if (newExperience.company && newExperience.title) {
-            update('experience', [...state.experience, newExperience]);
-            setNewExperience({ company: '', title: '', start_date: '', end_date: '', current: false, description: '' });
-        }
-    };
-
-    const removeExperience = (index: number) => {
-        update('experience', state.experience.filter((_, i) => i !== index));
-    };
-
     const addProject = () => {
         if (newProject.name && newProject.description) {
             update('projects', [...state.projects, newProject]);
             setNewProject({ name: '', description: '', technologies: [], url: '', github: '' });
+            setShowProjectForm(false);
         }
     };
 
@@ -526,67 +550,53 @@ function StepContent({ state, update }: StepProps) {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-10"
-        >
+        <div className="space-y-10 pb-24">
             <div>
-                <h1 className="text-4xl font-bold tracking-tight mb-2">
-                    Ditt innehåll
-                </h1>
-                <p className="text-zinc-400">
-                    Lägg till kompetenser, utbildning och projekt. Du kan alltid ändra senare.
-                </p>
+                <h1 className="text-3xl font-semibold text-ink mb-2">Ditt innehåll</h1>
+                <p className="text-slate-500">Lägg till kompetenser, utbildning och projekt.</p>
             </div>
 
             {/* Skills */}
-            <section className="space-y-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <span className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-sm">💡</span>
-                    Kompetenser
-                </h2>
+            <section>
+                <div className="flex items-center gap-2 mb-4">
+                    <Code className="w-5 h-5 text-slate-600" />
+                    <h2 className="text-lg font-semibold text-ink">Kompetenser</h2>
+                </div>
 
-                <div className="flex flex-wrap gap-2 mb-3">
+                <div className="flex flex-wrap gap-2 mb-4">
                     {state.skills.map((skill) => (
                         <span
                             key={skill}
-                            className="px-3 py-1.5 bg-zinc-800 rounded-lg text-sm flex items-center gap-2"
+                            className="px-3 py-1.5 bg-slate-100 rounded-lg text-sm flex items-center gap-2"
                         >
                             {skill}
-                            <button onClick={() => removeSkill(skill)} className="text-zinc-500 hover:text-white">
-                                ×
+                            <button onClick={() => removeSkill(skill)} className="text-slate-400 hover:text-red-500">
+                                <X className="w-3.5 h-3.5" />
                             </button>
                         </span>
                     ))}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 mb-3">
                     <input
                         type="text"
                         value={skillInput}
                         onChange={(e) => setSkillInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill(skillInput))}
                         placeholder="Skriv en kompetens..."
-                        className="flex-1 px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#ff4d4d]"
+                        className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-ink"
                     />
-                    <button
-                        onClick={() => addSkill(skillInput)}
-                        className="px-4 py-3 bg-zinc-800 text-white rounded-lg hover:bg-zinc-700 transition-colors"
-                    >
+                    <Button variant="secondary" onClick={() => addSkill(skillInput)}>
                         Lägg till
-                    </button>
+                    </Button>
                 </div>
 
-                {/* Quick add suggestions */}
                 <div className="flex flex-wrap gap-2">
-                    {TECH_STACK_OPTIONS.slice(0, 12).filter(t => !state.skills.includes(t.name)).map((tech) => (
+                    {TECH_STACK_OPTIONS.slice(0, 10).filter(t => !state.skills.includes(t.name)).map((tech) => (
                         <button
                             key={tech.name}
                             onClick={() => addSkill(tech.name)}
-                            className="px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
+                            className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-500 hover:text-ink hover:border-slate-300 transition-colors"
                         >
                             + {tech.name}
                         </button>
@@ -595,252 +605,323 @@ function StepContent({ state, update }: StepProps) {
             </section>
 
             {/* Education */}
-            <section className="space-y-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <span className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-sm">🎓</span>
-                    Utbildning
-                </h2>
-
-                {state.education.map((edu, i) => (
-                    <div key={i} className="p-4 bg-zinc-900 rounded-lg border border-zinc-800 flex items-start justify-between">
-                        <div>
-                            <div className="font-medium">{edu.degree}</div>
-                            <div className="text-sm text-zinc-400">{edu.institution}</div>
-                            <div className="text-xs text-zinc-500">{edu.start_date} - {edu.current ? 'Nu' : edu.end_date}</div>
-                        </div>
-                        <button onClick={() => removeEducation(i)} className="text-zinc-500 hover:text-red-500">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+            <section>
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <GraduationCap className="w-5 h-5 text-slate-600" />
+                        <h2 className="text-lg font-semibold text-ink">Utbildning</h2>
                     </div>
-                ))}
-
-                <div className="p-4 bg-zinc-900/50 rounded-lg border border-dashed border-zinc-700 space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                        <input
-                            type="text"
-                            value={newEducation.institution}
-                            onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })}
-                            placeholder="Skola"
-                            className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm"
-                        />
-                        <input
-                            type="text"
-                            value={newEducation.degree}
-                            onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })}
-                            placeholder="Program / Examen"
-                            className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm"
-                        />
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                        <input
-                            type="text"
-                            value={newEducation.start_date}
-                            onChange={(e) => setNewEducation({ ...newEducation, start_date: e.target.value })}
-                            placeholder="Startår (2023)"
-                            className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm"
-                        />
-                        <input
-                            type="text"
-                            value={newEducation.end_date}
-                            onChange={(e) => setNewEducation({ ...newEducation, end_date: e.target.value })}
-                            placeholder="Slutår (2025)"
-                            disabled={newEducation.current}
-                            className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm disabled:opacity-50"
-                        />
-                        <label className="flex items-center gap-2 text-sm text-zinc-400">
-                            <input
-                                type="checkbox"
-                                checked={newEducation.current}
-                                onChange={(e) => setNewEducation({ ...newEducation, current: e.target.checked })}
-                                className="w-4 h-4 rounded bg-zinc-800 border-zinc-700"
-                            />
-                            Pågående
-                        </label>
-                    </div>
-                    <button
-                        onClick={addEducation}
-                        disabled={!newEducation.institution || !newEducation.degree}
-                        className="w-full py-2 bg-zinc-800 text-sm font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowEducationForm(true)}
+                        className="gap-1"
                     >
-                        Lägg till utbildning
-                    </button>
+                        <Plus className="w-4 h-4" />
+                        Lägg till
+                    </Button>
+                </div>
+
+                <div className="space-y-3">
+                    {state.education.map((edu, i) => (
+                        <Card key={i} className="p-4 bg-white border-slate-200">
+                            <div className="flex justify-between">
+                                <div>
+                                    <p className="font-medium text-ink">{edu.degree}</p>
+                                    <p className="text-sm text-slate-500">{edu.institution}</p>
+                                    <p className="text-xs text-slate-400 mt-1">
+                                        {edu.start_date} – {edu.current ? 'Nu' : edu.end_date}
+                                    </p>
+                                </div>
+                                <button onClick={() => removeEducation(i)} className="text-slate-400 hover:text-red-500 h-fit">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </Card>
+                    ))}
+
+                    {showEducationForm && (
+                        <Card className="p-4 bg-slate-50 border-slate-200 space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                                <input
+                                    type="text"
+                                    value={newEducation.institution}
+                                    onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })}
+                                    placeholder="Skola"
+                                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-ink"
+                                />
+                                <input
+                                    type="text"
+                                    value={newEducation.degree}
+                                    onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })}
+                                    placeholder="Program / Examen"
+                                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-ink"
+                                />
+                            </div>
+                            <div className="grid grid-cols-3 gap-3">
+                                <input
+                                    type="text"
+                                    value={newEducation.start_date}
+                                    onChange={(e) => setNewEducation({ ...newEducation, start_date: e.target.value })}
+                                    placeholder="Start (2023)"
+                                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-ink"
+                                />
+                                <input
+                                    type="text"
+                                    value={newEducation.end_date}
+                                    onChange={(e) => setNewEducation({ ...newEducation, end_date: e.target.value })}
+                                    placeholder="Slut (2025)"
+                                    disabled={newEducation.current}
+                                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-ink disabled:opacity-50"
+                                />
+                                <label className="flex items-center gap-2 text-sm text-slate-600">
+                                    <input
+                                        type="checkbox"
+                                        checked={newEducation.current}
+                                        onChange={(e) => setNewEducation({ ...newEducation, current: e.target.checked })}
+                                        className="w-4 h-4 rounded border-slate-300"
+                                    />
+                                    Pågående
+                                </label>
+                            </div>
+                            <div className="flex gap-2 justify-end">
+                                <Button variant="ghost" size="sm" onClick={() => setShowEducationForm(false)}>
+                                    Avbryt
+                                </Button>
+                                <Button size="sm" onClick={addEducation} disabled={!newEducation.institution || !newEducation.degree}>
+                                    Spara
+                                </Button>
+                            </div>
+                        </Card>
+                    )}
+
+                    {state.education.length === 0 && !showEducationForm && (
+                        <div className="text-center py-8 text-slate-400 text-sm">
+                            Ingen utbildning tillagd ännu
+                        </div>
+                    )}
                 </div>
             </section>
 
             {/* Projects */}
-            <section className="space-y-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <span className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-sm">🚀</span>
-                    Projekt
-                </h2>
-
-                {state.projects.map((proj, i) => (
-                    <div key={i} className="p-4 bg-zinc-900 rounded-lg border border-zinc-800 flex items-start justify-between">
-                        <div>
-                            <div className="font-medium">{proj.name}</div>
-                            <div className="text-sm text-zinc-400 line-clamp-2">{proj.description}</div>
-                            <div className="flex gap-2 mt-2">
-                                {proj.technologies.slice(0, 3).map(t => (
-                                    <span key={t} className="text-xs px-2 py-1 bg-zinc-800 rounded">{t}</span>
-                                ))}
-                            </div>
-                        </div>
-                        <button onClick={() => removeProject(i)} className="text-zinc-500 hover:text-red-500">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+            <section>
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-slate-600" />
+                        <h2 className="text-lg font-semibold text-ink">Projekt</h2>
                     </div>
-                ))}
-
-                <div className="p-4 bg-zinc-900/50 rounded-lg border border-dashed border-zinc-700 space-y-3">
-                    <input
-                        type="text"
-                        value={newProject.name}
-                        onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                        placeholder="Projektnamn"
-                        className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm"
-                    />
-                    <textarea
-                        value={newProject.description}
-                        onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                        placeholder="Kort beskrivning av projektet..."
-                        rows={2}
-                        className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm resize-none"
-                    />
-                    <div className="grid grid-cols-2 gap-3">
-                        <input
-                            type="url"
-                            value={newProject.url}
-                            onChange={(e) => setNewProject({ ...newProject, url: e.target.value })}
-                            placeholder="Live URL (valfritt)"
-                            className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm"
-                        />
-                        <input
-                            type="url"
-                            value={newProject.github}
-                            onChange={(e) => setNewProject({ ...newProject, github: e.target.value })}
-                            placeholder="GitHub (valfritt)"
-                            className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm"
-                        />
-                    </div>
-                    <button
-                        onClick={addProject}
-                        disabled={!newProject.name || !newProject.description}
-                        className="w-full py-2 bg-zinc-800 text-sm font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowProjectForm(true)}
+                        className="gap-1"
                     >
-                        Lägg till projekt
-                    </button>
+                        <Plus className="w-4 h-4" />
+                        Lägg till
+                    </Button>
+                </div>
+
+                <div className="space-y-3">
+                    {state.projects.map((proj, i) => (
+                        <Card key={i} className="p-4 bg-white border-slate-200">
+                            <div className="flex justify-between">
+                                <div>
+                                    <p className="font-medium text-ink">{proj.name}</p>
+                                    <p className="text-sm text-slate-500 line-clamp-1">{proj.description}</p>
+                                    <div className="flex gap-1.5 mt-2">
+                                        {proj.technologies.slice(0, 3).map(t => (
+                                            <span key={t} className="text-xs px-2 py-0.5 bg-slate-100 rounded">{t}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <button onClick={() => removeProject(i)} className="text-slate-400 hover:text-red-500 h-fit">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </Card>
+                    ))}
+
+                    {showProjectForm && (
+                        <Card className="p-4 bg-slate-50 border-slate-200 space-y-3">
+                            <input
+                                type="text"
+                                value={newProject.name}
+                                onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                                placeholder="Projektnamn"
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-ink"
+                            />
+                            <textarea
+                                value={newProject.description}
+                                onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                                placeholder="Kort beskrivning..."
+                                rows={2}
+                                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-ink resize-none"
+                            />
+                            <div className="grid grid-cols-2 gap-3">
+                                <input
+                                    type="url"
+                                    value={newProject.url}
+                                    onChange={(e) => setNewProject({ ...newProject, url: e.target.value })}
+                                    placeholder="Live URL (valfritt)"
+                                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-ink"
+                                />
+                                <input
+                                    type="url"
+                                    value={newProject.github}
+                                    onChange={(e) => setNewProject({ ...newProject, github: e.target.value })}
+                                    placeholder="GitHub (valfritt)"
+                                    className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-ink"
+                                />
+                            </div>
+                            <div className="flex gap-2 justify-end">
+                                <Button variant="ghost" size="sm" onClick={() => setShowProjectForm(false)}>
+                                    Avbryt
+                                </Button>
+                                <Button size="sm" onClick={addProject} disabled={!newProject.name || !newProject.description}>
+                                    Spara
+                                </Button>
+                            </div>
+                        </Card>
+                    )}
+
+                    {state.projects.length === 0 && !showProjectForm && (
+                        <div className="text-center py-8 text-slate-400 text-sm">
+                            Inga projekt tillagda ännu
+                        </div>
+                    )}
                 </div>
             </section>
-        </motion.div>
+        </div>
     );
 }
 
 function StepDesign({ state, update }: StepProps) {
-    const templates = getTemplatesForTier('free'); // Show all free templates initially
+    const allTemplates = TEMPLATES;
+    const selectedTemplate = allTemplates.find(t => t.id === state.template_id);
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-8"
-        >
-            <div>
-                <h1 className="text-4xl font-bold tracking-tight mb-2">
-                    Välj din stil
-                </h1>
-                <p className="text-zinc-400">
-                    Din portfolio, din personlighet. Välj en design som passar dig.
-                </p>
+        <div className="pb-24">
+            <div className="mb-8">
+                <h1 className="text-3xl font-semibold text-ink mb-2">Välj din stil</h1>
+                <p className="text-slate-500">Din portfolio, din personlighet.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                {templates.map((template) => {
-                    const family = getFamily(template.family);
-                    const isSelected = state.template_id === template.id;
+            <div className="grid lg:grid-cols-2 gap-8">
+                {/* Template Grid */}
+                <div>
+                    <h3 className="text-sm font-medium text-slate-500 mb-4 uppercase tracking-wide">
+                        {allTemplates.length} Templates
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2">
+                        {allTemplates.map((template) => {
+                            const family = getFamily(template.family);
+                            const isSelected = state.template_id === template.id;
+                            const isLocked = template.tier !== 'free';
 
-                    return (
-                        <button
-                            key={template.id}
-                            onClick={() => update('template_id', template.id)}
-                            className={`relative p-4 rounded-xl border-2 text-left transition-all ${isSelected
-                                ? 'border-[#ff4d4d] bg-[#ff4d4d]/5'
-                                : 'border-zinc-800 hover:border-zinc-700'
-                                }`}
-                        >
-                            {/* Preview */}
-                            <div
-                                className="aspect-[4/3] rounded-lg mb-3 overflow-hidden"
-                                style={{ background: template.style.bg_primary }}
-                            >
-                                <div className="h-full p-3 flex flex-col">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div
-                                            className="w-6 h-6 rounded"
-                                            style={{ background: template.style.accent }}
-                                        />
-                                        <div
-                                            className="h-2 w-16 rounded"
-                                            style={{ background: template.style.text_secondary }}
-                                        />
-                                    </div>
+                            return (
+                                <button
+                                    key={template.id}
+                                    onClick={() => !isLocked && update('template_id', template.id)}
+                                    className={`relative p-3 rounded-xl border-2 text-left transition-all ${
+                                        isSelected
+                                            ? 'border-ink ring-2 ring-ink/20'
+                                            : isLocked
+                                                ? 'border-slate-200 opacity-60'
+                                                : 'border-slate-200 hover:border-slate-300'
+                                    }`}
+                                >
+                                    {/* Mini Preview */}
                                     <div
-                                        className="h-3 w-24 rounded mb-1"
-                                        style={{ background: template.style.text_primary }}
-                                    />
-                                    <div
-                                        className="h-2 w-20 rounded"
-                                        style={{ background: template.style.text_muted }}
-                                    />
-                                    <div className="flex-1" />
-                                    <div className="flex gap-2">
-                                        <div
-                                            className="h-8 w-8 rounded"
-                                            style={{ background: template.style.bg_card }}
-                                        />
-                                        <div
-                                            className="h-8 w-8 rounded"
-                                            style={{ background: template.style.bg_card }}
-                                        />
+                                        className="aspect-[4/3] rounded-lg mb-2 overflow-hidden"
+                                        style={{ background: template.style.bg_primary }}
+                                    >
+                                        <div className="h-full p-2.5 flex flex-col">
+                                            <div className="flex items-center gap-1.5 mb-1.5">
+                                                <div
+                                                    className="w-4 h-4 rounded"
+                                                    style={{ background: template.style.accent }}
+                                                />
+                                                <div
+                                                    className="h-1.5 w-10 rounded"
+                                                    style={{ background: template.style.text_secondary }}
+                                                />
+                                            </div>
+                                            <div
+                                                className="h-2 w-14 rounded mb-0.5"
+                                                style={{ background: template.style.text_primary }}
+                                            />
+                                            <div
+                                                className="h-1.5 w-12 rounded"
+                                                style={{ background: template.style.text_muted }}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div className="font-medium text-sm">{template.name}</div>
-                            <div className="text-xs text-zinc-500">{family.name}</div>
+                                    <p className="font-medium text-sm text-ink truncate">{template.name}</p>
+                                    <p className="text-xs text-slate-500">{family.name}</p>
 
-                            {isSelected && (
-                                <div className="absolute top-2 right-2 w-6 h-6 bg-[#ff4d4d] rounded-full flex items-center justify-center">
-                                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                            )}
-                        </button>
-                    );
-                })}
-            </div>
+                                    {isLocked && (
+                                        <div className="absolute top-2 right-2">
+                                            <Badge variant="outline" className="text-xs gap-1">
+                                                <Crown className="w-3 h-3" />
+                                                {template.tier === 'premium' ? 'Premium' : 'Pro'}
+                                            </Badge>
+                                        </div>
+                                    )}
 
-            <div className="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#ff4d4d] to-orange-500 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <div className="font-medium">Fler templates?</div>
-                        <div className="text-sm text-zinc-400">
-                            Uppgradera för att låsa upp 20+ premium-designs
-                        </div>
+                                    {isSelected && (
+                                        <div className="absolute top-2 right-2 w-5 h-5 bg-ink rounded-full flex items-center justify-center">
+                                            <Check className="w-3 h-3 text-white" />
+                                        </div>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
+
+                {/* Live Preview */}
+                <div className="lg:sticky lg:top-6">
+                    <h3 className="text-sm font-medium text-slate-500 mb-4 uppercase tracking-wide">
+                        Förhandsvisning
+                    </h3>
+                    <Card className="overflow-hidden border-slate-200">
+                        <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
+                            {/* Small iframe preview - intentionally small to prevent screenshot abuse */}
+                            <iframe
+                                src={`/api/portfolio-preview?template=${state.template_id}&name=${encodeURIComponent(state.full_name || 'Ditt Namn')}&title=${encodeURIComponent(state.title || 'Din Titel')}&preview=true`}
+                                className="absolute inset-0 w-[200%] h-[200%] origin-top-left scale-50 pointer-events-none"
+                                style={{ border: 'none' }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent pointer-events-none" />
+                        </div>
+                        <div className="p-4 bg-white border-t border-slate-100">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-medium text-ink">{selectedTemplate?.name}</p>
+                                    <p className="text-xs text-slate-500">{selectedTemplate ? getFamily(selectedTemplate.family).description : ''}</p>
+                                </div>
+                                <Badge variant="primary" className="gap-1">
+                                    <Eye className="w-3 h-3" />
+                                    Preview
+                                </Badge>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="mt-4 p-4 bg-amber-50 border-amber-100">
+                        <div className="flex items-start gap-3">
+                            <Zap className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                            <div>
+                                <p className="font-medium text-amber-900 text-sm">Vill du ha fler val?</p>
+                                <p className="text-xs text-amber-700 mt-0.5">
+                                    Uppgradera för att låsa upp alla {allTemplates.filter(t => t.tier !== 'free').length} premium templates.
+                                </p>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
             </div>
-        </motion.div>
+        </div>
     );
 }
