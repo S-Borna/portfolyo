@@ -23,6 +23,7 @@ export interface TemplateConfig {
     name: string;
     description: string;
     category: TemplateCategory;
+    tier: 'free' | 'starter' | 'pro';  // Added tier for access control
     colorScheme: ColorScheme;
     typography: TypographyStyle;
     layout: LayoutStyle;

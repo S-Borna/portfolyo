@@ -279,7 +279,7 @@ export default function DashboardPage() {
                                                 Redigera innehåll
                                             </Button>
                                         </Link>
-                                        <Link href={`/portfolio/${portfolio.id}/edit?tab=design`}>
+                                        <Link href="/templates">
                                             <Button variant="secondary" className="w-full justify-center gap-2">
                                                 <Palette className="w-4 h-4" />
                                                 Byt template
@@ -306,7 +306,7 @@ export default function DashboardPage() {
                                     <p className="text-sm text-slate-500 mb-6 max-w-xs mx-auto">
                                         Skapa din professionella portfolio på några minuter.
                                     </p>
-                                    <Link href="/portfolio/new">
+                                    <Link href="/templates">
                                         <Button className="gap-2">
                                             <Plus className="w-4 h-4" />
                                             Skapa portfolio
@@ -329,16 +329,16 @@ export default function DashboardPage() {
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
-                                <Link href="/cv/new">
+                                <Link href="/templates?view=cv">
                                     <Button variant="secondary" className="w-full justify-center gap-2">
                                         <Plus className="w-4 h-4" />
                                         Skapa nytt CV
                                     </Button>
                                 </Link>
-                                <Link href="/cv/new?gallery=true">
+                                <Link href="/templates">
                                     <Button variant="ghost" className="w-full justify-center gap-2">
                                         <Eye className="w-4 h-4" />
-                                        Se templates
+                                        Se alla templates
                                     </Button>
                                 </Link>
                             </div>
