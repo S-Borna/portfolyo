@@ -17,22 +17,30 @@ const { Lock, Mail, ArrowRight, Sparkles, Github } = Icons;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated } = usePortfolyoStore();
+  const { login } = usePortfolyoStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
+  // Check actual Supabase session on mount - not local store
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted && isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [mounted, isAuthenticated, router]);
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // User has valid session, redirect to dashboard
+          router.replace('/dashboard');
+          return;
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+      }
+      setCheckingAuth(false);
+    };
+    checkSession();
+  }, [router]);
 
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
     setIsLoading(true);
@@ -115,8 +123,12 @@ export default function LoginPage() {
     }
   };
 
-  if (!mounted) {
-    return null;
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
