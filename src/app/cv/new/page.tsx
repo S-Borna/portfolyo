@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -84,7 +84,7 @@ interface SkillCategory {
   skills: string[];
 }
 
-export default function NewCVPage() {
+function NewCVPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { createCV, isAuthenticated, user } = usePortfolyoStore();
@@ -887,5 +887,17 @@ export default function NewCVPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function NewCVPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    }>
+      <NewCVPageContent />
+    </Suspense>
   );
 }
