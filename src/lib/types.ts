@@ -143,7 +143,13 @@ export interface CV {
   updatedAt: Date;
 }
 
-export type CVTemplate = 'modern' | 'classic' | 'minimal' | 'creative';
+export type CVTemplate = 'modern' | 'classic' | 'minimal' | 'creative' | 
+  // V2 Templates (sidebar-layout)
+  'said-dark' | 'said-light' | 'said-navy' | 'said-forest' |
+  'tf-noir-extreme' | 'tf-oud-wood' | 'tf-tobacco-vanille' | 'tf-tuscan-leather' | 
+  'tf-velvet-orchid' | 'tf-black-orchid' |
+  'exec-charcoal' | 'exec-midnight-blue' | 'exec-slate' |
+  string; // Allow any V2 template id
 
 export interface CVPersonalInfo {
   fullName: string;

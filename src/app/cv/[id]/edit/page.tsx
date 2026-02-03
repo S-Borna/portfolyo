@@ -19,6 +19,8 @@ import { usePortfolyoStore } from '@/lib/store';
 import { CREDIT_COSTS } from '@/lib/types';
 import type { CVExperience, CVEducation, CVSkillCategory, CV, CVTemplate } from '@/lib/types';
 import { generateId } from '@/lib/utils';
+// Använd V2-templates (din design)
+import { CV_TEMPLATES_V2 } from '@/lib/templates/cv-renderer-v2';
 
 const {
   ArrowLeft,
@@ -40,12 +42,12 @@ const {
   Eye,
 } = Icons;
 
-const CV_TEMPLATES: { id: CVTemplate; name: string; description: string }[] = [
-  { id: 'modern', name: 'Modern', description: 'Ren och modern design' },
-  { id: 'classic', name: 'Klassisk', description: 'Traditionell och professionell' },
-  { id: 'minimal', name: 'Minimal', description: 'Enkel och avskalad' },
-  { id: 'creative', name: 'Kreativ', description: 'Utmärkande och unik' },
-];
+// Använd V2-templates - ALLA har samma sidebar-layout, bara färgerna skiljer
+const CV_TEMPLATES = CV_TEMPLATES_V2.slice(0, 10).map(t => ({
+  id: t.id as CVTemplate,
+  name: t.name,
+  description: t.description,
+}));
 
 export default function CVEditorPage() {
   const router = useRouter();
