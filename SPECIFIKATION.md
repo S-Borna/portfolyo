@@ -136,7 +136,7 @@ portfolyo/
 
 ### Grundprincip
 
-Alla templates bygger på **EN FAST DESIGN** - saidborna.com för portfolio och ditt CV för CV. 
+Alla templates bygger på **EN FAST DESIGN** - saidborna.com för portfolio och ditt CV för CV.
 Det enda som skiljer templates åt är **FÄRGERNA**. Layouten är identisk.
 
 ### Benchmark-design
@@ -152,7 +152,7 @@ Det enda som skiljer templates åt är **FÄRGERNA**. Layouten är identisk.
 src/lib/templates/
 ├── ARCHITECTURE.md          # ⭐ Dokumentation av systemet
 ├── cv-renderer-v2.ts        # ✅ CANONICAL - Renderar CV HTML
-├── portfolio-renderer-v2.ts # ✅ CANONICAL - Renderar Portfolio HTML  
+├── portfolio-renderer-v2.ts # ✅ CANONICAL - Renderar Portfolio HTML
 ├── templates.ts             # Portfolio template-definitioner
 ├── effects.ts               # Animationer, färgscheman
 ├── index.ts                 # Central export
@@ -165,12 +165,14 @@ src/lib/templates/
 ### Template-varianter
 
 **CV (50 varianter)** - Alla använder sidebar-layout:
+
 - Said Dark, Said Light, Said Navy, Said Forest
 - Tom Ford Collection (Noir Extreme, Oud Wood, etc.)
 - Executive Collection
 - Mer...
 
 **Portfolio (100 varianter)** - Alla använder saidborna.com-design:
+
 - DevOps Crimson, Deep Ocean, Matrix Code
 - Designer Collection
 - Minimal Collection

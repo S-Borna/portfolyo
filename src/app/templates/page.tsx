@@ -125,8 +125,8 @@ function PreviewModal({ template, type, onClose, onSelect }: PreviewModalProps) 
                                 <Button variant="outline" size="sm" onClick={onClose}>
                                     Stäng
                                 </Button>
-                                <Button 
-                                    size="sm" 
+                                <Button
+                                    size="sm"
                                     onClick={onSelect}
                                     rightIcon={<ArrowRight className="w-4 h-4" />}
                                     className="shadow-lg shadow-violet-500/20"
@@ -156,11 +156,11 @@ function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
             style={{ backgroundColor: colorScheme.bgPrimary }}
         >
             {/* Floating orbs bakgrund */}
-            <div 
+            <div
                 className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-[100px] opacity-30"
                 style={{ backgroundColor: colorScheme.accent }}
             />
-            <div 
+            <div
                 className="absolute -bottom-32 -left-32 w-64 h-64 rounded-full blur-[80px] opacity-20"
                 style={{ backgroundColor: colorScheme.accent }}
             />
@@ -208,24 +208,24 @@ function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
                             <h1 className="text-3xl font-bold leading-none mb-2" style={{ color: colorScheme.textPrimary }}>
                                 ERIK
                             </h1>
-                            <h1 className="text-3xl font-bold leading-none mb-4" style={{ 
+                            <h1 className="text-3xl font-bold leading-none mb-4" style={{
                                 WebkitTextStroke: `1px ${colorScheme.textPrimary}`,
                                 WebkitTextFillColor: 'transparent'
                             }}>
                                 LINDSTRÖM
                             </h1>
                             <p className="text-xs mb-4 leading-relaxed" style={{ color: colorScheme.textSecondary }}>
-                                Passionerad utvecklare med fokus på React och TypeScript. 
+                                Passionerad utvecklare med fokus på React och TypeScript.
                                 Bygger moderna webbupplevelser.
                             </p>
                             <div className="flex gap-3">
-                                <button 
+                                <button
                                     className="px-4 py-2 text-xs font-medium rounded"
                                     style={{ backgroundColor: colorScheme.accent, color: colorScheme.bgPrimary }}
                                 >
                                     SE CV
                                 </button>
-                                <button 
+                                <button
                                     className="px-4 py-2 text-xs font-medium rounded border"
                                     style={{ borderColor: colorScheme.textSecondary, color: colorScheme.textPrimary }}
                                 >
@@ -235,7 +235,7 @@ function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
                         </div>
                         {/* Image side */}
                         <div className="shrink-0">
-                            <img 
+                            <img
                                 src={EXAMPLE_PERSON.image}
                                 alt=""
                                 className="w-32 h-32 rounded-full object-cover border-2"
@@ -259,7 +259,7 @@ function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
                                     className="rounded-lg overflow-hidden"
                                     style={{ backgroundColor: colorScheme.bgCard || colorScheme.bgPrimary }}
                                 >
-                                    <img 
+                                    <img
                                         src={project.image}
                                         alt=""
                                         className="w-full aspect-[4/3] object-cover"
@@ -301,12 +301,12 @@ function CVPreviewLarge({ template }: { template: CVTemplate }) {
                 style={{ backgroundColor: colors.background }}
             >
                 {/* VÄNSTER SIDEBAR - mörk bakgrund */}
-                <div 
+                <div
                     className="w-[38%] p-3 text-white"
                     style={{ backgroundColor: colors.primary }}
                 >
                     {/* Profilbild */}
-                    <img 
+                    <img
                         src={EXAMPLE_PERSON.image}
                         alt=""
                         className="w-14 h-14 rounded-full mx-auto mb-2 object-cover border-2 border-white/20"
@@ -475,35 +475,35 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
                     </div>
 
                     {/* Page content - RIKTIGT INNEHÅLL */}
-                    <div 
-                        className="h-[calc(100%-1rem)] sm:h-[calc(100%-1.25rem)] p-2 sm:p-3 overflow-hidden" 
+                    <div
+                        className="h-[calc(100%-1rem)] sm:h-[calc(100%-1.25rem)] p-2 sm:p-3 overflow-hidden"
                         style={{ backgroundColor: colorScheme.bgPrimary }}
                     >
                         {/* Hero section med profilbild och text */}
                         <div className="flex gap-2 mb-2">
                             {/* Profilbild */}
-                            <img 
+                            <img
                                 src={EXAMPLE_PERSON.image}
                                 alt=""
                                 className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
                             />
                             <div className="min-w-0 flex-1">
                                 {/* Namn */}
-                                <p 
+                                <p
                                     className="text-[8px] sm:text-[10px] font-bold truncate leading-tight"
                                     style={{ color: colorScheme.textPrimary }}
                                 >
                                     {EXAMPLE_PERSON.name}
                                 </p>
                                 {/* Titel */}
-                                <p 
+                                <p
                                     className="text-[6px] sm:text-[8px] truncate"
                                     style={{ color: colorScheme.accent }}
                                 >
                                     {EXAMPLE_PERSON.title}
                                 </p>
                                 {/* Tagline */}
-                                <p 
+                                <p
                                     className="text-[5px] sm:text-[6px] truncate mt-0.5"
                                     style={{ color: colorScheme.textSecondary }}
                                 >
@@ -513,7 +513,7 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
                         </div>
 
                         {/* CTA Button */}
-                        <div 
+                        <div
                             className="inline-block px-2 py-0.5 rounded text-[5px] sm:text-[6px] font-medium mb-2"
                             style={{ backgroundColor: colorScheme.accent, color: colorScheme.bgPrimary }}
                         >
@@ -524,7 +524,7 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
                         <div className="grid grid-cols-3 gap-1">
                             {EXAMPLE_PROJECTS.map((project, i) => (
                                 <div key={i} className="aspect-[3/2] rounded overflow-hidden">
-                                    <img 
+                                    <img
                                         src={project.image}
                                         alt=""
                                         className="w-full h-full object-cover"
@@ -646,7 +646,7 @@ function CVTemplateCard({ template, isSelected, onSelect, onPreview }: CVCardPro
                         style={{ backgroundColor: colors.primary }}
                     >
                         {/* Profilbild */}
-                        <img 
+                        <img
                             src={EXAMPLE_PERSON.image}
                             alt=""
                             className="w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 object-cover"
@@ -678,7 +678,7 @@ function CVTemplateCard({ template, isSelected, onSelect, onPreview }: CVCardPro
                         <p className="text-[3px] sm:text-[4px] mb-1" style={{ color: colors.muted }}>
                             TechBolag AB • 2023–Nu
                         </p>
-                        
+
                         {/* Utbildning */}
                         <p className="text-[5px] sm:text-[6px] font-bold mb-0.5 mt-1.5" style={{ color: colors.primary }}>
                             UTBILDNING
@@ -691,7 +691,7 @@ function CVTemplateCard({ template, isSelected, onSelect, onPreview }: CVCardPro
                         </p>
                     </div>
                 </div>
-                
+
                 {/* Hover overlay with preview button */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
                     <motion.button
@@ -868,7 +868,7 @@ function TemplatesPageContent() {
     const [selectedPortfolioTemplate, setSelectedPortfolioTemplate] = useState<string | null>(null);
     const [selectedCVTemplate, setSelectedCVTemplate] = useState<string | null>(null);
     const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
-    
+
     // Preview modal state
     const [previewTemplate, setPreviewTemplate] = useState<TemplateConfig | CVTemplate | null>(null);
     const [previewType, setPreviewType] = useState<'portfolio' | 'cv'>('portfolio');

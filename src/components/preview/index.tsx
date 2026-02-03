@@ -1,15 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import type { PortfolioTemplateConfig, CVTemplateConfig } from '@/lib/templates';
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Linkedin, 
-  Github, 
-  Globe, 
+import { renderCVV2, CV_TEMPLATES_V2, type CVData, type CVTemplateConfig as CVTemplateConfigV2 } from '@/lib/templates/cv-renderer-v2';
+import { renderPortfolioV2, PORTFOLIO_TEMPLATES_V2, type PortfolioDataV2 } from '@/lib/templates/portfolio-renderer-v2';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Github,
+  Globe,
   ExternalLink,
   Calendar,
   Briefcase,
@@ -60,7 +62,7 @@ interface PortfolioPreviewProps {
 
 export function PortfolioPreview({ template, data, className, scale = 0.4 }: PortfolioPreviewProps) {
   const { colors, fonts, layout } = template;
-  
+
   const previewStyle = {
     '--primary': colors.primary,
     '--secondary': colors.secondary,
@@ -71,12 +73,12 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
     fontFamily: fonts.body,
   } as React.CSSProperties;
 
-  const isDark = colors.background.toLowerCase() === '#000000' || 
-                 colors.background.toLowerCase().startsWith('#0') ||
-                 colors.background.toLowerCase().startsWith('#1');
+  const isDark = colors.background.toLowerCase() === '#000000' ||
+    colors.background.toLowerCase().startsWith('#0') ||
+    colors.background.toLowerCase().startsWith('#1');
 
   return (
-    <div 
+    <div
       className={cn(
         'rounded-xl overflow-hidden shadow-2xl border',
         isDark ? 'border-gray-700' : 'border-gray-200',
@@ -89,7 +91,7 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
         height: `${100 / scale}%`,
       }}
     >
-      <div 
+      <div
         className="min-h-[1000px] w-[1200px]"
         style={{
           ...previewStyle,
@@ -98,10 +100,10 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
         }}
       >
         {/* Header / Hero */}
-        <header 
+        <header
           className="px-16 py-20"
           style={{
-            background: isDark 
+            background: isDark
               ? `linear-gradient(135deg, ${colors.background} 0%, ${colors.secondary}20 100%)`
               : `linear-gradient(135deg, ${colors.background} 0%, ${colors.primary}10 100%)`,
           }}
@@ -110,9 +112,9 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
             {/* Profile */}
             <div className="flex items-start gap-8">
               {/* Avatar */}
-              <div 
+              <div
                 className="w-32 h-32 rounded-2xl flex items-center justify-center text-4xl font-bold"
-                style={{ 
+                style={{
                   backgroundColor: colors.primary,
                   color: '#FFFFFF',
                 }}
@@ -121,13 +123,13 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
               </div>
 
               <div className="flex-1">
-                <h1 
+                <h1
                   className="text-5xl font-bold mb-2"
                   style={{ fontFamily: fonts.heading }}
                 >
                   {data.fullName || 'Ditt Namn'}
                 </h1>
-                <p 
+                <p
                   className="text-2xl mb-4"
                   style={{ color: colors.primary }}
                 >
@@ -171,9 +173,9 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
 
             {/* Bio */}
             {data.bio && (
-              <div 
+              <div
                 className="mt-8 p-6 rounded-xl"
-                style={{ 
+                style={{
                   backgroundColor: isDark ? `${colors.primary}15` : `${colors.primary}08`,
                   borderLeft: `4px solid ${colors.primary}`,
                 }}
@@ -184,9 +186,9 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
 
             {/* Seeking badge */}
             {data.seeking && (
-              <div 
+              <div
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full mt-6 text-sm font-medium"
-                style={{ 
+                style={{
                   backgroundColor: colors.accent,
                   color: isDark ? colors.background : '#FFFFFF',
                 }}
@@ -202,7 +204,7 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
         {data.skills && data.skills.length > 0 && (
           <section className="px-16 py-12 border-t" style={{ borderColor: isDark ? '#333' : '#eee' }}>
             <div className="max-w-5xl mx-auto">
-              <h2 
+              <h2
                 className="text-2xl font-bold mb-6"
                 style={{ fontFamily: fonts.heading }}
               >
@@ -210,10 +212,10 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
               </h2>
               <div className="flex flex-wrap gap-3">
                 {data.skills.map((skill, i) => (
-                  <span 
+                  <span
                     key={i}
                     className="px-4 py-2 rounded-lg text-sm font-medium"
-                    style={{ 
+                    style={{
                       backgroundColor: isDark ? `${colors.primary}20` : `${colors.primary}10`,
                       color: colors.primary,
                     }}
@@ -230,7 +232,7 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
         {data.projects && data.projects.length > 0 && (
           <section className="px-16 py-12 border-t" style={{ borderColor: isDark ? '#333' : '#eee' }}>
             <div className="max-w-5xl mx-auto">
-              <h2 
+              <h2
                 className="text-2xl font-bold mb-8"
                 style={{ fontFamily: fonts.heading }}
               >
@@ -238,10 +240,10 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
               </h2>
               <div className="grid grid-cols-2 gap-6">
                 {data.projects.map((project, i) => (
-                  <div 
+                  <div
                     key={i}
                     className="rounded-xl p-6 transition-all hover:scale-[1.02]"
-                    style={{ 
+                    style={{
                       backgroundColor: isDark ? `${colors.secondary}15` : '#F8FAFC',
                       border: `1px solid ${isDark ? '#333' : '#E2E8F0'}`,
                     }}
@@ -252,10 +254,10 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag, j) => (
-                        <span 
+                        <span
                           key={j}
                           className="px-2 py-1 rounded text-xs"
-                          style={{ 
+                          style={{
                             backgroundColor: colors.accent + '20',
                             color: colors.accent,
                           }}
@@ -277,7 +279,7 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
             {/* Experience */}
             {data.experience && data.experience.length > 0 && (
               <div>
-                <h2 
+                <h2
                   className="text-2xl font-bold mb-6 flex items-center gap-3"
                   style={{ fontFamily: fonts.heading }}
                 >
@@ -286,7 +288,7 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
                 </h2>
                 <div className="space-y-4">
                   {data.experience.map((exp, i) => (
-                    <div 
+                    <div
                       key={i}
                       className="pl-4"
                       style={{ borderLeft: `2px solid ${colors.primary}` }}
@@ -305,7 +307,7 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
             {/* Education */}
             {data.education && data.education.length > 0 && (
               <div>
-                <h2 
+                <h2
                   className="text-2xl font-bold mb-6 flex items-center gap-3"
                   style={{ fontFamily: fonts.heading }}
                 >
@@ -314,7 +316,7 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
                 </h2>
                 <div className="space-y-4">
                   {data.education.map((edu, i) => (
-                    <div 
+                    <div
                       key={i}
                       className="pl-4"
                       style={{ borderLeft: `2px solid ${colors.accent}` }}
@@ -331,9 +333,9 @@ export function PortfolioPreview({ template, data, className, scale = 0.4 }: Por
         </section>
 
         {/* Footer */}
-        <footer 
+        <footer
           className="px-16 py-8 text-center text-sm"
-          style={{ 
+          style={{
             backgroundColor: isDark ? `${colors.primary}10` : `${colors.primary}05`,
             color: colors.muted,
           }}
@@ -386,14 +388,14 @@ interface CVPreviewProps {
 
 export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewProps) {
   const { colors, fonts, layout } = template;
-  
+
   const isDark = colors.background.toLowerCase().startsWith('#0') ||
-                 colors.background.toLowerCase().startsWith('#1');
+    colors.background.toLowerCase().startsWith('#1');
 
   const isTwoColumn = layout === 'two-column' || layout === 'sidebar';
 
   return (
-    <div 
+    <div
       className={cn(
         'rounded-lg overflow-hidden shadow-2xl',
         isDark ? 'border border-gray-700' : 'border border-gray-200',
@@ -405,7 +407,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
         width: `${100 / scale}%`,
       }}
     >
-      <div 
+      <div
         className="w-[794px] min-h-[1123px]" // A4 proportions
         style={{
           backgroundColor: colors.background,
@@ -417,22 +419,22 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
           // Two-column layout
           <div className="flex h-full">
             {/* Sidebar */}
-            <div 
+            <div
               className="w-1/3 p-8"
-              style={{ 
+              style={{
                 backgroundColor: colors.primary,
                 color: '#FFFFFF',
               }}
             >
               {/* Avatar placeholder */}
-              <div 
+              <div
                 className="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center text-3xl font-bold"
                 style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
               >
                 {data.fullName?.charAt(0) || 'N'}
               </div>
 
-              <h1 
+              <h1
                 className="text-xl font-bold text-center mb-1"
                 style={{ fontFamily: fonts.heading }}
               >
@@ -487,7 +489,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
                       <h3 className="text-sm font-medium mb-2">{category.name}</h3>
                       <div className="flex flex-wrap gap-1">
                         {category.skills.map((skill, j) => (
-                          <span 
+                          <span
                             key={j}
                             className="text-xs px-2 py-1 rounded"
                             style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}
@@ -507,7 +509,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
               {/* Summary */}
               {data.summary && (
                 <section className="mb-8">
-                  <h2 
+                  <h2
                     className="text-lg font-bold mb-3"
                     style={{ color: colors.primary, fontFamily: fonts.heading }}
                   >
@@ -522,7 +524,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
               {/* Experience */}
               {data.experience && data.experience.length > 0 && (
                 <section className="mb-8">
-                  <h2 
+                  <h2
                     className="text-lg font-bold mb-4"
                     style={{ color: colors.primary, fontFamily: fonts.heading }}
                   >
@@ -566,7 +568,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
               {/* Education */}
               {data.education && data.education.length > 0 && (
                 <section>
-                  <h2 
+                  <h2
                     className="text-lg font-bold mb-4"
                     style={{ color: colors.primary, fontFamily: fonts.heading }}
                   >
@@ -601,7 +603,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
           <div className="p-12">
             {/* Header */}
             <header className="text-center pb-6 mb-6 border-b" style={{ borderColor: colors.primary }}>
-              <h1 
+              <h1
                 className="text-3xl font-bold mb-1"
                 style={{ fontFamily: fonts.heading, color: colors.text }}
               >
@@ -632,7 +634,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
             {/* Summary */}
             {data.summary && (
               <section className="mb-6">
-                <h2 
+                <h2
                   className="text-sm font-bold uppercase tracking-wider mb-2"
                   style={{ color: colors.primary }}
                 >
@@ -645,7 +647,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
             {/* Experience */}
             {data.experience && data.experience.length > 0 && (
               <section className="mb-6">
-                <h2 
+                <h2
                   className="text-sm font-bold uppercase tracking-wider mb-3"
                   style={{ color: colors.primary }}
                 >
@@ -677,7 +679,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
             {/* Education */}
             {data.education && data.education.length > 0 && (
               <section className="mb-6">
-                <h2 
+                <h2
                   className="text-sm font-bold uppercase tracking-wider mb-3"
                   style={{ color: colors.primary }}
                 >
@@ -702,7 +704,7 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
             {/* Skills */}
             {data.skills && data.skills.length > 0 && (
               <section>
-                <h2 
+                <h2
                   className="text-sm font-bold uppercase tracking-wider mb-3"
                   style={{ color: colors.primary }}
                 >
@@ -753,16 +755,16 @@ export function TemplateCard({ template, isSelected, isLocked, onClick, size = '
       )}
     >
       {/* Preview gradient */}
-      <div 
+      <div
         className="absolute inset-0"
         style={{ background: template.preview }}
       />
-      
+
       {/* Overlay with info */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end">
         <h3 className="text-white font-semibold text-sm">{template.name}</h3>
         <p className="text-white/70 text-xs truncate">{template.description}</p>
-        
+
         {/* Badges */}
         <div className="flex gap-1 mt-2">
           {template.popular && (
@@ -806,5 +808,354 @@ export function TemplateCard({ template, isSelected, isLocked, onClick, size = '
         </div>
       )}
     </button>
+  );
+}
+
+// ============ CV PREVIEW V2 - Uses actual renderCVV2 ============
+
+interface CVPreviewV2Props {
+  templateId: string;
+  data: {
+    fullName?: string;
+    title?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    linkedin?: string;
+    github?: string;
+    website?: string;
+    summary?: string;
+    experience?: {
+      company: string;
+      title: string;
+      startDate: string;
+      endDate?: string;
+      current: boolean;
+      description: string;
+      achievements: string[];
+    }[];
+    education?: {
+      institution: string;
+      degree: string;
+      field: string;
+      startDate: string;
+      endDate?: string;
+      current: boolean;
+    }[];
+    skills?: {
+      name: string;
+      skills: string[];
+    }[];
+    languages?: {
+      name: string;
+      level: string;
+    }[];
+    projects?: {
+      name: string;
+      description: string;
+      url?: string;
+    }[];
+  };
+  className?: string;
+  scale?: number;
+}
+
+export function CVPreviewV2({ templateId, data, className, scale = 0.5 }: CVPreviewV2Props) {
+  // Convert editor data to CVData format
+  const cvData: CVData = useMemo(() => {
+    // Split title into title/subtitle
+    const titleParts = (data.title || 'Din Titel').split(' ');
+    const mainTitle = titleParts[0] || data.title || 'Din';
+    const subtitle = titleParts.slice(1).join(' ') || 'Titel';
+
+    // Extract technical skills
+    const technicalSkills = data.skills?.flatMap(s => s.skills).slice(0, 7) || [];
+
+    // Convert languages
+    const languages = data.languages?.map(l => ({
+      name: l.name,
+      level: l.level,
+    })) || [{ name: 'Svenska', level: 'modersmål' }];
+
+    // Convert education (first one)
+    const firstEdu = data.education?.[0];
+    const education = firstEdu?.institution ? {
+      title: firstEdu.degree || 'Examen',
+      institution: firstEdu.institution,
+      period: `${firstEdu.startDate || '2020'}–${firstEdu.current ? 'Nu' : firstEdu.endDate || '2024'}`,
+      bullets: [firstEdu.field].filter(Boolean),
+    } : undefined;
+
+    // Convert projects
+    const projects = data.projects?.slice(0, 2).map(p => ({
+      name: p.name,
+      url: p.url,
+      bullets: [p.description].filter(Boolean),
+    })) || [];
+
+    // Convert experience
+    const experience = data.experience?.filter(e => e.company || e.title).slice(0, 4).map(exp => ({
+      title: exp.title || 'Position',
+      company: exp.company || 'Företag',
+      bullets: exp.achievements?.slice(0, 2) || [exp.description].filter(Boolean),
+    })) || [];
+
+    // Build tagline from skills categories
+    const tagline = data.skills?.slice(0, 3).map(s => s.name.toUpperCase()).join(' · ') || 'KOMPETENS · ERFARENHET · UTVECKLING';
+
+    return {
+      fullName: data.fullName || 'Ditt Namn',
+      title: mainTitle.toUpperCase(),
+      subtitle: subtitle.toUpperCase(),
+      tagline: tagline,
+      photoUrl: undefined,
+      seeking: undefined,
+      contact: {
+        phone: data.phone,
+        email: data.email || 'din@email.se',
+        linkedin: data.linkedin,
+        github: data.github,
+        location: data.location,
+      },
+      portfolioUrl: data.website,
+      technicalSkills: technicalSkills,
+      leadershipSkills: [],
+      languages: languages,
+      references: [],
+      other: [],
+      profile: data.summary || '',
+      education: education,
+      projects: projects,
+      experience: experience,
+    };
+  }, [data]);
+
+  // Generate HTML using the real renderer
+  const html = useMemo(() => {
+    return renderCVV2(cvData, templateId, { showPhoto: false, pageSize: 'a4' });
+  }, [cvData, templateId]);
+
+  // Create a data URL for the iframe
+  const iframeSrc = useMemo(() => {
+    const blob = new Blob([html], { type: 'text/html' });
+    return URL.createObjectURL(blob);
+  }, [html]);
+
+  // Find template to check if dark
+  const template = CV_TEMPLATES_V2.find(t => t.id === templateId) || CV_TEMPLATES_V2[0];
+  const isDark = template.sidebarBg.toLowerCase().startsWith('#0') ||
+    template.sidebarBg.toLowerCase().startsWith('#1');
+
+  return (
+    <div
+      className={cn(
+        'rounded-lg overflow-hidden shadow-2xl',
+        isDark ? 'border border-gray-700' : 'border border-gray-200',
+        className
+      )}
+      style={{
+        transform: `scale(${scale})`,
+        transformOrigin: 'top left',
+        width: `${100 / scale}%`,
+      }}
+    >
+      <iframe
+        src={iframeSrc}
+        className="w-[794px] h-[1123px] border-0"
+        title="CV Preview"
+        sandbox="allow-same-origin"
+      />
+    </div>
+  );
+}
+// ============ PORTFOLIO PREVIEW V2 - Uses actual renderPortfolioV2 ============
+
+interface PortfolioPreviewV2Props {
+  templateId: string;
+  data: {
+    fullName?: string;
+    title?: string;
+    tagline?: string;
+    bio?: string;
+    location?: string;
+    email?: string;
+    phone?: string;
+    linkedin?: string;
+    github?: string;
+    website?: string;
+    skills?: string[];
+    projects?: {
+      name: string;
+      description: string;
+      tags: string[];
+      url?: string;
+      image?: string;
+    }[];
+    experience?: {
+      title: string;
+      company: string;
+      period: string;
+      description?: string;
+      current?: boolean;
+    }[];
+    education?: {
+      degree: string;
+      institution: string;
+      period: string;
+    }[];
+    seeking?: {
+      active: boolean;
+      title: string;
+      period?: string;
+      description?: string;
+    };
+    highlights?: string[];
+  };
+  className?: string;
+  scale?: number;
+}
+
+export function PortfolioPreviewV2({ templateId, data, className, scale = 0.35 }: PortfolioPreviewV2Props) {
+  // Convert editor data to PortfolioDataV2 format
+  const portfolioData: PortfolioDataV2 = useMemo(() => {
+    const nameParts = (data.fullName || 'Ditt Namn').split(' ');
+    const firstName = nameParts[0] || 'Ditt';
+    const lastName = nameParts.slice(1).join(' ') || 'Namn';
+
+    // Convert projects
+    const projects = (data.projects || []).slice(0, 5).map(p => ({
+      tag: p.tags?.[0] || 'Projekt',
+      badge: undefined,
+      name: p.name,
+      description: p.description,
+      techStack: p.tags || [],
+      link: {
+        url: p.url || '#',
+        label: 'Se projekt',
+      },
+      previewImageUrl: p.image,
+    }));
+
+    // Convert experience to timeline cards
+    const timelineCards = (data.experience || []).slice(0, 5).map((exp, i) => ({
+      period: exp.period || '2024',
+      title: exp.title || 'Position',
+      subtitle: exp.company || 'Företag',
+      description: exp.description || '',
+      highlights: exp.description ? [exp.description] : [],
+      projectNote: undefined,
+      badges: undefined,
+      isCurrent: exp.current || i === 0,
+    }));
+
+    // Meta items
+    const metaItems: { label: string; value: string }[] = [];
+    if (data.location) metaItems.push({ label: 'Plats', value: data.location });
+    if (data.email) metaItems.push({ label: 'Email', value: data.email });
+
+    // Stats from highlights or defaults
+    const stats = (data.highlights || []).slice(0, 4).map((h, i) => ({
+      number: `${i + 1}`,
+      label: h,
+    }));
+    if (stats.length === 0) {
+      stats.push(
+        { number: '5+', label: 'Projekt' },
+        { number: '3+', label: 'År erfarenhet' }
+      );
+    }
+
+    // Tech stack - needs tier, iconUrl, tooltip
+    const techStack = (data.skills || []).map(skill => ({
+      name: skill,
+      tier: 'primary',
+      iconUrl: '',
+      tooltip: skill,
+    }));
+
+    return {
+      language: 'sv' as const,
+      fullName: data.fullName || 'Ditt Namn',
+      firstName,
+      lastName,
+      title: data.title || 'Din Titel',
+      tagline: data.tagline || '',
+      profileImageUrl: undefined,
+      cvUrl: undefined,
+      metaItems,
+      about: {
+        paragraphs: data.bio ? [{ highlight: '', text: data.bio }] : [],
+        badge: undefined,
+      },
+      stats,
+      seeking: data.seeking?.active ? {
+        active: true,
+        title: data.seeking.title || 'Söker nya möjligheter',
+        description: data.seeking.description || '',
+        details: data.seeking.period ? [{ label: 'Period', value: data.seeking.period }] : [],
+        bgText: 'ÖPPEN',
+      } : undefined,
+      projects,
+      timeline: {
+        intro: 'Min resa',
+        currentPosition: 0,
+        markers: timelineCards.map(c => ({ date: c.period })),
+        cards: timelineCards,
+      },
+      techStack,
+      contact: {
+        title: 'Kontakt',
+        subtitle: 'Hör av dig!',
+        links: [
+          ...(data.email ? [{ label: data.email, url: `mailto:${data.email}`, type: 'email' as const }] : []),
+          ...(data.linkedin ? [{ label: 'LinkedIn', url: data.linkedin, type: 'linkedin' as const }] : []),
+          ...(data.github ? [{ label: 'GitHub', url: data.github, type: 'github' as const }] : []),
+          ...(data.website ? [{ label: 'Webb', url: data.website, type: 'other' as const }] : []),
+        ],
+      },
+      footer: {
+        copyright: `© ${new Date().getFullYear()} ${data.fullName || 'Portfolyo'}`,
+        location: data.location || 'Sverige',
+      },
+    };
+  }, [data]);
+
+  // Generate HTML using the real renderer with preview mode
+  const html = useMemo(() => {
+    return renderPortfolioV2(portfolioData, templateId, { previewMode: true });
+  }, [portfolioData, templateId]);
+
+  // Create a data URL for the iframe
+  const iframeSrc = useMemo(() => {
+    const blob = new Blob([html], { type: 'text/html' });
+    return URL.createObjectURL(blob);
+  }, [html]);
+
+  // Find template to check if dark
+  const template = PORTFOLIO_TEMPLATES_V2.find(t => t.id === templateId) || PORTFOLIO_TEMPLATES_V2[0];
+  const isDark = template.bgPrimary.toLowerCase().startsWith('#0') ||
+                 template.bgPrimary.toLowerCase().startsWith('#1');
+
+  return (
+    <div 
+      className={cn(
+        'rounded-xl overflow-hidden shadow-2xl',
+        isDark ? 'border border-gray-700' : 'border border-gray-200',
+        className
+      )}
+      style={{
+        transform: `scale(${scale})`,
+        transformOrigin: 'top left',
+        width: `${100 / scale}%`,
+        height: `${100 / scale}%`,
+      }}
+    >
+      <iframe
+        src={iframeSrc}
+        className="w-[1400px] h-[900px] border-0"
+        title="Portfolio Preview"
+        sandbox="allow-same-origin"
+      />
+    </div>
   );
 }

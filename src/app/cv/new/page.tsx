@@ -15,7 +15,7 @@ import {
   StepIndicator,
   Icons,
 } from '@/components/ui';
-import { CVPreview, TemplateCard } from '@/components/preview';
+import { CVPreview, CVPreviewV2, TemplateCard } from '@/components/preview';
 import { usePortfolyoStore } from '@/lib/store';
 import { generateId } from '@/lib/utils';
 import { TECH_STACK_OPTIONS } from '@/lib/types';
@@ -346,12 +346,12 @@ export default function NewCVPage() {
             <ArrowLeft className="h-5 w-5" />
             <span>Tillbaka</span>
           </Link>
-          
+
           <div className="flex items-center gap-2">
             <FileText className="h-6 w-6 text-violet-600" />
             <span className="font-bold text-gray-900">Nytt CV</span>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -681,11 +681,10 @@ export default function NewCVPage() {
                               <button
                                 key={skill.name}
                                 onClick={() => toggleSkill(skill.name)}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                  isSelected
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isSelected
                                     ? 'bg-violet-600 text-white'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
+                                  }`}
                               >
                                 {skill.name}
                               </button>
@@ -714,7 +713,7 @@ export default function NewCVPage() {
                               />
                               <Input
                                 value={category.skills.join(', ')}
-                                onChange={(e) => updateSkillCategory(index, 
+                                onChange={(e) => updateSkillCategory(index,
                                   e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                                 )}
                                 placeholder="Python, JavaScript, React (separera med komma)"
@@ -756,11 +755,10 @@ export default function NewCVPage() {
                         <button
                           key={cat.id}
                           onClick={() => setTemplateCategory(cat.id)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                            templateCategory === cat.id
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${templateCategory === cat.id
                               ? 'bg-violet-600 text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
+                            }`}
                         >
                           {cat.label}
                         </button>
@@ -866,8 +864,8 @@ export default function NewCVPage() {
                   </div>
 
                   <div className="overflow-hidden rounded-xl bg-gray-100" style={{ height: '600px' }}>
-                    <CVPreview
-                      template={selectedTemplate}
+                    <CVPreviewV2
+                      templateId={selectedTemplateId}
                       data={previewData}
                       scale={0.5}
                     />
