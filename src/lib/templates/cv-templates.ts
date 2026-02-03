@@ -10,6 +10,8 @@ export interface CVTemplateDefinition {
     category: string;
     tier: 'free' | 'starter' | 'pro';
     popular: boolean;
+    new?: boolean;
+    atsOptimized?: boolean;
     layout: 'two-column' | 'sidebar' | 'single-column' | 'header-sidebar';
     colors: {
         primary: string;
