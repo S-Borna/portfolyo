@@ -90,8 +90,13 @@ export default function DashboardPage() {
         );
     }
 
-    const isPublished = portfolio?.status === 'published';
-    const portfolioUrl = isPublished && portfolio
+    // No portfolio yet - show creation prompt
+    if (!portfolio) {
+        return <EmptyDashboard user={user} onLogout={handleLogout} />;
+    }
+
+    const isPublished = portfolio.status === 'published';
+    const portfolioUrl = isPublished
         ? `https://portfolyo.se/p/${portfolio.username}`
         : null;
 
@@ -292,7 +297,7 @@ export default function DashboardPage() {
 // COMPONENTS
 // ============================================
 
-function EmptyDashboard({ user }: { user: DbProfile | null }) {
+function EmptyDashboard({ user, onLogout }: { user: DbProfile | null; onLogout: () => void }) {
     const [showTips, setShowTips] = useState(false);
 
     return (
@@ -306,7 +311,15 @@ function EmptyDashboard({ user }: { user: DbProfile | null }) {
                         </div>
                         <span className="font-bold text-lg tracking-tight">PORTFOLYO</span>
                     </Link>
-                    <span className="text-sm text-zinc-500">{user?.email}</span>
+                    <div className="flex items-center gap-4">
+                        <span className="text-sm text-zinc-500">{user?.email}</span>
+                        <button
+                            onClick={onLogout}
+                            className="text-sm text-zinc-400 hover:text-white transition-colors"
+                        >
+                            Logga ut
+                        </button>
+                    </div>
                 </div>
             </header>
 
