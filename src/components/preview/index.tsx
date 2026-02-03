@@ -730,11 +730,27 @@ export function CVPreview({ template, data, className, scale = 0.5 }: CVPreviewP
 // ============ TEMPLATE CARD ============
 
 interface TemplateCardProps {
-  template: PortfolioTemplateConfig | CVTemplateConfig;
+  template: PortfolioTemplateConfig | CVTemplateConfig | CVTemplateConfigV2;
   isSelected?: boolean;
   isLocked?: boolean;
   onClick?: () => void;
   size?: 'sm' | 'md' | 'lg';
+}
+
+// Helper to generate preview background for CVTemplateConfigV2
+function getTemplatePreview(template: PortfolioTemplateConfig | CVTemplateConfig | CVTemplateConfigV2): string {
+  // If template has preview property (Portfolio or legacy CV templates), use it
+  if ('preview' in template && template.preview) {
+    return template.preview;
+  }
+  
+  // For CVTemplateConfigV2, generate gradient from sidebar + accent colors
+  if ('sidebarBg' in template) {
+    const t = template as CVTemplateConfigV2;
+    return `linear-gradient(135deg, ${t.sidebarBg} 0%, ${t.sidebarBg} 33%, ${t.mainBg} 33%, ${t.mainBg} 100%)`;
+  }
+  
+  return 'linear-gradient(135deg, #1a1a1a 0%, #333333 100%)';
 }
 
 export function TemplateCard({ template, isSelected, isLocked, onClick, size = 'md' }: TemplateCardProps) {
@@ -743,6 +759,10 @@ export function TemplateCard({ template, isSelected, isLocked, onClick, size = '
     md: 'w-48 h-56',
     lg: 'w-64 h-72',
   };
+
+  const preview = getTemplatePreview(template);
+  const popular = 'popular' in template ? template.popular : false;
+  const isNew = 'new' in template ? template.new : false;
 
   return (
     <button
@@ -757,7 +777,7 @@ export function TemplateCard({ template, isSelected, isLocked, onClick, size = '
       {/* Preview gradient */}
       <div
         className="absolute inset-0"
-        style={{ background: template.preview }}
+        style={{ background: preview }}
       />
 
       {/* Overlay with info */}
@@ -767,12 +787,12 @@ export function TemplateCard({ template, isSelected, isLocked, onClick, size = '
 
         {/* Badges */}
         <div className="flex gap-1 mt-2">
-          {template.popular && (
+          {popular && (
             <span className="px-2 py-0.5 bg-amber-500 text-white text-xs rounded-full">
               Populär
             </span>
           )}
-          {template.new && (
+          {isNew && (
             <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs rounded-full">
               Ny
             </span>
@@ -946,6 +966,12 @@ export function CVPreviewV2({ templateId, data, className, scale = 0.5 }: CVPrev
   const isDark = template.sidebarBg.toLowerCase().startsWith('#0') ||
     template.sidebarBg.toLowerCase().startsWith('#1');
 
+  // Calculate scaled dimensions
+  const iframeWidth = 794; // A4 width in pixels at 96dpi
+  const iframeHeight = 1123; // A4 height in pixels at 96dpi
+  const scaledWidth = iframeWidth * scale;
+  const scaledHeight = iframeHeight * scale;
+
   return (
     <div
       className={cn(
@@ -954,14 +980,18 @@ export function CVPreviewV2({ templateId, data, className, scale = 0.5 }: CVPrev
         className
       )}
       style={{
-        transform: `scale(${scale})`,
-        transformOrigin: 'top left',
-        width: `${100 / scale}%`,
+        width: `${scaledWidth}px`,
+        height: `${scaledHeight}px`,
       }}
     >
       <iframe
         src={iframeSrc}
-        className="w-[794px] h-[1123px] border-0"
+        style={{
+          width: `${iframeWidth}px`,
+          height: `${iframeHeight}px`,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+        }}
         title="CV Preview"
         sandbox="allow-same-origin"
       />
@@ -1136,6 +1166,12 @@ export function PortfolioPreviewV2({ templateId, data, className, scale = 0.35 }
   const isDark = template.bgPrimary.toLowerCase().startsWith('#0') ||
     template.bgPrimary.toLowerCase().startsWith('#1');
 
+  // Calculate scaled dimensions
+  const iframeWidth = 1400;
+  const iframeHeight = 900;
+  const scaledWidth = iframeWidth * scale;
+  const scaledHeight = iframeHeight * scale;
+
   return (
     <div
       className={cn(
@@ -1144,15 +1180,18 @@ export function PortfolioPreviewV2({ templateId, data, className, scale = 0.35 }
         className
       )}
       style={{
-        transform: `scale(${scale})`,
-        transformOrigin: 'top left',
-        width: `${100 / scale}%`,
-        height: `${100 / scale}%`,
+        width: `${scaledWidth}px`,
+        height: `${scaledHeight}px`,
       }}
     >
       <iframe
         src={iframeSrc}
-        className="w-[1400px] h-[900px] border-0"
+        style={{
+          width: `${iframeWidth}px`,
+          height: `${iframeHeight}px`,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+        }}
         title="Portfolio Preview"
         sandbox="allow-same-origin"
       />

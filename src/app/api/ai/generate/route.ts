@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import {
+  checkRateLimit,
+  getClientIdentifier,
+  getRateLimitHeaders,
+  RATE_LIMITS,
+} from '@/lib/rate-limit';
 
 const anthropic = new Anthropic();
 
@@ -16,6 +22,25 @@ REGLER:
 
 export async function POST(request: NextRequest) {
   try {
+    // ============================================
+    // RATE LIMITING
+    // ============================================
+    const clientId = getClientIdentifier(request);
+    const rateLimit = checkRateLimit(clientId, RATE_LIMITS.ai);
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: 'För många förfrågningar. Vänta en stund innan du försöker igen.',
+          retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit),
+        }
+      );
+    }
+
     const { type, context } = await request.json();
 
     if (!type) {
@@ -119,13 +144,18 @@ Svara ENDAST med den förbättrade texten, ingen annan text.`;
       throw new Error('Unexpected response type');
     }
 
-    return NextResponse.json({
-      content: content.text,
-      usage: {
-        input_tokens: message.usage.input_tokens,
-        output_tokens: message.usage.output_tokens,
+    return NextResponse.json(
+      {
+        content: content.text,
+        usage: {
+          input_tokens: message.usage.input_tokens,
+          output_tokens: message.usage.output_tokens,
+        },
       },
-    });
+      {
+        headers: getRateLimitHeaders(rateLimit),
+      }
+    );
   } catch (error) {
     console.error('AI Generation error:', error);
     return NextResponse.json(

@@ -454,12 +454,24 @@ npm run deploy
 - [x] Alla Portfolio = saidborna.com-design
 - [x] Preview visar riktigt innehåll (namn, bilder, etc.)
 
+**Infrastruktur & Säkerhet** ⭐ NY (2026-02-03)
+
+- [x] Rate limiting på AI-routes (10 req/min)
+- [x] Security headers (CSP, X-Frame-Options, etc.)
+- [x] Input sanitization & validation
+- [x] Supabase ↔ Zustand synkronisering
+- [x] Error boundaries för graceful degradation
+- [x] Loading states med skeletons
+- [x] SEO metadata på alla publika sidor
+- [x] PDF-export för CV
+- [x] Accessibility (WCAG 2.1 AA)
+- [x] E2E-tester med Playwright
+
 ### 🔄 Under utveckling
 
 - [ ] Subdomäner (said.portfolyo.se)
 - [ ] Stripe-betalning
 - [ ] Analytics
-- [ ] PDF-export av CV
 
 ---
 
@@ -517,14 +529,14 @@ npm run deploy
 ### Kort sikt
 
 - Subdomäner (användarnamn.portfolyo.se)
-- PDF-export av CV
 - Bilduppladdning
+- Stripe-integration
 
 ### Medel sikt
 
-- Stripe-integration för premium
 - Analytics (besökare, klick)
 - A/B-testning av portfolios
+- Fler AI-funktioner
 
 ### Lång sikt
 
@@ -532,6 +544,30 @@ npm run deploy
 - Fler mallar
 - Team-funktioner (för skolor)
 - API för integrationer
+
+---
+
+## Nya filer (2026-02-03)
+
+Följande filer lades till som del av produktionsmognad:
+
+| Fil | Syfte |
+|-----|-------|
+| `src/lib/rate-limit.ts` | Rate limiting för API:er |
+| `src/lib/sync.ts` | Supabase ↔ Zustand synk |
+| `src/lib/seo.ts` | SEO-helpers och metadata |
+| `src/lib/security-utils.ts` | Input validation, sanitization |
+| `src/lib/accessibility.ts` | A11y utilities (focus trap, announce) |
+| `src/components/feedback.tsx` | Error boundaries, skeletons, loading |
+| `src/components/PDFExport.tsx` | PDF-export för CV |
+| `src/app/api/cv/[id]/export/route.ts` | CV export API |
+| `src/app/*/loading.tsx` | Loading states per route |
+| `src/app/*/error.tsx` | Error boundaries per route |
+| `src/app/*/layout.tsx` | SEO metadata per route |
+| `src/app/global-error.tsx` | Global error handler |
+| `src/app/not-found.tsx` | 404-sida |
+| `e2e/*.spec.ts` | Playwright-tester |
+| `playwright.config.ts` | Playwright-konfiguration |
 
 ---
 

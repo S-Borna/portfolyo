@@ -36,6 +36,7 @@ Med Portfolyo fyller du i din information genom en guidad process, får hjälp a
 - Fyra professionella mallar
 - CV-builder med export
 - Publik portfolio-sida
+- PDF-export för CV
 
 ## Tech Stack
 
@@ -49,6 +50,7 @@ Med Portfolyo fyller du i din information genom en guidad process, får hjälp a
 | AI | Anthropic Claude |
 | Hosting | Cloudflare Workers |
 | Email | Resend |
+| Testing | Playwright |
 
 ## Projektstruktur
 
@@ -101,6 +103,11 @@ npm run preview       # Förhandsgranska Cloudflare-bygge lokalt
 
 # Deploy
 npm run deploy        # Deploya till Cloudflare Workers
+
+# Tester
+npm run test          # Kör alla tester
+npm run test:ui       # Kör tester med UI
+npm run test:a11y     # Kör accessibility-tester
 
 # Övrigt
 npm run lint          # Kör ESLint

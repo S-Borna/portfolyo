@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -20,11 +20,10 @@ import { usePortfolyoStore } from '@/lib/store';
 import { generateId } from '@/lib/utils';
 import { TECH_STACK_OPTIONS } from '@/lib/types';
 import {
-  ALL_CV_TEMPLATES,
-  getCVTemplatesForTier,
-  getCVTemplateById,
+  CV_TEMPLATES_V2,
+  getCVTemplateV2,
   TEMPLATE_COUNTS,
-  type CVTemplateConfig,
+  type CVTemplateConfigV2,
 } from '@/lib/templates';
 
 const {
@@ -87,7 +86,11 @@ interface SkillCategory {
 
 export default function NewCVPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { createCV, isAuthenticated, user } = usePortfolyoStore();
+
+  // Get template from URL if provided
+  const urlTemplate = searchParams.get('template');
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
@@ -123,25 +126,31 @@ export default function NewCVPage() {
   ]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
-  // Template state
-  const [selectedTemplateId, setSelectedTemplateId] = useState('modern-clean');
+  // Template state - använd URL-parameter eller said-dark som default
+  const [selectedTemplateId, setSelectedTemplateId] = useState(() => {
+    // Check if URL template exists in CV_TEMPLATES_V2
+    if (urlTemplate && CV_TEMPLATES_V2.some(t => t.id === urlTemplate)) {
+      return urlTemplate;
+    }
+    return 'said-dark';
+  });
 
   const userTier = user?.plan || 'free';
 
   // Filter templates by category
   const filteredTemplates = useMemo(() => {
-    if (templateCategory === 'all') return ALL_CV_TEMPLATES;
-    return ALL_CV_TEMPLATES.filter(t => t.category === templateCategory);
+    if (templateCategory === 'all') return CV_TEMPLATES_V2;
+    return CV_TEMPLATES_V2.filter(t => t.category === templateCategory);
   }, [templateCategory]);
 
   // Get selected template
   const selectedTemplate = useMemo(() =>
-    getCVTemplateById(selectedTemplateId) || ALL_CV_TEMPLATES[0],
+    getCVTemplateV2(selectedTemplateId),
     [selectedTemplateId]
   );
 
   // Check if template is available
-  const isTemplateAvailable = (template: CVTemplateConfig) => {
+  const isTemplateAvailable = (template: CVTemplateConfigV2) => {
     const tierHierarchy = { free: 0, starter: 1, pro: 2 };
     return tierHierarchy[template.tier] <= tierHierarchy[userTier];
   };
@@ -305,7 +314,7 @@ export default function NewCVPage() {
             skills: s.skills,
           })),
         settings: {
-          primaryColor: selectedTemplate.colors.primary,
+          primaryColor: selectedTemplate.accent,
           showPhoto: false,
           pageSize: 'a4',
           fontSize: 'medium',
@@ -854,9 +863,6 @@ export default function NewCVPage() {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-gray-900">Live Preview</h3>
                     <div className="flex items-center gap-2">
-                      {selectedTemplate.atsOptimized && (
-                        <Badge variant="success" size="sm">ATS</Badge>
-                      )}
                       <Badge variant="primary" size="sm">
                         {selectedTemplate.name}
                       </Badge>

@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
 import { SecurityShield } from '@/components/SecurityShield';
+import { SkipLink } from '@/lib/accessibility';
 
 export const metadata: Metadata = {
   title: 'PORTFOLYO.SE — Professionell portfolio & CV, hostat åt dig',
@@ -35,8 +36,11 @@ export default function RootLayout({
   return (
     <html lang="sv">
       <body className="min-h-screen bg-white text-slate-900">
+        <SkipLink />
         <SecurityShield />
-        {children}
+        <main id="main-content">
+          {children}
+        </main>
         <Toaster
           position="bottom-right"
           toastOptions={{

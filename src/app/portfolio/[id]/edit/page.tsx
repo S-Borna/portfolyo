@@ -116,6 +116,47 @@ export default function PortfolioEditorPage() {
     }
   }, [portfolio]);
 
+  // Preview data that updates in real-time - MUST be before early returns!
+  const previewData = useMemo(() => ({
+    fullName: profile.fullName,
+    title: profile.title,
+    tagline: profile.tagline,
+    bio: profile.bio,
+    location: profile.location,
+    email: contact.email,
+    phone: contact.phone,
+    linkedin: contact.linkedin,
+    github: contact.github,
+    website: contact.website,
+    skills: techStack.map(t => t.name),
+    projects: projects.map(p => ({
+      name: p.name,
+      description: p.description,
+      tags: p.tags,
+      url: p.links?.live || p.links?.github || '#',
+      image: p.image,
+    })),
+    experience: timeline.filter(t => t.type === 'work').map(t => ({
+      title: t.title,
+      company: t.subtitle,
+      period: t.period,
+      description: t.description,
+      current: t.current,
+    })),
+    education: timeline.filter(t => t.type === 'education').map(t => ({
+      degree: t.title,
+      institution: t.subtitle,
+      period: t.period,
+    })),
+    seeking: profile.seeking ? {
+      active: true,
+      title: profile.seeking,
+      period: profile.seekingDetails?.period,
+      description: '',
+    } : undefined,
+    highlights: profile.highlights?.map(h => h.label || h.value) || [],
+  }), [profile, projects, timeline, techStack, contact]);
+
   if (!mounted || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -275,47 +316,6 @@ export default function PortfolioEditorPage() {
   };
 
   const portfolioUrl = getPortfolioUrl(portfolio.slug, portfolio.customDomain);
-
-  // Preview data that updates in real-time
-  const previewData = useMemo(() => ({
-    fullName: profile.fullName,
-    title: profile.title,
-    tagline: profile.tagline,
-    bio: profile.bio,
-    location: profile.location,
-    email: contact.email,
-    phone: contact.phone,
-    linkedin: contact.linkedin,
-    github: contact.github,
-    website: contact.website,
-    skills: techStack.map(t => t.name),
-    projects: projects.map(p => ({
-      name: p.name,
-      description: p.description,
-      tags: p.tags,
-      url: p.links?.live || p.links?.github || '#',
-      image: p.image,
-    })),
-    experience: timeline.filter(t => t.type === 'work').map(t => ({
-      title: t.title,
-      company: t.subtitle,
-      period: t.period,
-      description: t.description,
-      current: t.current,
-    })),
-    education: timeline.filter(t => t.type === 'education').map(t => ({
-      degree: t.title,
-      institution: t.subtitle,
-      period: t.period,
-    })),
-    seeking: profile.seeking ? {
-      active: true,
-      title: profile.seeking,
-      period: profile.seekingDetails?.period,
-      description: '',
-    } : undefined,
-    highlights: profile.highlights?.map(h => h.label || h.value) || [],
-  }), [profile, projects, timeline, techStack, contact]);
 
   const tabs = [
     { id: 'profile', label: 'Profil', icon: <User className="h-4 w-4" /> },
