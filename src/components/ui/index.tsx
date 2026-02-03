@@ -47,6 +47,10 @@ import {
   Crown,
   Gift,
   AlertCircle,
+  Search,
+  Filter,
+  Grid,
+  LayoutGrid,
 } from 'lucide-react';
 
 // ============ BUTTON ============
@@ -688,4 +692,8 @@ export const Icons = {
   Crown,
   Gift,
   AlertCircle,
+  Search,
+  Filter,
+  Grid,
+  LayoutGrid,
 };
