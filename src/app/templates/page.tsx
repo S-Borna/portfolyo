@@ -3,9 +3,10 @@
 // ============================================
 // PORTFOLYO.SE - TEMPLATE GALLERY PAGE
 // Fullständig mobilanpassning med premium UX
+// + Hover Preview Modal med snygga effekter
 // ============================================
 
-import React, { useState, useMemo, useEffect, Suspense, useRef } from 'react';
+import React, { useState, useMemo, useEffect, Suspense, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,6 +26,8 @@ const {
     Sparkles,
     Zap,
     X,
+    ExternalLink,
+    Maximize2,
 } = Icons;
 
 // ============================================
@@ -33,6 +36,12 @@ const {
 
 type ViewMode = 'portfolio' | 'cv';
 type CategoryFilter = 'all' | string;
+
+interface HoverPreview {
+    template: TemplateConfig | CVTemplate;
+    type: 'portfolio' | 'cv';
+    position: { x: number; y: number };
+}
 
 // Helper to determine tier based on template index
 function getTemplateTier(index: number, total: number): 'free' | 'starter' | 'pro' {
@@ -44,7 +53,294 @@ function getTemplateTier(index: number, total: number): 'free' | 'starter' | 'pr
 }
 
 // ============================================
+// TEMPLATE PREVIEW MODAL (Hover/Click)
+// ============================================
+
+interface PreviewModalProps {
+    template: TemplateConfig | CVTemplate | null;
+    type: 'portfolio' | 'cv';
+    onClose: () => void;
+    onSelect: () => void;
+}
+
+function PreviewModal({ template, type, onClose, onSelect }: PreviewModalProps) {
+    if (!template) return null;
+
+    const isPortfolio = type === 'portfolio';
+    const portfolioTemplate = isPortfolio ? (template as TemplateConfig) : null;
+    const cvTemplate = !isPortfolio ? (template as CVTemplate) : null;
+
+    return (
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-8"
+                onClick={onClose}
+            >
+                {/* Backdrop with blur */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                />
+
+                {/* Modal content */}
+                <motion.div
+                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                    className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {/* Close button */}
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 z-10 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
+                    >
+                        <X className="w-5 h-5 text-slate-600" />
+                    </button>
+
+                    {/* Preview area */}
+                    <div className="relative overflow-hidden">
+                        {isPortfolio && portfolioTemplate ? (
+                            <PortfolioPreviewLarge template={portfolioTemplate} />
+                        ) : cvTemplate ? (
+                            <CVPreviewLarge template={cvTemplate} />
+                        ) : null}
+                    </div>
+
+                    {/* Info footer */}
+                    <div className="p-6 bg-white border-t border-slate-100">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="min-w-0">
+                                <h2 className="text-xl font-bold text-slate-900 mb-1">{template.name}</h2>
+                                <p className="text-sm text-slate-500">{template.description}</p>
+                            </div>
+                            <div className="flex gap-3 shrink-0">
+                                <Button variant="outline" size="sm" onClick={onClose}>
+                                    Stäng
+                                </Button>
+                                <Button 
+                                    size="sm" 
+                                    onClick={onSelect}
+                                    rightIcon={<ArrowRight className="w-4 h-4" />}
+                                    className="shadow-lg shadow-violet-500/20"
+                                >
+                                    Använd template
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            </motion.div>
+        </AnimatePresence>
+    );
+}
+
+// ============================================
+// LARGE PORTFOLIO PREVIEW (for modal)
+// ============================================
+
+function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
+    const { colorScheme } = template;
+
+    return (
+        <div
+            className="aspect-[16/10] p-6 sm:p-8 relative overflow-hidden"
+            style={{ backgroundColor: colorScheme.bgPrimary }}
+        >
+            {/* Browser frame */}
+            <div className="absolute inset-4 sm:inset-6 rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                {/* Browser bar */}
+                <div className="h-8 bg-slate-800/50 backdrop-blur flex items-center gap-2 px-3">
+                    <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                    </div>
+                    <div className="flex-1 mx-4">
+                        <div className="h-4 bg-white/10 rounded-full max-w-[200px] mx-auto" />
+                    </div>
+                </div>
+
+                {/* Page content */}
+                <div className="h-[calc(100%-2rem)] overflow-hidden" style={{ backgroundColor: colorScheme.bgPrimary }}>
+                    {/* Navigation */}
+                    <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: colorScheme.bgSecondary }}>
+                        <div className="h-5 w-24 rounded" style={{ backgroundColor: colorScheme.accent }} />
+                        <div className="flex gap-4">
+                            <div className="h-3 w-12 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.5 }} />
+                            <div className="h-3 w-12 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.5 }} />
+                            <div className="h-3 w-12 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.5 }} />
+                        </div>
+                    </div>
+
+                    {/* Hero section */}
+                    <div className="px-6 py-8">
+                        <div className="max-w-md">
+                            <div className="h-3 w-20 rounded mb-4" style={{ backgroundColor: colorScheme.accent }} />
+                            <div className="h-8 w-full rounded mb-3" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.9 }} />
+                            <div className="h-8 w-3/4 rounded mb-6" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.9 }} />
+                            <div className="space-y-2 mb-6">
+                                <div className="h-3 w-full rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
+                                <div className="h-3 w-5/6 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
+                                <div className="h-3 w-4/6 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
+                            </div>
+                            <div className="flex gap-3">
+                                <div className="h-10 w-28 rounded-lg" style={{ backgroundColor: colorScheme.accent }} />
+                                <div className="h-10 w-28 rounded-lg border-2" style={{ borderColor: colorScheme.textSecondary, opacity: 0.3 }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Project cards */}
+                    <div className="px-6 py-4">
+                        <div className="h-4 w-32 rounded mb-4" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.7 }} />
+                        <div className="grid grid-cols-3 gap-4">
+                            {[0, 1, 2].map((i) => (
+                                <div
+                                    key={i}
+                                    className="aspect-[4/3] rounded-lg overflow-hidden"
+                                    style={{ backgroundColor: colorScheme.bgSecondary }}
+                                >
+                                    <div className="h-2/3" style={{ backgroundColor: colorScheme.bgSecondary }} />
+                                    <div className="h-1/3 p-2">
+                                        <div className="h-2 w-3/4 rounded mb-1" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.6 }} />
+                                        <div className="h-1.5 w-1/2 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Decorative glow */}
+            <div
+                className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-40"
+                style={{ backgroundColor: colorScheme.accent }}
+            />
+            <div
+                className="absolute -top-20 -left-20 w-48 h-48 rounded-full blur-3xl opacity-20"
+                style={{ backgroundColor: colorScheme.accent }}
+            />
+        </div>
+    );
+}
+
+// ============================================
+// LARGE CV PREVIEW (for modal)
+// ============================================
+
+function CVPreviewLarge({ template }: { template: CVTemplate }) {
+    const { colors, layout } = template;
+
+    return (
+        <div className="aspect-[16/10] p-6 sm:p-8 bg-slate-100 relative overflow-hidden flex items-center justify-center">
+            {/* A4 Paper */}
+            <div
+                className="w-full max-w-md aspect-[1/1.414] rounded-lg shadow-2xl overflow-hidden"
+                style={{ backgroundColor: colors.background }}
+            >
+                {layout === 'two-column' || layout === 'sidebar' ? (
+                    <div className="flex h-full">
+                        {/* Sidebar */}
+                        <div className="w-1/3 p-4" style={{ backgroundColor: colors.primary }}>
+                            {/* Photo */}
+                            <div className="w-16 h-16 rounded-full mx-auto mb-4 bg-white/20" />
+                            {/* Name */}
+                            <div className="text-center mb-6">
+                                <div className="h-3 w-3/4 rounded mx-auto mb-2 bg-white/80" />
+                                <div className="h-2 w-1/2 rounded mx-auto bg-white/40" />
+                            </div>
+                            {/* Contact */}
+                            <div className="space-y-2 mb-6">
+                                <div className="h-2 w-full rounded bg-white/30" />
+                                <div className="h-2 w-4/5 rounded bg-white/30" />
+                                <div className="h-2 w-3/4 rounded bg-white/30" />
+                            </div>
+                            {/* Skills */}
+                            <div className="h-2 w-1/2 rounded mb-3 bg-white/60" />
+                            <div className="space-y-1.5">
+                                <div className="h-1.5 w-full rounded bg-white/20" />
+                                <div className="h-1.5 w-5/6 rounded bg-white/20" />
+                                <div className="h-1.5 w-4/5 rounded bg-white/20" />
+                                <div className="h-1.5 w-3/4 rounded bg-white/20" />
+                            </div>
+                        </div>
+                        {/* Main content */}
+                        <div className="flex-1 p-4">
+                            {/* Experience header */}
+                            <div className="h-3 w-1/3 rounded mb-4" style={{ backgroundColor: colors.primary }} />
+                            {/* Experience items */}
+                            {[0, 1].map((i) => (
+                                <div key={i} className="mb-4">
+                                    <div className="flex justify-between mb-1">
+                                        <div className="h-2 w-1/3 rounded" style={{ backgroundColor: colors.text, opacity: 0.8 }} />
+                                        <div className="h-2 w-1/5 rounded" style={{ backgroundColor: colors.muted }} />
+                                    </div>
+                                    <div className="h-2 w-1/4 rounded mb-2" style={{ backgroundColor: colors.accent }} />
+                                    <div className="space-y-1">
+                                        <div className="h-1.5 w-full rounded" style={{ backgroundColor: colors.muted }} />
+                                        <div className="h-1.5 w-5/6 rounded" style={{ backgroundColor: colors.muted }} />
+                                        <div className="h-1.5 w-3/4 rounded" style={{ backgroundColor: colors.muted }} />
+                                    </div>
+                                </div>
+                            ))}
+                            {/* Education */}
+                            <div className="h-3 w-1/4 rounded mb-3 mt-6" style={{ backgroundColor: colors.primary }} />
+                            <div className="space-y-1">
+                                <div className="h-2 w-2/3 rounded" style={{ backgroundColor: colors.text, opacity: 0.7 }} />
+                                <div className="h-1.5 w-1/2 rounded" style={{ backgroundColor: colors.muted }} />
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-4">
+                        {/* Header */}
+                        <div className="text-center pb-4 mb-4 border-b" style={{ borderColor: colors.primary }}>
+                            <div className="h-4 w-1/3 rounded mx-auto mb-2" style={{ backgroundColor: colors.text }} />
+                            <div className="h-2 w-1/4 rounded mx-auto" style={{ backgroundColor: colors.primary }} />
+                        </div>
+                        {/* Contact row */}
+                        <div className="flex justify-center gap-4 mb-4">
+                            <div className="h-1.5 w-20 rounded" style={{ backgroundColor: colors.muted }} />
+                            <div className="h-1.5 w-24 rounded" style={{ backgroundColor: colors.muted }} />
+                            <div className="h-1.5 w-16 rounded" style={{ backgroundColor: colors.muted }} />
+                        </div>
+                        {/* Sections */}
+                        {['Erfarenhet', 'Utbildning'].map((section, i) => (
+                            <div key={section} className="mb-4">
+                                <div className="h-2 w-1/4 rounded mb-3" style={{ backgroundColor: colors.accent }} />
+                                <div className="space-y-2">
+                                    <div className="flex justify-between">
+                                        <div className="h-2 w-1/3 rounded" style={{ backgroundColor: colors.text, opacity: 0.8 }} />
+                                        <div className="h-2 w-1/6 rounded" style={{ backgroundColor: colors.muted }} />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <div className="h-1.5 w-full rounded" style={{ backgroundColor: colors.muted }} />
+                                        <div className="h-1.5 w-4/5 rounded" style={{ backgroundColor: colors.muted }} />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Decorative elements */}
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-30" style={{ backgroundColor: colors.primary }} />
+        </div>
+    );
+}
+
+// ============================================
 // PORTFOLIO TEMPLATE CARD - Mobile Optimized
+// Med skarpare, mer detaljerad preview
 // ============================================
 
 interface PortfolioCardProps {
@@ -72,52 +368,81 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
             whileHover={{ y: -4 }}
             whileTap={{ scale: 0.98 }}
         >
-            {/* Preview area */}
+            {/* Preview area - Skarpare design */}
             <div
-                className="aspect-[4/3] p-3 sm:p-4 relative overflow-hidden"
+                className="aspect-[4/3] relative overflow-hidden"
                 style={{ backgroundColor: colorScheme.bgPrimary }}
             >
-                {/* Mini layout preview */}
-                <div className="absolute inset-3 sm:inset-4">
-                    <div
-                        className="h-1.5 sm:h-2 w-12 sm:w-16 rounded mb-2 sm:mb-3"
-                        style={{ backgroundColor: colorScheme.accent }}
-                    />
-                    <div
-                        className="h-3 sm:h-4 w-24 sm:w-32 rounded mb-1.5 sm:mb-2"
-                        style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.8 }}
-                    />
-                    <div
-                        className="h-1.5 sm:h-2 w-16 sm:w-24 rounded mb-3 sm:mb-4"
-                        style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.5 }}
-                    />
-                    <div className="flex gap-1.5 sm:gap-2">
-                        <div
-                            className="h-8 w-8 sm:h-12 sm:w-12 rounded"
-                            style={{ backgroundColor: colorScheme.bgSecondary }}
-                        />
-                        <div className="flex-1 space-y-1">
-                            <div
-                                className="h-1.5 sm:h-2 w-full rounded"
-                                style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }}
-                            />
-                            <div
-                                className="h-1.5 sm:h-2 w-3/4 rounded"
-                                style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }}
-                            />
+                {/* Mini browser frame */}
+                <div className="absolute inset-2 sm:inset-3 rounded-lg overflow-hidden shadow-lg border border-white/10">
+                    {/* Browser bar */}
+                    <div className="h-4 sm:h-5 flex items-center gap-1 px-2" style={{ backgroundColor: colorScheme.bgSecondary }}>
+                        <div className="flex gap-0.5 sm:gap-1">
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-400/80" />
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-yellow-400/80" />
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400/80" />
+                        </div>
+                    </div>
+
+                    {/* Page content */}
+                    <div className="h-[calc(100%-1rem)] sm:h-[calc(100%-1.25rem)] p-2 sm:p-3" style={{ backgroundColor: colorScheme.bgPrimary }}>
+                        {/* Nav */}
+                        <div className="flex items-center justify-between mb-2 sm:mb-3">
+                            <div className="h-1.5 sm:h-2 w-8 sm:w-12 rounded" style={{ backgroundColor: colorScheme.accent }} />
+                            <div className="flex gap-1 sm:gap-2">
+                                <div className="h-1 sm:h-1.5 w-4 sm:w-6 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
+                                <div className="h-1 sm:h-1.5 w-4 sm:w-6 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
+                            </div>
+                        </div>
+
+                        {/* Hero text */}
+                        <div className="mb-2 sm:mb-3">
+                            <div className="h-2 sm:h-3 w-3/4 rounded mb-1" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.9 }} />
+                            <div className="h-2 sm:h-3 w-1/2 rounded mb-1.5 sm:mb-2" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.9 }} />
+                            <div className="h-1 sm:h-1.5 w-full rounded mb-0.5" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }} />
+                            <div className="h-1 sm:h-1.5 w-2/3 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }} />
+                        </div>
+
+                        {/* CTA Button */}
+                        <div className="h-3 sm:h-4 w-12 sm:w-16 rounded" style={{ backgroundColor: colorScheme.accent }} />
+
+                        {/* Project cards row */}
+                        <div className="flex gap-1 sm:gap-1.5 mt-2 sm:mt-3">
+                            {[0, 1, 2].map((i) => (
+                                <div
+                                    key={i}
+                                    className="flex-1 aspect-square rounded"
+                                    style={{ backgroundColor: colorScheme.bgSecondary }}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                {/* Accent orb */}
+                {/* Accent glow */}
                 <div
-                    className="absolute -bottom-6 -right-6 sm:-bottom-8 sm:-right-8 w-16 h-16 sm:w-24 sm:h-24 rounded-full blur-2xl opacity-30"
+                    className="absolute -bottom-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-40 transition-opacity group-hover:opacity-60"
                     style={{ backgroundColor: colorScheme.accent }}
                 />
 
-                {/* Touch-friendly preview button - visible on mobile */}
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileHover={{ scale: 1.1 }}
+                        className="p-3 rounded-full bg-white shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-95"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onPreview();
+                        }}
+                    >
+                        <Maximize2 className="w-5 h-5 text-slate-700" />
+                    </motion.button>
+                </div>
+
+                {/* Mobile preview button */}
                 <button
-                    className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 p-2 sm:p-2.5 rounded-xl bg-black/60 backdrop-blur-sm text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all active:scale-95"
+                    className="absolute bottom-2 right-2 p-2 rounded-xl bg-black/60 backdrop-blur-sm text-white sm:hidden active:scale-95"
                     onClick={(e) => {
                         e.stopPropagation();
                         onPreview();
@@ -178,9 +503,10 @@ interface CVCardProps {
     template: CVTemplate;
     isSelected: boolean;
     onSelect: () => void;
+    onPreview: () => void;
 }
 
-function CVTemplateCard({ template, isSelected, onSelect }: CVCardProps) {
+function CVTemplateCard({ template, isSelected, onSelect, onPreview }: CVCardProps) {
     const { colors, layout } = template;
 
     return (
@@ -258,6 +584,32 @@ function CVTemplateCard({ template, isSelected, onSelect }: CVCardProps) {
                         </div>
                     </div>
                 )}
+                
+                {/* Hover overlay with preview button */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileHover={{ scale: 1.1 }}
+                        className="p-3 rounded-full bg-white shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-300 active:scale-95"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onPreview();
+                        }}
+                    >
+                        <Maximize2 className="w-5 h-5 text-slate-700" />
+                    </motion.button>
+                </div>
+
+                {/* Mobile preview button */}
+                <button
+                    className="absolute bottom-2 right-2 p-2 rounded-xl bg-black/60 backdrop-blur-sm text-white sm:hidden active:scale-95"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onPreview();
+                    }}
+                >
+                    <Eye className="w-4 h-4" />
+                </button>
             </div>
 
             {/* Info */}
@@ -409,6 +761,21 @@ function TemplatesPageContent() {
     const [selectedPortfolioTemplate, setSelectedPortfolioTemplate] = useState<string | null>(null);
     const [selectedCVTemplate, setSelectedCVTemplate] = useState<string | null>(null);
     const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+    
+    // Preview modal state
+    const [previewTemplate, setPreviewTemplate] = useState<TemplateConfig | CVTemplate | null>(null);
+    const [previewType, setPreviewType] = useState<'portfolio' | 'cv'>('portfolio');
+
+    // Open preview modal
+    const openPreview = useCallback((template: TemplateConfig | CVTemplate, type: 'portfolio' | 'cv') => {
+        setPreviewTemplate(template);
+        setPreviewType(type);
+    }, []);
+
+    // Close preview modal
+    const closePreview = useCallback(() => {
+        setPreviewTemplate(null);
+    }, []);
 
     // Check URL for initial view mode
     useEffect(() => {
@@ -700,7 +1067,7 @@ function TemplatesPageContent() {
                                             totalCount={templates.length}
                                             isSelected={selectedPortfolioTemplate === template.id}
                                             onSelect={() => setSelectedPortfolioTemplate(template.id)}
-                                            onPreview={() => console.log('Preview:', template.id)}
+                                            onPreview={() => openPreview(template, 'portfolio')}
                                         />
                                     </motion.div>
                                 ))}
@@ -761,6 +1128,7 @@ function TemplatesPageContent() {
                                             template={template}
                                             isSelected={selectedCVTemplate === template.id}
                                             onSelect={() => setSelectedCVTemplate(template.id)}
+                                            onPreview={() => openPreview(template, 'cv')}
                                         />
                                     </motion.div>
                                 ))}
@@ -883,6 +1251,23 @@ function TemplatesPageContent() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Preview Modal */}
+            {previewTemplate && (
+                <PreviewModal
+                    template={previewTemplate}
+                    type={previewType}
+                    onClose={closePreview}
+                    onSelect={() => {
+                        if (previewType === 'portfolio') {
+                            setSelectedPortfolioTemplate((previewTemplate as TemplateConfig).id);
+                        } else {
+                            setSelectedCVTemplate((previewTemplate as CVTemplate).id);
+                        }
+                        closePreview();
+                    }}
+                />
+            )}
         </div>
     );
 }
