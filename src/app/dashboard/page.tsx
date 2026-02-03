@@ -69,8 +69,8 @@ export default function DashboardPage() {
                 setLoading(false);
             } catch (error) {
                 console.error('Dashboard init error:', error);
-                // Vid timeout eller fel - skicka till login
-                router.push('/login');
+                // Vid timeout eller fel - visa dashboard ändå, utan data
+                setLoading(false);
             }
         };
 
