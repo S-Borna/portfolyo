@@ -67,9 +67,9 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, isLock
             className={`relative group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border-2 ${isSelected
                     ? 'border-violet-500 ring-4 ring-violet-500/20'
                     : 'border-slate-200 hover:border-slate-300'
-                } ${isLocked ? 'opacity-70' : ''}`}
-            onClick={isLocked ? undefined : onSelect}
-            whileHover={!isLocked ? { y: -4, scale: 1.02 } : {}}
+                }`}
+            onClick={onSelect}
+            whileHover={{ y: -4, scale: 1.02 }}
         >
             {/* Preview area */}
             <div
@@ -169,17 +169,6 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, isLock
                 </div>
             )}
 
-            {/* Locked overlay */}
-            {isLocked && (
-                <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
-                    <div className="text-center">
-                        <Lock className="w-6 h-6 text-slate-400 mx-auto mb-1" />
-                        <span className="text-xs text-slate-500 font-medium">
-                            {tier === 'pro' ? 'Pro' : 'Starter'}
-                        </span>
-                    </div>
-                </div>
-            )}
         </motion.div>
     );
 }
@@ -205,9 +194,9 @@ function CVTemplateCard({ template, isSelected, isLocked, onSelect }: CVCardProp
             className={`relative group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border-2 ${isSelected
                     ? 'border-violet-500 ring-4 ring-violet-500/20'
                     : 'border-slate-200 hover:border-slate-300'
-                } ${isLocked ? 'opacity-70' : ''}`}
-            onClick={isLocked ? undefined : onSelect}
-            whileHover={!isLocked ? { y: -4, scale: 1.02 } : {}}
+                }`}
+            onClick={onSelect}
+            whileHover={{ y: -4, scale: 1.02 }}
         >
             {/* A4 Preview */}
             <div
@@ -320,17 +309,6 @@ function CVTemplateCard({ template, isSelected, isLocked, onSelect }: CVCardProp
                 </div>
             )}
 
-            {/* Locked overlay */}
-            {isLocked && (
-                <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
-                    <div className="text-center">
-                        <Lock className="w-6 h-6 text-slate-400 mx-auto mb-1" />
-                        <span className="text-xs text-slate-500 font-medium">
-                            {template.tier === 'pro' ? 'Pro' : 'Starter'}
-                        </span>
-                    </div>
-                </div>
-            )}
         </motion.div>
     );
 }
@@ -357,8 +335,9 @@ function TemplatesPageContent() {
         }
     }, [searchParams]);
 
-    // User tier (would come from auth in real app)
-    const userTier: 'free' | 'starter' | 'pro' = 'free';
+    // User tier - set to 'pro' during development so all templates are accessible
+    // TODO: Connect to actual user subscription tier from auth
+    const userTier: 'free' | 'starter' | 'pro' = 'pro';
 
     const canUseTier = (tier: 'free' | 'starter' | 'pro') => {
         const tierHierarchy = { free: 0, starter: 1, pro: 2 };
