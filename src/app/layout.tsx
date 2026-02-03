@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
+import { SecurityShield } from '@/components/SecurityShield';
 
 export const metadata: Metadata = {
   title: 'PORTFOLYO.SE — Professionell portfolio & CV, hostat åt dig',
@@ -34,6 +35,7 @@ export default function RootLayout({
   return (
     <html lang="sv">
       <body className="min-h-screen bg-white text-slate-900">
+        <SecurityShield />
         {children}
         <Toaster
           position="bottom-right"
