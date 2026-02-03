@@ -1134,10 +1134,10 @@ export function PortfolioPreviewV2({ templateId, data, className, scale = 0.35 }
   // Find template to check if dark
   const template = PORTFOLIO_TEMPLATES_V2.find(t => t.id === templateId) || PORTFOLIO_TEMPLATES_V2[0];
   const isDark = template.bgPrimary.toLowerCase().startsWith('#0') ||
-                 template.bgPrimary.toLowerCase().startsWith('#1');
+    template.bgPrimary.toLowerCase().startsWith('#1');
 
   return (
-    <div 
+    <div
       className={cn(
         'rounded-xl overflow-hidden shadow-2xl',
         isDark ? 'border border-gray-700' : 'border border-gray-200',

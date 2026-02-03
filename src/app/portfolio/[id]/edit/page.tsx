@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -15,10 +15,12 @@ import {
   CreditDisplay,
   Icons,
 } from '@/components/ui';
+import { PortfolioPreviewV2 } from '@/components/preview';
 import { usePortfolyoStore } from '@/lib/store';
 import { TECH_STACK_OPTIONS, CREDIT_COSTS } from '@/lib/types';
 import type { ProjectShowcase, TimelineEntry, TechStackItem } from '@/lib/types';
 import { generateId, getPortfolioUrl } from '@/lib/utils';
+import { PORTFOLIO_TEMPLATES_V2 } from '@/lib/templates/portfolio-renderer-v2';
 
 const {
   ArrowLeft,
@@ -62,6 +64,8 @@ export default function PortfolioEditorPage() {
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
+  const [selectedTemplateId, setSelectedTemplateId] = useState('said-dark');
 
   // Find portfolio
   const portfolio = portfolios.find(p => p.id === portfolioId);
@@ -272,6 +276,47 @@ export default function PortfolioEditorPage() {
 
   const portfolioUrl = getPortfolioUrl(portfolio.slug, portfolio.customDomain);
 
+  // Preview data that updates in real-time
+  const previewData = useMemo(() => ({
+    fullName: profile.fullName,
+    title: profile.title,
+    tagline: profile.tagline,
+    bio: profile.bio,
+    location: profile.location,
+    email: contact.email,
+    phone: contact.phone,
+    linkedin: contact.linkedin,
+    github: contact.github,
+    website: contact.website,
+    skills: techStack.map(t => t.name),
+    projects: projects.map(p => ({
+      name: p.name,
+      description: p.description,
+      tags: p.tags,
+      url: p.links?.live || p.links?.github || '#',
+      image: p.image,
+    })),
+    experience: timeline.filter(t => t.type === 'work').map(t => ({
+      title: t.title,
+      company: t.subtitle,
+      period: t.period,
+      description: t.description,
+      current: t.current,
+    })),
+    education: timeline.filter(t => t.type === 'education').map(t => ({
+      degree: t.title,
+      institution: t.subtitle,
+      period: t.period,
+    })),
+    seeking: profile.seeking ? {
+      active: true,
+      title: profile.seeking,
+      period: profile.seekingDetails?.period,
+      description: '',
+    } : undefined,
+    highlights: profile.highlights?.map(h => h.label || h.value) || [],
+  }), [profile, projects, timeline, techStack, contact]);
+
   const tabs = [
     { id: 'profile', label: 'Profil', icon: <User className="h-4 w-4" /> },
     { id: 'projects', label: 'Projekt', icon: <Code className="h-4 w-4" /> },
@@ -299,9 +344,18 @@ export default function PortfolioEditorPage() {
           <div className="flex items-center gap-3">
             <CreditDisplay credits={credits} />
 
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+              leftIcon={<Eye className="h-4 w-4" />}
+            >
+              {showPreview ? 'Dölj preview' : 'Visa preview'}
+            </Button>
+
             <a href={portfolioUrl} target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="sm" leftIcon={<Eye className="h-4 w-4" />}>
-                Förhandsgranska
+              <Button variant="ghost" size="sm" leftIcon={<ExternalLink className="h-4 w-4" />}>
+                Öppna
               </Button>
             </a>
 
@@ -332,448 +386,489 @@ export default function PortfolioEditorPage() {
         </div>
       </header>
 
-      {/* Content */}
-      <main className="max-w-4xl mx-auto py-8 px-4">
-        {/* Profile Tab */}
-        {activeTab === 'profile' && (
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Grundläggande information</h2>
-
-              <div className="grid gap-4">
-                <Input
-                  label="Fullständigt namn"
-                  value={profile.fullName}
-                  onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                />
-
-                <Input
-                  label="Titel"
-                  value={profile.title}
-                  onChange={(e) => setProfile({ ...profile, title: e.target.value })}
-                  placeholder="DevOps Engineer, Frontend Developer, etc."
-                />
-
-                <Input
-                  label="Tagline"
-                  value={profile.tagline}
-                  onChange={(e) => setProfile({ ...profile, tagline: e.target.value })}
-                  placeholder="En kort beskrivning som syns under ditt namn"
-                />
-
-                <Input
-                  label="Plats"
-                  value={profile.location || ''}
-                  onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                  placeholder="Stockholm, Sverige"
-                  leftIcon={<MapPin className="h-4 w-4" />}
-                />
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Om mig</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleGenerateBio}
-                  isLoading={isGenerating}
-                  leftIcon={<Sparkles className="h-4 w-4" />}
-                  disabled={credits < CREDIT_COSTS.bio}
-                >
-                  AI-generera (1 credit)
-                </Button>
-              </div>
-
-              <Textarea
-                value={profile.bio}
-                onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                placeholder="Berätta om dig själv, din bakgrund och vad som driver dig..."
-                rows={6}
-              />
-            </Card>
-
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Vad söker du?</h2>
-
-              <div className="grid gap-4">
-                <Input
-                  label="Typ"
-                  value={profile.seeking || ''}
-                  onChange={(e) => setProfile({ ...profile, seeking: e.target.value })}
-                  placeholder="LIA-plats, Junior-roll, Trainee, etc."
-                />
-
-                {profile.seekingDetails && (
-                  <>
-                    <Input
-                      label="Period"
-                      value={profile.seekingDetails.period}
-                      onChange={(e) => setProfile({
-                        ...profile,
-                        seekingDetails: { ...profile.seekingDetails!, period: e.target.value }
-                      })}
-                    />
-                    <Input
-                      label="Plats"
-                      value={profile.seekingDetails.location}
-                      onChange={(e) => setProfile({
-                        ...profile,
-                        seekingDetails: { ...profile.seekingDetails!, location: e.target.value }
-                      })}
-                    />
-                  </>
-                )}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Projects Tab */}
-        {activeTab === 'projects' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Projekt</h2>
-              <Button onClick={addProject} leftIcon={<Plus className="h-4 w-4" />}>
-                Lägg till projekt
-              </Button>
-            </div>
-
-            {projects.length === 0 ? (
-              <Card className="p-12 text-center">
-                <Code className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">Inga projekt än</h3>
-                <p className="text-gray-600 mb-4">Visa upp dina bästa projekt</p>
-                <Button onClick={addProject} leftIcon={<Plus className="h-4 w-4" />}>
-                  Lägg till ditt första projekt
-                </Button>
-              </Card>
-            ) : (
-              projects.map((project, index) => (
-                <Card key={project.id} className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <Badge variant="outline">Projekt {index + 1}</Badge>
-                    <button
-                      onClick={() => removeProject(project.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
+      {/* Content - Two column layout */}
+      <main className="max-w-7xl mx-auto py-8 px-4">
+        <div className={`grid gap-8 ${showPreview ? 'lg:grid-cols-[1fr,400px]' : ''}`}>
+          {/* Left column - Form */}
+          <div>
+            {/* Profile Tab */}
+            {activeTab === 'profile' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Grundläggande information</h2>
 
                   <div className="grid gap-4">
                     <Input
-                      label="Projektnamn"
-                      value={project.name}
-                      onChange={(e) => updateProject(project.id, { name: e.target.value })}
+                      label="Fullständigt namn"
+                      value={profile.fullName}
+                      onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
                     />
 
-                    <Textarea
-                      label="Beskrivning"
-                      value={project.description}
-                      onChange={(e) => updateProject(project.id, { description: e.target.value })}
-                      rows={3}
-                    />
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <Input
-                        label="Live URL"
-                        value={project.links.live || ''}
-                        onChange={(e) => updateProject(project.id, {
-                          links: { ...project.links, live: e.target.value }
-                        })}
-                        leftIcon={<Globe className="h-4 w-4" />}
-                      />
-                      <Input
-                        label="GitHub URL"
-                        value={project.links.github || ''}
-                        onChange={(e) => updateProject(project.id, {
-                          links: { ...project.links, github: e.target.value }
-                        })}
-                        leftIcon={<Github className="h-4 w-4" />}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Teknologier
-                      </label>
-                      <Input
-                        value={project.tags.join(', ')}
-                        onChange={(e) => updateProject(project.id, {
-                          tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
-                        })}
-                        placeholder="Next.js, TypeScript, TailwindCSS"
-                        hint="Separera med komma"
-                      />
-                    </div>
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={project.featured}
-                        onChange={(e) => updateProject(project.id, { featured: e.target.checked })}
-                        className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
-                      />
-                      <span className="text-sm text-gray-700">Featured projekt (visas först)</span>
-                    </label>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* Timeline Tab */}
-        {activeTab === 'timeline' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Timeline</h2>
-              <Button onClick={addTimelineEntry} leftIcon={<Plus className="h-4 w-4" />}>
-                Lägg till
-              </Button>
-            </div>
-
-            {timeline.length === 0 ? (
-              <Card className="p-12 text-center">
-                <GraduationCap className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">Ingen timeline än</h3>
-                <p className="text-gray-600 mb-4">Visa din resa och erfarenhet</p>
-                <Button onClick={addTimelineEntry} leftIcon={<Plus className="h-4 w-4" />}>
-                  Lägg till första posten
-                </Button>
-              </Card>
-            ) : (
-              timeline.map((entry, index) => (
-                <Card key={entry.id} className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <select
-                      value={entry.type}
-                      onChange={(e) => updateTimelineEntry(entry.id, {
-                        type: e.target.value as TimelineEntry['type']
-                      })}
-                      className="px-3 py-1 rounded-lg border border-gray-200 text-sm"
-                    >
-                      <option value="education">🎓 Utbildning</option>
-                      <option value="work">💼 Arbete</option>
-                      <option value="project">🚀 Projekt</option>
-                      <option value="achievement">🏆 Achievement</option>
-                    </select>
-                    <button
-                      onClick={() => removeTimelineEntry(entry.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-
-                  <div className="grid gap-4">
                     <Input
                       label="Titel"
-                      value={entry.title}
-                      onChange={(e) => updateTimelineEntry(entry.id, { title: e.target.value })}
+                      value={profile.title}
+                      onChange={(e) => setProfile({ ...profile, title: e.target.value })}
+                      placeholder="DevOps Engineer, Frontend Developer, etc."
                     />
+
                     <Input
-                      label="Undertitel"
-                      value={entry.subtitle}
-                      onChange={(e) => updateTimelineEntry(entry.id, { subtitle: e.target.value })}
-                      placeholder="Företag, skola, etc."
+                      label="Tagline"
+                      value={profile.tagline}
+                      onChange={(e) => setProfile({ ...profile, tagline: e.target.value })}
+                      placeholder="En kort beskrivning som syns under ditt namn"
                     />
+
                     <Input
-                      label="Period"
-                      value={entry.period}
-                      onChange={(e) => updateTimelineEntry(entry.id, { period: e.target.value })}
-                      placeholder="Sep 2025 - Pågående"
+                      label="Plats"
+                      value={profile.location || ''}
+                      onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                      placeholder="Stockholm, Sverige"
+                      leftIcon={<MapPin className="h-4 w-4" />}
                     />
-                    <Textarea
-                      label="Beskrivning"
-                      value={entry.description}
-                      onChange={(e) => updateTimelineEntry(entry.id, { description: e.target.value })}
-                      rows={2}
-                    />
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={entry.current}
-                        onChange={(e) => updateTimelineEntry(entry.id, { current: e.target.checked })}
-                        className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
-                      />
-                      <span className="text-sm text-gray-700">Pågående</span>
-                    </label>
                   </div>
                 </Card>
-              ))
-            )}
-          </div>
-        )}
 
-        {/* Skills Tab */}
-        {activeTab === 'skills' && (
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Tech Stack</h2>
-              <p className="text-gray-600 text-sm mb-4">
-                Välj de teknologier du kan. De visas som badges på din portfolio.
-              </p>
-
-              {['frontend', 'backend', 'database', 'devops', 'tools'].map((category) => (
-                <div key={category} className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3 capitalize">{category}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {TECH_STACK_OPTIONS.filter(t => t.category === category).map((tech) => {
-                      const isSelected = techStack.some(t => t.name === tech.name);
-                      return (
-                        <button
-                          key={tech.name}
-                          onClick={() => toggleTechStack(tech)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${isSelected
-                            ? 'bg-violet-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                        >
-                          {isSelected && <Check className="h-3 w-3" />}
-                          {tech.name}
-                        </button>
-                      );
-                    })}
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">Om mig</h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGenerateBio}
+                      isLoading={isGenerating}
+                      leftIcon={<Sparkles className="h-4 w-4" />}
+                      disabled={credits < CREDIT_COSTS.bio}
+                    >
+                      AI-generera (1 credit)
+                    </Button>
                   </div>
+
+                  <Textarea
+                    value={profile.bio}
+                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                    placeholder="Berätta om dig själv, din bakgrund och vad som driver dig..."
+                    rows={6}
+                  />
+                </Card>
+
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Vad söker du?</h2>
+
+                  <div className="grid gap-4">
+                    <Input
+                      label="Typ"
+                      value={profile.seeking || ''}
+                      onChange={(e) => setProfile({ ...profile, seeking: e.target.value })}
+                      placeholder="LIA-plats, Junior-roll, Trainee, etc."
+                    />
+
+                    {profile.seekingDetails && (
+                      <>
+                        <Input
+                          label="Period"
+                          value={profile.seekingDetails.period}
+                          onChange={(e) => setProfile({
+                            ...profile,
+                            seekingDetails: { ...profile.seekingDetails!, period: e.target.value }
+                          })}
+                        />
+                        <Input
+                          label="Plats"
+                          value={profile.seekingDetails.location}
+                          onChange={(e) => setProfile({
+                            ...profile,
+                            seekingDetails: { ...profile.seekingDetails!, location: e.target.value }
+                          })}
+                        />
+                      </>
+                    )}
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Projects Tab */}
+            {activeTab === 'projects' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900">Projekt</h2>
+                  <Button onClick={addProject} leftIcon={<Plus className="h-4 w-4" />}>
+                    Lägg till projekt
+                  </Button>
                 </div>
-              ))}
-            </Card>
 
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Valda skills ({techStack.length})</h2>
-              <div className="flex flex-wrap gap-2">
-                {techStack.map((tech) => (
-                  <TechBadge key={tech.name} name={tech.name} icon={tech.icon} />
-                ))}
+                {projects.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <Code className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="font-semibold text-gray-900 mb-2">Inga projekt än</h3>
+                    <p className="text-gray-600 mb-4">Visa upp dina bästa projekt</p>
+                    <Button onClick={addProject} leftIcon={<Plus className="h-4 w-4" />}>
+                      Lägg till ditt första projekt
+                    </Button>
+                  </Card>
+                ) : (
+                  projects.map((project, index) => (
+                    <Card key={project.id} className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <Badge variant="outline">Projekt {index + 1}</Badge>
+                        <button
+                          onClick={() => removeProject(project.id)}
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="grid gap-4">
+                        <Input
+                          label="Projektnamn"
+                          value={project.name}
+                          onChange={(e) => updateProject(project.id, { name: e.target.value })}
+                        />
+
+                        <Textarea
+                          label="Beskrivning"
+                          value={project.description}
+                          onChange={(e) => updateProject(project.id, { description: e.target.value })}
+                          rows={3}
+                        />
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <Input
+                            label="Live URL"
+                            value={project.links.live || ''}
+                            onChange={(e) => updateProject(project.id, {
+                              links: { ...project.links, live: e.target.value }
+                            })}
+                            leftIcon={<Globe className="h-4 w-4" />}
+                          />
+                          <Input
+                            label="GitHub URL"
+                            value={project.links.github || ''}
+                            onChange={(e) => updateProject(project.id, {
+                              links: { ...project.links, github: e.target.value }
+                            })}
+                            leftIcon={<Github className="h-4 w-4" />}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Teknologier
+                          </label>
+                          <Input
+                            value={project.tags.join(', ')}
+                            onChange={(e) => updateProject(project.id, {
+                              tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
+                            })}
+                            placeholder="Next.js, TypeScript, TailwindCSS"
+                            hint="Separera med komma"
+                          />
+                        </div>
+
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={project.featured}
+                            onChange={(e) => updateProject(project.id, { featured: e.target.checked })}
+                            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                          />
+                          <span className="text-sm text-gray-700">Featured projekt (visas först)</span>
+                        </label>
+                      </div>
+                    </Card>
+                  ))
+                )}
               </div>
-            </Card>
-          </div>
-        )}
+            )}
 
-        {/* Contact Tab */}
-        {activeTab === 'contact' && (
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Kontaktinformation</h2>
+            {/* Timeline Tab */}
+            {activeTab === 'timeline' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900">Timeline</h2>
+                  <Button onClick={addTimelineEntry} leftIcon={<Plus className="h-4 w-4" />}>
+                    Lägg till
+                  </Button>
+                </div>
 
-              <div className="grid gap-4">
-                <Input
-                  label="E-post"
-                  type="email"
-                  value={contact.email}
-                  onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                  leftIcon={<Mail className="h-4 w-4" />}
-                />
-                <Input
-                  label="Telefon (valfritt)"
-                  type="tel"
-                  value={contact.phone || ''}
-                  onChange={(e) => setContact({ ...contact, phone: e.target.value })}
-                  leftIcon={<Phone className="h-4 w-4" />}
-                />
-                <Input
-                  label="LinkedIn"
-                  value={contact.linkedin || ''}
-                  onChange={(e) => setContact({ ...contact, linkedin: e.target.value })}
-                  leftIcon={<Linkedin className="h-4 w-4" />}
-                  placeholder="https://linkedin.com/in/dittnamn"
-                />
-                <Input
-                  label="GitHub"
-                  value={contact.github || ''}
-                  onChange={(e) => setContact({ ...contact, github: e.target.value })}
-                  leftIcon={<Github className="h-4 w-4" />}
-                  placeholder="https://github.com/dittnamn"
-                />
-                <Input
-                  label="Webbplats (valfritt)"
-                  value={contact.website || ''}
-                  onChange={(e) => setContact({ ...contact, website: e.target.value })}
-                  leftIcon={<Globe className="h-4 w-4" />}
-                />
+                {timeline.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <GraduationCap className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="font-semibold text-gray-900 mb-2">Ingen timeline än</h3>
+                    <p className="text-gray-600 mb-4">Visa din resa och erfarenhet</p>
+                    <Button onClick={addTimelineEntry} leftIcon={<Plus className="h-4 w-4" />}>
+                      Lägg till första posten
+                    </Button>
+                  </Card>
+                ) : (
+                  timeline.map((entry, index) => (
+                    <Card key={entry.id} className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <select
+                          value={entry.type}
+                          onChange={(e) => updateTimelineEntry(entry.id, {
+                            type: e.target.value as TimelineEntry['type']
+                          })}
+                          className="px-3 py-1 rounded-lg border border-gray-200 text-sm"
+                        >
+                          <option value="education">🎓 Utbildning</option>
+                          <option value="work">💼 Arbete</option>
+                          <option value="project">🚀 Projekt</option>
+                          <option value="achievement">🏆 Achievement</option>
+                        </select>
+                        <button
+                          onClick={() => removeTimelineEntry(entry.id)}
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="grid gap-4">
+                        <Input
+                          label="Titel"
+                          value={entry.title}
+                          onChange={(e) => updateTimelineEntry(entry.id, { title: e.target.value })}
+                        />
+                        <Input
+                          label="Undertitel"
+                          value={entry.subtitle}
+                          onChange={(e) => updateTimelineEntry(entry.id, { subtitle: e.target.value })}
+                          placeholder="Företag, skola, etc."
+                        />
+                        <Input
+                          label="Period"
+                          value={entry.period}
+                          onChange={(e) => updateTimelineEntry(entry.id, { period: e.target.value })}
+                          placeholder="Sep 2025 - Pågående"
+                        />
+                        <Textarea
+                          label="Beskrivning"
+                          value={entry.description}
+                          onChange={(e) => updateTimelineEntry(entry.id, { description: e.target.value })}
+                          rows={2}
+                        />
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={entry.current}
+                            onChange={(e) => updateTimelineEntry(entry.id, { current: e.target.checked })}
+                            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                          />
+                          <span className="text-sm text-gray-700">Pågående</span>
+                        </label>
+                      </div>
+                    </Card>
+                  ))
+                )}
               </div>
-            </Card>
+            )}
 
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Inställningar</h2>
+            {/* Skills Tab */}
+            {activeTab === 'skills' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Tech Stack</h2>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Välj de teknologier du kan. De visas som badges på din portfolio.
+                  </p>
 
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={contact.showContactForm}
-                  onChange={(e) => setContact({ ...contact, showContactForm: e.target.checked })}
-                  className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
-                />
-                <span className="text-sm text-gray-700">Visa kontaktformulär på portfolion</span>
-              </label>
-            </Card>
-          </div>
-        )}
+                  {['frontend', 'backend', 'database', 'devops', 'tools'].map((category) => (
+                    <div key={category} className="mb-6">
+                      <h3 className="text-sm font-medium text-gray-700 mb-3 capitalize">{category}</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {TECH_STACK_OPTIONS.filter(t => t.category === category).map((tech) => {
+                          const isSelected = techStack.some(t => t.name === tech.name);
+                          return (
+                            <button
+                              key={tech.name}
+                              onClick={() => toggleTechStack(tech)}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${isSelected
+                                ? 'bg-violet-600 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                            >
+                              {isSelected && <Check className="h-3 w-3" />}
+                              {tech.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </Card>
 
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Färger</h2>
-
-              <div className="grid gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Primärfärg</label>
-                  <div className="flex gap-3">
-                    {['#8B5CF6', '#6366F1', '#3B82F6', '#14B8A6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'].map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setSettings({ ...settings, primaryColor: color })}
-                        className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
-                          ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
-                          : 'hover:scale-105'
-                          }`}
-                        style={{ backgroundColor: color }}
-                      />
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Valda skills ({techStack.length})</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {techStack.map((tech) => (
+                      <TechBadge key={tech.name} name={tech.name} icon={tech.icon} />
                     ))}
                   </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Contact Tab */}
+            {activeTab === 'contact' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Kontaktinformation</h2>
+
+                  <div className="grid gap-4">
+                    <Input
+                      label="E-post"
+                      type="email"
+                      value={contact.email}
+                      onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                      leftIcon={<Mail className="h-4 w-4" />}
+                    />
+                    <Input
+                      label="Telefon (valfritt)"
+                      type="tel"
+                      value={contact.phone || ''}
+                      onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+                      leftIcon={<Phone className="h-4 w-4" />}
+                    />
+                    <Input
+                      label="LinkedIn"
+                      value={contact.linkedin || ''}
+                      onChange={(e) => setContact({ ...contact, linkedin: e.target.value })}
+                      leftIcon={<Linkedin className="h-4 w-4" />}
+                      placeholder="https://linkedin.com/in/dittnamn"
+                    />
+                    <Input
+                      label="GitHub"
+                      value={contact.github || ''}
+                      onChange={(e) => setContact({ ...contact, github: e.target.value })}
+                      leftIcon={<Github className="h-4 w-4" />}
+                      placeholder="https://github.com/dittnamn"
+                    />
+                    <Input
+                      label="Webbplats (valfritt)"
+                      value={contact.website || ''}
+                      onChange={(e) => setContact({ ...contact, website: e.target.value })}
+                      leftIcon={<Globe className="h-4 w-4" />}
+                    />
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Inställningar</h2>
+
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={contact.showContactForm}
+                      onChange={(e) => setContact({ ...contact, showContactForm: e.target.checked })}
+                      className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                    />
+                    <span className="text-sm text-gray-700">Visa kontaktformulär på portfolion</span>
+                  </label>
+                </Card>
+              </div>
+            )}
+
+            {/* Settings Tab */}
+            {activeTab === 'settings' && (
+              <div className="space-y-6">
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Färger</h2>
+
+                  <div className="grid gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Primärfärg</label>
+                      <div className="flex gap-3">
+                        {['#8B5CF6', '#6366F1', '#3B82F6', '#14B8A6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'].map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => setSettings({ ...settings, primaryColor: color })}
+                            className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
+                              ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
+                              : 'hover:scale-105'
+                              }`}
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Tema</h2>
+
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={settings.darkMode}
+                      onChange={(e) => setSettings({ ...settings, darkMode: e.target.checked })}
+                      className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                    />
+                    <span className="text-sm text-gray-700">Mörkt tema</span>
+                  </label>
+                </Card>
+
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">SEO</h2>
+
+                  <div className="grid gap-4">
+                    <Input
+                      label="SEO-titel"
+                      value={settings.seoTitle || ''}
+                      onChange={(e) => setSettings({ ...settings, seoTitle: e.target.value })}
+                      placeholder={`${profile.fullName} - ${profile.title}`}
+                    />
+                    <Textarea
+                      label="SEO-beskrivning"
+                      value={settings.seoDescription || ''}
+                      onChange={(e) => setSettings({ ...settings, seoDescription: e.target.value })}
+                      rows={2}
+                      placeholder="En kort beskrivning som visas i sökresultat"
+                    />
+                  </div>
+                </Card>
+              </div>
+            )}
+          </div>
+
+          {/* Right column - Live Preview */}
+          {showPreview && (
+            <div className="hidden lg:block">
+              <div className="sticky top-32">
+                <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Live Preview</h3>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={selectedTemplateId}
+                        onChange={(e) => setSelectedTemplateId(e.target.value)}
+                        className="text-xs border border-gray-300 rounded-lg px-2 py-1"
+                      >
+                        {PORTFOLIO_TEMPLATES_V2.slice(0, 15).map((t) => (
+                          <option key={t.id} value={t.id}>{t.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="overflow-hidden rounded-xl bg-gray-900" style={{ height: '500px' }}>
+                    <PortfolioPreviewV2
+                      templateId={selectedTemplateId}
+                      data={previewData}
+                      scale={0.28}
+                    />
+                  </div>
+
+                  <p className="text-xs text-gray-500 text-center mt-3">
+                    Preview uppdateras medan du redigerar
+                  </p>
                 </div>
               </div>
-            </Card>
-
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Tema</h2>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={settings.darkMode}
-                  onChange={(e) => setSettings({ ...settings, darkMode: e.target.checked })}
-                  className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
-                />
-                <span className="text-sm text-gray-700">Mörkt tema</span>
-              </label>
-            </Card>
-
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">SEO</h2>
-
-              <div className="grid gap-4">
-                <Input
-                  label="SEO-titel"
-                  value={settings.seoTitle || ''}
-                  onChange={(e) => setSettings({ ...settings, seoTitle: e.target.value })}
-                  placeholder={`${profile.fullName} - ${profile.title}`}
-                />
-                <Textarea
-                  label="SEO-beskrivning"
-                  value={settings.seoDescription || ''}
-                  onChange={(e) => setSettings({ ...settings, seoDescription: e.target.value })}
-                  rows={2}
-                  placeholder="En kort beskrivning som visas i sökresultat"
-                />
-              </div>
-            </Card>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );
