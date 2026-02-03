@@ -242,13 +242,12 @@ export default function OnboardingPage() {
                                     <button
                                         onClick={() => i <= step && setStep(i)}
                                         disabled={i > step}
-                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                            i === step
+                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${i === step
                                                 ? 'bg-ink text-white'
                                                 : i < step
                                                     ? 'bg-emerald-50 text-emerald-700'
                                                     : 'bg-slate-100 text-slate-400'
-                                        }`}
+                                            }`}
                                     >
                                         {i < step ? (
                                             <Check className="w-4 h-4" />
@@ -383,11 +382,10 @@ function StepBasics({ state, update }: StepProps) {
                             <button
                                 key={s.value}
                                 onClick={() => update('current_situation', s.value)}
-                                className={`p-4 rounded-xl border-2 text-left transition-all ${
-                                    state.current_situation === s.value
+                                className={`p-4 rounded-xl border-2 text-left transition-all ${state.current_situation === s.value
                                         ? 'border-ink bg-slate-50'
                                         : 'border-slate-200 hover:border-slate-300'
-                                }`}
+                                    }`}
                             >
                                 <span className="font-medium text-ink">{s.label}</span>
                                 <p className="text-xs text-slate-500 mt-0.5">{s.description}</p>
@@ -450,14 +448,12 @@ function StepBasics({ state, update }: StepProps) {
                         </div>
                         <button
                             onClick={() => update('is_seeking', !state.is_seeking)}
-                            className={`relative w-12 h-7 rounded-full transition-colors ${
-                                state.is_seeking ? 'bg-ink' : 'bg-slate-200'
-                            }`}
+                            className={`relative w-12 h-7 rounded-full transition-colors ${state.is_seeking ? 'bg-ink' : 'bg-slate-200'
+                                }`}
                         >
                             <span
-                                className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                                    state.is_seeking ? 'left-6' : 'left-1'
-                                }`}
+                                className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${state.is_seeking ? 'left-6' : 'left-1'
+                                    }`}
                             />
                         </button>
                     </div>
@@ -469,11 +465,10 @@ function StepBasics({ state, update }: StepProps) {
                                     <button
                                         key={t.value}
                                         onClick={() => update('seeking_type', t.value)}
-                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                                            state.seeking_type === t.value
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${state.seeking_type === t.value
                                                 ? 'bg-ink text-white'
                                                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                        }`}
+                                            }`}
                                     >
                                         {t.label}
                                     </button>
@@ -822,13 +817,12 @@ function StepDesign({ state, update }: StepProps) {
                                 <button
                                     key={template.id}
                                     onClick={() => !isLocked && update('template_id', template.id)}
-                                    className={`relative p-3 rounded-xl border-2 text-left transition-all ${
-                                        isSelected
+                                    className={`relative p-3 rounded-xl border-2 text-left transition-all ${isSelected
                                             ? 'border-ink ring-2 ring-ink/20'
                                             : isLocked
                                                 ? 'border-slate-200 opacity-60'
                                                 : 'border-slate-200 hover:border-slate-300'
-                                    }`}
+                                        }`}
                                 >
                                     {/* Mini Preview */}
                                     <div

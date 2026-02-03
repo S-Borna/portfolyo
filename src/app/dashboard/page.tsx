@@ -144,9 +144,9 @@ export default function DashboardPage() {
                                     Uppgradera
                                 </Badge>
                             </Link>
-                            
+
                             <div className="h-6 w-px bg-slate-200" />
-                            
+
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-sm font-medium text-slate-600">
                                     {firstName[0]?.toUpperCase()}
@@ -182,25 +182,25 @@ export default function DashboardPage() {
                 {/* Stats - Only show real data */}
                 {analytics && (analytics.total_views > 0 || analytics.unique_visitors > 0) && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-                        <StatCard 
-                            label="Visningar" 
-                            value={analytics.total_views || 0} 
-                            icon={<Eye className="w-4 h-4" />} 
+                        <StatCard
+                            label="Visningar"
+                            value={analytics.total_views || 0}
+                            icon={<Eye className="w-4 h-4" />}
                         />
-                        <StatCard 
-                            label="Unika besökare" 
-                            value={analytics.unique_visitors || 0} 
-                            icon={<User className="w-4 h-4" />} 
+                        <StatCard
+                            label="Unika besökare"
+                            value={analytics.unique_visitors || 0}
+                            icon={<User className="w-4 h-4" />}
                         />
-                        <StatCard 
-                            label="CV-nedladdningar" 
-                            value={analytics.cv_downloads || 0} 
-                            icon={<Download className="w-4 h-4" />} 
+                        <StatCard
+                            label="CV-nedladdningar"
+                            value={analytics.cv_downloads || 0}
+                            icon={<Download className="w-4 h-4" />}
                         />
-                        <StatCard 
-                            label="Kontaktklick" 
-                            value={analytics.contact_clicks || 0} 
-                            icon={<Mail className="w-4 h-4" />} 
+                        <StatCard
+                            label="Kontaktklick"
+                            value={analytics.contact_clicks || 0}
+                            icon={<Mail className="w-4 h-4" />}
                         />
                     </div>
                 )}
@@ -288,7 +288,7 @@ export default function DashboardPage() {
                                     </div>
 
                                     {!isPublished && (
-                                        <Button 
+                                        <Button
                                             onClick={() => setShowPublishModal(true)}
                                             className="w-full justify-center gap-2"
                                         >
@@ -397,8 +397,8 @@ export default function DashboardPage() {
                         <Card className="p-6 bg-white border-slate-200">
                             <h3 className="font-semibold text-ink mb-4">Behöver du hjälp?</h3>
                             <div className="space-y-2">
-                                <a 
-                                    href="mailto:support@portfolyo.se" 
+                                <a
+                                    href="mailto:support@portfolyo.se"
                                     className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl transition-colors text-sm text-slate-600"
                                 >
                                     <Mail className="w-4 h-4" />
