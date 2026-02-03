@@ -1,3 +1,5 @@
+"use client";
+
 // ============================================
 // PORTFOLYO.SE - Accessibility Utilities
 // WCAG 2.1 AA compliance helpers
