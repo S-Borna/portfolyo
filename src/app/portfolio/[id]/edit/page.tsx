@@ -839,12 +839,13 @@ export default function PortfolioEditorPage() {
               <div className="sticky top-32">
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Live Preview</h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-gray-900">Live Preview</h3>
+                      <span className="text-sm text-gray-500">•</span>
                       <select
                         value={selectedTemplateId}
                         onChange={(e) => setSelectedTemplateId(e.target.value)}
-                        className="text-xs border border-gray-300 rounded-lg px-2 py-1"
+                        className="text-sm font-medium text-violet-600 bg-transparent border-none cursor-pointer focus:outline-none focus:ring-0 pr-6"
                       >
                         {PORTFOLIO_TEMPLATES_V2.slice(0, 15).map((t) => (
                           <option key={t.id} value={t.id}>{t.name}</option>
@@ -857,7 +858,7 @@ export default function PortfolioEditorPage() {
                     <PortfolioPreviewV2
                       templateId={selectedTemplateId}
                       data={previewData}
-                      scale={0.28}
+                      scale={0.32}
                     />
                   </div>
 

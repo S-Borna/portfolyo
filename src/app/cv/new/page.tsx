@@ -126,16 +126,17 @@ function NewCVPageContent() {
   ]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
-  // Template state - använd URL-parameter eller said-dark som default
-  const [selectedTemplateId, setSelectedTemplateId] = useState(() => {
-    // Check if URL template exists in CV_TEMPLATES_V2
-    if (urlTemplate && CV_TEMPLATES_V2.some(t => t.id === urlTemplate)) {
-      return urlTemplate;
-    }
-    return 'said-dark';
-  });
+  // Template state - default to said-dark
+  const [selectedTemplateId, setSelectedTemplateId] = useState('said-dark');
 
   const userTier = user?.plan || 'free';
+
+  // Sync template from URL parameter
+  useEffect(() => {
+    if (urlTemplate && CV_TEMPLATES_V2.some(t => t.id === urlTemplate)) {
+      setSelectedTemplateId(urlTemplate);
+    }
+  }, [urlTemplate]);
 
   // Filter templates by category
   const filteredTemplates = useMemo(() => {
@@ -861,11 +862,10 @@ function NewCVPageContent() {
               <div className="sticky top-32">
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Live Preview</h3>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="primary" size="sm">
-                        {selectedTemplate.name}
-                      </Badge>
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-gray-900">Live Preview</h3>
+                      <span className="text-sm text-gray-500">•</span>
+                      <span className="text-sm font-medium text-violet-600">{selectedTemplate.name}</span>
                     </div>
                   </div>
 
@@ -873,7 +873,7 @@ function NewCVPageContent() {
                     <CVPreviewV2
                       templateId={selectedTemplateId}
                       data={previewData}
-                      scale={0.5}
+                      scale={0.55}
                     />
                   </div>
 
