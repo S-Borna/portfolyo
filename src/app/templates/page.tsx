@@ -158,7 +158,7 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
 
             {/* Selected indicator */}
             {isSelected && (
-                <motion.div 
+                <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className="absolute top-2 right-2 sm:top-3 sm:right-3 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-lg"
@@ -298,7 +298,7 @@ function CVTemplateCard({ template, isSelected, onSelect }: CVCardProps) {
 
             {/* Selected indicator */}
             {isSelected && (
-                <motion.div 
+                <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className="absolute top-2 right-2 sm:top-3 sm:right-3 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-lg"
@@ -525,8 +525,8 @@ function TemplatesPageContent() {
                     <div className="flex items-center justify-between">
                         {/* Left: Back + Title */}
                         <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-                            <Link 
-                                href="/dashboard" 
+                            <Link
+                                href="/dashboard"
                                 className="p-2 hover:bg-slate-100 rounded-xl transition-colors shrink-0 active:scale-95"
                             >
                                 <ArrowLeft className="h-5 w-5 text-slate-600" />
@@ -543,7 +543,7 @@ function TemplatesPageContent() {
                         <div className="flex items-center gap-2 sm:gap-3">
                             {/* Mobile: Show count badge */}
                             <span className="text-xs text-slate-500 sm:hidden">{totalCount} templates</span>
-                            
+
                             {/* Desktop: Full button */}
                             <Button
                                 onClick={handleStartCreation}
@@ -709,7 +709,7 @@ function TemplatesPageContent() {
 
                         {/* Empty state */}
                         {filteredPortfolioTemplates.length === 0 && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="text-center py-12 sm:py-16"
@@ -719,8 +719,8 @@ function TemplatesPageContent() {
                                 </div>
                                 <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">Inga templates hittades</h3>
                                 <p className="text-sm text-slate-500 px-4">Prova att ändra filter eller sökord</p>
-                                <Button 
-                                    variant="ghost" 
+                                <Button
+                                    variant="ghost"
                                     size="sm"
                                     className="mt-4"
                                     onClick={() => {
@@ -769,7 +769,7 @@ function TemplatesPageContent() {
 
                         {/* Empty state */}
                         {filteredCVTemplates.length === 0 && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="text-center py-12 sm:py-16"
@@ -779,8 +779,8 @@ function TemplatesPageContent() {
                                 </div>
                                 <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">Inga templates hittades</h3>
                                 <p className="text-sm text-slate-500 px-4">Prova att ändra filter eller sökord</p>
-                                <Button 
-                                    variant="ghost" 
+                                <Button
+                                    variant="ghost"
                                     size="sm"
                                     className="mt-4"
                                     onClick={() => {
@@ -895,7 +895,7 @@ export default function TemplatesPage() {
     return (
         <Suspense fallback={
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="text-center"
