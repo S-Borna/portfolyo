@@ -144,6 +144,7 @@ function PreviewModal({ template, type, onClose, onSelect }: PreviewModalProps) 
 
 // ============================================
 // LARGE PORTFOLIO PREVIEW (for modal)
+// Exakt som saidborna.com - bara olika färger
 // ============================================
 
 function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
@@ -154,6 +155,16 @@ function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
             className="aspect-[16/10] p-6 sm:p-8 relative overflow-hidden"
             style={{ backgroundColor: colorScheme.bgPrimary }}
         >
+            {/* Floating orbs bakgrund */}
+            <div 
+                className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-[100px] opacity-30"
+                style={{ backgroundColor: colorScheme.accent }}
+            />
+            <div 
+                className="absolute -bottom-32 -left-32 w-64 h-64 rounded-full blur-[80px] opacity-20"
+                style={{ backgroundColor: colorScheme.accent }}
+            />
+
             {/* Browser frame */}
             <div className="absolute inset-4 sm:inset-6 rounded-xl overflow-hidden shadow-2xl border border-white/10">
                 {/* Browser bar */}
@@ -164,54 +175,102 @@ function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
                         <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                     </div>
                     <div className="flex-1 mx-4">
-                        <div className="h-4 bg-white/10 rounded-full max-w-[200px] mx-auto" />
+                        <div className="h-4 bg-white/10 rounded-full max-w-[200px] mx-auto flex items-center justify-center">
+                            <span className="text-[10px] text-white/40">portfolyo.se/erik</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Page content */}
+                {/* Page content - EXAKT SOM SAIDBORNA.COM */}
                 <div className="h-[calc(100%-2rem)] overflow-hidden" style={{ backgroundColor: colorScheme.bgPrimary }}>
                     {/* Navigation */}
-                    <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: colorScheme.bgSecondary }}>
-                        <div className="h-5 w-24 rounded" style={{ backgroundColor: colorScheme.accent }} />
-                        <div className="flex gap-4">
-                            <div className="h-3 w-12 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.5 }} />
-                            <div className="h-3 w-12 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.5 }} />
-                            <div className="h-3 w-12 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.5 }} />
+                    <div className="flex items-center justify-between px-6 py-3 border-b border-white/5">
+                        <span className="text-sm font-bold tracking-wider" style={{ color: colorScheme.textPrimary }}>
+                            ERIK<span style={{ color: colorScheme.accent }}>.</span>
+                        </span>
+                        <div className="flex gap-6 text-xs" style={{ color: colorScheme.textSecondary }}>
+                            <span>OM MIG</span>
+                            <span>PROJEKT</span>
+                            <span>KONTAKT</span>
                         </div>
                     </div>
 
-                    {/* Hero section */}
-                    <div className="px-6 py-8">
-                        <div className="max-w-md">
-                            <div className="h-3 w-20 rounded mb-4" style={{ backgroundColor: colorScheme.accent }} />
-                            <div className="h-8 w-full rounded mb-3" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.9 }} />
-                            <div className="h-8 w-3/4 rounded mb-6" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.9 }} />
-                            <div className="space-y-2 mb-6">
-                                <div className="h-3 w-full rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
-                                <div className="h-3 w-5/6 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
-                                <div className="h-3 w-4/6 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
+                    {/* Hero section - split layout som saidborna.com */}
+                    <div className="flex items-center gap-8 px-6 py-6">
+                        {/* Text side */}
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="w-8 h-0.5" style={{ backgroundColor: colorScheme.accent }} />
+                                <span className="text-[10px] tracking-widest uppercase" style={{ color: colorScheme.accent }}>
+                                    Frontend Developer
+                                </span>
                             </div>
+                            <h1 className="text-3xl font-bold leading-none mb-2" style={{ color: colorScheme.textPrimary }}>
+                                ERIK
+                            </h1>
+                            <h1 className="text-3xl font-bold leading-none mb-4" style={{ 
+                                WebkitTextStroke: `1px ${colorScheme.textPrimary}`,
+                                WebkitTextFillColor: 'transparent'
+                            }}>
+                                LINDSTRÖM
+                            </h1>
+                            <p className="text-xs mb-4 leading-relaxed" style={{ color: colorScheme.textSecondary }}>
+                                Passionerad utvecklare med fokus på React och TypeScript. 
+                                Bygger moderna webbupplevelser.
+                            </p>
                             <div className="flex gap-3">
-                                <div className="h-10 w-28 rounded-lg" style={{ backgroundColor: colorScheme.accent }} />
-                                <div className="h-10 w-28 rounded-lg border-2" style={{ borderColor: colorScheme.textSecondary, opacity: 0.3 }} />
+                                <button 
+                                    className="px-4 py-2 text-xs font-medium rounded"
+                                    style={{ backgroundColor: colorScheme.accent, color: colorScheme.bgPrimary }}
+                                >
+                                    SE CV
+                                </button>
+                                <button 
+                                    className="px-4 py-2 text-xs font-medium rounded border"
+                                    style={{ borderColor: colorScheme.textSecondary, color: colorScheme.textPrimary }}
+                                >
+                                    KONTAKT
+                                </button>
                             </div>
+                        </div>
+                        {/* Image side */}
+                        <div className="shrink-0">
+                            <img 
+                                src={EXAMPLE_PERSON.image}
+                                alt=""
+                                className="w-32 h-32 rounded-full object-cover border-2"
+                                style={{ borderColor: `${colorScheme.accent}33` }}
+                            />
                         </div>
                     </div>
 
-                    {/* Project cards */}
-                    <div className="px-6 py-4">
-                        <div className="h-4 w-32 rounded mb-4" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.7 }} />
-                        <div className="grid grid-cols-3 gap-4">
-                            {[0, 1, 2].map((i) => (
+                    {/* Projects section */}
+                    <div className="px-6 py-4" style={{ backgroundColor: colorScheme.bgSecondary }}>
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="text-[10px] tracking-widest uppercase" style={{ color: colorScheme.accent }}>
+                                Projekt
+                            </span>
+                            <div className="flex-1 h-px" style={{ backgroundColor: colorScheme.textMuted }} />
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                            {EXAMPLE_PROJECTS.map((project, i) => (
                                 <div
                                     key={i}
-                                    className="aspect-[4/3] rounded-lg overflow-hidden"
-                                    style={{ backgroundColor: colorScheme.bgSecondary }}
+                                    className="rounded-lg overflow-hidden"
+                                    style={{ backgroundColor: colorScheme.bgCard || colorScheme.bgPrimary }}
                                 >
-                                    <div className="h-2/3" style={{ backgroundColor: colorScheme.bgSecondary }} />
-                                    <div className="h-1/3 p-2">
-                                        <div className="h-2 w-3/4 rounded mb-1" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.6 }} />
-                                        <div className="h-1.5 w-1/2 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }} />
+                                    <img 
+                                        src={project.image}
+                                        alt=""
+                                        className="w-full aspect-[4/3] object-cover"
+                                    />
+                                    <div className="p-2">
+                                        <p className="text-[10px] font-medium" style={{ color: colorScheme.textPrimary }}>
+                                            {project.title}
+                                        </p>
+                                        <p className="text-[8px]" style={{ color: colorScheme.textSecondary }}>
+                                            React • TypeScript
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -219,118 +278,131 @@ function PortfolioPreviewLarge({ template }: { template: TemplateConfig }) {
                     </div>
                 </div>
             </div>
-
-            {/* Decorative glow */}
-            <div
-                className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-40"
-                style={{ backgroundColor: colorScheme.accent }}
-            />
-            <div
-                className="absolute -top-20 -left-20 w-48 h-48 rounded-full blur-3xl opacity-20"
-                style={{ backgroundColor: colorScheme.accent }}
-            />
         </div>
     );
 }
 
 // ============================================
 // LARGE CV PREVIEW (for modal)
+// Exakt som din CV-struktur - sidebar + main
 // ============================================
 
 function CVPreviewLarge({ template }: { template: CVTemplate }) {
     const { colors, layout } = template;
 
+    // Alla CV-varianter använder samma 2-kolumn layout som ditt original
+    // Bara färgerna ändras
+
     return (
         <div className="aspect-[16/10] p-6 sm:p-8 bg-slate-100 relative overflow-hidden flex items-center justify-center">
-            {/* A4 Paper */}
+            {/* A4 Paper - EXAKT SOM CV-STRUCTURE.md */}
             <div
-                className="w-full max-w-md aspect-[1/1.414] rounded-lg shadow-2xl overflow-hidden"
+                className="w-full max-w-md aspect-[1/1.414] rounded-lg shadow-2xl overflow-hidden flex"
                 style={{ backgroundColor: colors.background }}
             >
-                {layout === 'two-column' || layout === 'sidebar' ? (
-                    <div className="flex h-full">
-                        {/* Sidebar */}
-                        <div className="w-1/3 p-4" style={{ backgroundColor: colors.primary }}>
-                            {/* Photo */}
-                            <div className="w-16 h-16 rounded-full mx-auto mb-4 bg-white/20" />
-                            {/* Name */}
-                            <div className="text-center mb-6">
-                                <div className="h-3 w-3/4 rounded mx-auto mb-2 bg-white/80" />
-                                <div className="h-2 w-1/2 rounded mx-auto bg-white/40" />
-                            </div>
-                            {/* Contact */}
-                            <div className="space-y-2 mb-6">
-                                <div className="h-2 w-full rounded bg-white/30" />
-                                <div className="h-2 w-4/5 rounded bg-white/30" />
-                                <div className="h-2 w-3/4 rounded bg-white/30" />
-                            </div>
-                            {/* Skills */}
-                            <div className="h-2 w-1/2 rounded mb-3 bg-white/60" />
-                            <div className="space-y-1.5">
-                                <div className="h-1.5 w-full rounded bg-white/20" />
-                                <div className="h-1.5 w-5/6 rounded bg-white/20" />
-                                <div className="h-1.5 w-4/5 rounded bg-white/20" />
-                                <div className="h-1.5 w-3/4 rounded bg-white/20" />
-                            </div>
+                {/* VÄNSTER SIDEBAR - mörk bakgrund */}
+                <div 
+                    className="w-[38%] p-3 text-white"
+                    style={{ backgroundColor: colors.primary }}
+                >
+                    {/* Profilbild */}
+                    <img 
+                        src={EXAMPLE_PERSON.image}
+                        alt=""
+                        className="w-14 h-14 rounded-full mx-auto mb-2 object-cover border-2 border-white/20"
+                    />
+                    {/* Namn */}
+                    <div className="text-center mb-3">
+                        <p className="text-sm font-bold text-white leading-tight">ERIK</p>
+                        <p className="text-sm font-bold text-white leading-tight">LINDSTRÖM</p>
+                        <p className="text-[8px] text-white/60 mt-1 tracking-wider">DEVOPS · FRONTEND · AI</p>
+                    </div>
+
+                    {/* Kontakt */}
+                    <div className="mb-3">
+                        <p className="text-[8px] font-semibold text-white/80 mb-1 tracking-wider">— KONTAKT</p>
+                        <div className="space-y-0.5 text-[7px] text-white/60">
+                            <p>▸ 070-123 45 67</p>
+                            <p>▸ erik@mail.se</p>
+                            <p>▸ linkedin.com/in/erik</p>
+                            <p>▸ Stockholm</p>
                         </div>
-                        {/* Main content */}
-                        <div className="flex-1 p-4">
-                            {/* Experience header */}
-                            <div className="h-3 w-1/3 rounded mb-4" style={{ backgroundColor: colors.primary }} />
-                            {/* Experience items */}
-                            {[0, 1].map((i) => (
-                                <div key={i} className="mb-4">
-                                    <div className="flex justify-between mb-1">
-                                        <div className="h-2 w-1/3 rounded" style={{ backgroundColor: colors.text, opacity: 0.8 }} />
-                                        <div className="h-2 w-1/5 rounded" style={{ backgroundColor: colors.muted }} />
-                                    </div>
-                                    <div className="h-2 w-1/4 rounded mb-2" style={{ backgroundColor: colors.accent }} />
-                                    <div className="space-y-1">
-                                        <div className="h-1.5 w-full rounded" style={{ backgroundColor: colors.muted }} />
-                                        <div className="h-1.5 w-5/6 rounded" style={{ backgroundColor: colors.muted }} />
-                                        <div className="h-1.5 w-3/4 rounded" style={{ backgroundColor: colors.muted }} />
-                                    </div>
-                                </div>
-                            ))}
-                            {/* Education */}
-                            <div className="h-3 w-1/4 rounded mb-3 mt-6" style={{ backgroundColor: colors.primary }} />
-                            <div className="space-y-1">
-                                <div className="h-2 w-2/3 rounded" style={{ backgroundColor: colors.text, opacity: 0.7 }} />
-                                <div className="h-1.5 w-1/2 rounded" style={{ backgroundColor: colors.muted }} />
+                    </div>
+
+                    {/* Tekniskt */}
+                    <div className="mb-3">
+                        <p className="text-[8px] font-semibold text-white/80 mb-1 tracking-wider">— TEKNISKT</p>
+                        <div className="space-y-0.5 text-[7px] text-white/60">
+                            <p>▸ React / Next.js</p>
+                            <p>▸ TypeScript</p>
+                            <p>▸ Docker</p>
+                            <p>▸ Git & GitHub</p>
+                        </div>
+                    </div>
+
+                    {/* Språk */}
+                    <div>
+                        <p className="text-[8px] font-semibold text-white/80 mb-1 tracking-wider">— SPRÅK</p>
+                        <div className="space-y-0.5 text-[7px] text-white/60">
+                            <p>▸ Svenska – modersmål</p>
+                            <p>▸ Engelska – flytande</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* HÖGER INNEHÅLL - ljus bakgrund */}
+                <div className="flex-1 p-3" style={{ backgroundColor: colors.background }}>
+                    {/* Titel */}
+                    <div className="mb-3">
+                        <p className="text-lg font-bold leading-none" style={{ color: colors.text }}>FRONTEND</p>
+                        <p className="text-sm font-light" style={{ color: colors.text, opacity: 0.7 }}>DEVELOPER</p>
+                    </div>
+
+                    {/* Profil */}
+                    <div className="mb-3">
+                        <p className="text-[8px] font-semibold mb-1" style={{ color: colors.accent }}>— PROFIL</p>
+                        <p className="text-[7px] leading-relaxed" style={{ color: colors.muted }}>
+                            Passionerad utvecklare med fokus på moderna webbteknologier.
+                            Bygger skalbara lösningar med React och TypeScript.
+                        </p>
+                    </div>
+
+                    {/* Utbildning */}
+                    <div className="mb-3">
+                        <p className="text-[8px] font-semibold mb-1" style={{ color: colors.accent }}>— UTBILDNING</p>
+                        <div>
+                            <p className="text-[8px] font-medium" style={{ color: colors.text }}>
+                                Systemvetenskap · Stockholms Universitet
+                            </p>
+                            <p className="text-[6px]" style={{ color: colors.muted }}>
+                                → React, Node.js, Databaser
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Erfarenhet */}
+                    <div>
+                        <p className="text-[8px] font-semibold mb-1" style={{ color: colors.accent }}>— ERFARENHET</p>
+                        <div className="space-y-2">
+                            <div>
+                                <p className="text-[8px] font-medium" style={{ color: colors.text }}>
+                                    Frontend Developer · TechBolag AB
+                                </p>
+                                <p className="text-[6px]" style={{ color: colors.muted }}>
+                                    → Utvecklade kundfacing webbapplikationer
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[8px] font-medium" style={{ color: colors.text }}>
+                                    Junior Developer · StartupXYZ
+                                </p>
+                                <p className="text-[6px]" style={{ color: colors.muted }}>
+                                    → Byggde MVP med React och Firebase
+                                </p>
                             </div>
                         </div>
                     </div>
-                ) : (
-                    <div className="p-4">
-                        {/* Header */}
-                        <div className="text-center pb-4 mb-4 border-b" style={{ borderColor: colors.primary }}>
-                            <div className="h-4 w-1/3 rounded mx-auto mb-2" style={{ backgroundColor: colors.text }} />
-                            <div className="h-2 w-1/4 rounded mx-auto" style={{ backgroundColor: colors.primary }} />
-                        </div>
-                        {/* Contact row */}
-                        <div className="flex justify-center gap-4 mb-4">
-                            <div className="h-1.5 w-20 rounded" style={{ backgroundColor: colors.muted }} />
-                            <div className="h-1.5 w-24 rounded" style={{ backgroundColor: colors.muted }} />
-                            <div className="h-1.5 w-16 rounded" style={{ backgroundColor: colors.muted }} />
-                        </div>
-                        {/* Sections */}
-                        {['Erfarenhet', 'Utbildning'].map((section, i) => (
-                            <div key={section} className="mb-4">
-                                <div className="h-2 w-1/4 rounded mb-3" style={{ backgroundColor: colors.accent }} />
-                                <div className="space-y-2">
-                                    <div className="flex justify-between">
-                                        <div className="h-2 w-1/3 rounded" style={{ backgroundColor: colors.text, opacity: 0.8 }} />
-                                        <div className="h-2 w-1/6 rounded" style={{ backgroundColor: colors.muted }} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <div className="h-1.5 w-full rounded" style={{ backgroundColor: colors.muted }} />
-                                        <div className="h-1.5 w-4/5 rounded" style={{ backgroundColor: colors.muted }} />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                </div>
             </div>
 
             {/* Decorative elements */}
