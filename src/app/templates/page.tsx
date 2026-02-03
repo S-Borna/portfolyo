@@ -340,8 +340,25 @@ function CVPreviewLarge({ template }: { template: CVTemplate }) {
 }
 
 // ============================================
-// PORTFOLIO TEMPLATE CARD - Mobile Optimized
-// Med skarpare, mer detaljerad preview
+// EXAMPLE DATA - Riktigt innehåll för previews
+// ============================================
+
+const EXAMPLE_PERSON = {
+    name: 'Erik Lindström',
+    title: 'Frontend Developer',
+    tagline: 'Jag bygger moderna webbupplevelser',
+    bio: 'Passionerad utvecklare med fokus på React och TypeScript.',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face',
+};
+
+const EXAMPLE_PROJECTS = [
+    { image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop', title: 'E-handel' },
+    { image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=200&fit=crop', title: 'App Design' },
+    { image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=300&h=200&fit=crop', title: 'Dashboard' },
+];
+
+// ============================================
+// PORTFOLIO TEMPLATE CARD - MED RIKTIGT INNEHÅLL
 // ============================================
 
 interface PortfolioCardProps {
@@ -369,7 +386,7 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
             whileHover={{ y: -4 }}
             whileTap={{ scale: 0.98 }}
         >
-            {/* Preview area - Skarpare design */}
+            {/* Preview area - RIKTIGT INNEHÅLL */}
             <div
                 className="aspect-[4/3] relative overflow-hidden"
                 style={{ backgroundColor: colorScheme.bgPrimary }}
@@ -385,49 +402,69 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
                         </div>
                     </div>
 
-                    {/* Page content */}
-                    <div className="h-[calc(100%-1rem)] sm:h-[calc(100%-1.25rem)] p-2 sm:p-3" style={{ backgroundColor: colorScheme.bgPrimary }}>
-                        {/* Nav */}
-                        <div className="flex items-center justify-between mb-2 sm:mb-3">
-                            <div className="h-1.5 sm:h-2 w-8 sm:w-12 rounded" style={{ backgroundColor: colorScheme.accent }} />
-                            <div className="flex gap-1 sm:gap-2">
-                                <div className="h-1 sm:h-1.5 w-4 sm:w-6 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
-                                <div className="h-1 sm:h-1.5 w-4 sm:w-6 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.4 }} />
+                    {/* Page content - RIKTIGT INNEHÅLL */}
+                    <div 
+                        className="h-[calc(100%-1rem)] sm:h-[calc(100%-1.25rem)] p-2 sm:p-3 overflow-hidden" 
+                        style={{ backgroundColor: colorScheme.bgPrimary }}
+                    >
+                        {/* Hero section med profilbild och text */}
+                        <div className="flex gap-2 mb-2">
+                            {/* Profilbild */}
+                            <img 
+                                src={EXAMPLE_PERSON.image}
+                                alt=""
+                                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover shrink-0"
+                            />
+                            <div className="min-w-0 flex-1">
+                                {/* Namn */}
+                                <p 
+                                    className="text-[8px] sm:text-[10px] font-bold truncate leading-tight"
+                                    style={{ color: colorScheme.textPrimary }}
+                                >
+                                    {EXAMPLE_PERSON.name}
+                                </p>
+                                {/* Titel */}
+                                <p 
+                                    className="text-[6px] sm:text-[8px] truncate"
+                                    style={{ color: colorScheme.accent }}
+                                >
+                                    {EXAMPLE_PERSON.title}
+                                </p>
+                                {/* Tagline */}
+                                <p 
+                                    className="text-[5px] sm:text-[6px] truncate mt-0.5"
+                                    style={{ color: colorScheme.textSecondary }}
+                                >
+                                    {EXAMPLE_PERSON.tagline}
+                                </p>
                             </div>
                         </div>
 
-                        {/* Hero text */}
-                        <div className="mb-2 sm:mb-3">
-                            <div className="h-2 sm:h-3 w-3/4 rounded mb-1" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.9 }} />
-                            <div className="h-2 sm:h-3 w-1/2 rounded mb-1.5 sm:mb-2" style={{ backgroundColor: colorScheme.textPrimary, opacity: 0.9 }} />
-                            <div className="h-1 sm:h-1.5 w-full rounded mb-0.5" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }} />
-                            <div className="h-1 sm:h-1.5 w-2/3 rounded" style={{ backgroundColor: colorScheme.textSecondary, opacity: 0.3 }} />
+                        {/* CTA Button */}
+                        <div 
+                            className="inline-block px-2 py-0.5 rounded text-[5px] sm:text-[6px] font-medium mb-2"
+                            style={{ backgroundColor: colorScheme.accent, color: colorScheme.bgPrimary }}
+                        >
+                            Kontakta mig
                         </div>
 
-                        {/* CTA Button */}
-                        <div className="h-3 sm:h-4 w-12 sm:w-16 rounded" style={{ backgroundColor: colorScheme.accent }} />
-
-                        {/* Project cards row */}
-                        <div className="flex gap-1 sm:gap-1.5 mt-2 sm:mt-3">
-                            {[0, 1, 2].map((i) => (
-                                <div
-                                    key={i}
-                                    className="flex-1 aspect-square rounded"
-                                    style={{ backgroundColor: colorScheme.bgSecondary }}
-                                />
+                        {/* Projekt-grid med riktiga bilder */}
+                        <div className="grid grid-cols-3 gap-1">
+                            {EXAMPLE_PROJECTS.map((project, i) => (
+                                <div key={i} className="aspect-[3/2] rounded overflow-hidden">
+                                    <img 
+                                        src={project.image}
+                                        alt=""
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                {/* Accent glow */}
-                <div
-                    className="absolute -bottom-8 -right-8 w-20 h-20 rounded-full blur-2xl opacity-40 transition-opacity group-hover:opacity-60"
-                    style={{ backgroundColor: colorScheme.accent }}
-                />
-
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                {/* Hover overlay med förstora-knapp */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
                     <motion.button
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileHover={{ scale: 1.1 }}
@@ -497,7 +534,7 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
 }
 
 // ============================================
-// CV TEMPLATE CARD - Mobile Optimized
+// CV TEMPLATE CARD - MED RIKTIGT INNEHÅLL
 // ============================================
 
 interface CVCardProps {
@@ -522,72 +559,97 @@ function CVTemplateCard({ template, isSelected, onSelect, onPreview }: CVCardPro
             whileHover={{ y: -4 }}
             whileTap={{ scale: 0.98 }}
         >
-            {/* A4 Preview */}
+            {/* A4 Preview - RIKTIGT INNEHÅLL */}
             <div
                 className="aspect-[1/1.2] p-2 sm:p-3 relative"
                 style={{ backgroundColor: colors.background }}
             >
                 {layout === 'two-column' || layout === 'sidebar' ? (
-                    <div className="flex h-full gap-1.5 sm:gap-2">
-                        {/* Sidebar */}
+                    <div className="flex h-full gap-1 sm:gap-1.5">
+                        {/* Sidebar med riktigt innehåll */}
                         <div
-                            className="w-1/3 p-1.5 sm:p-2 rounded"
+                            className="w-[35%] p-1.5 sm:p-2 rounded overflow-hidden"
                             style={{ backgroundColor: colors.primary }}
                         >
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1.5 sm:mb-2 bg-white/20" />
-                            <div className="space-y-0.5 sm:space-y-1">
-                                <div className="h-1 sm:h-1.5 w-full rounded bg-white/30" />
-                                <div className="h-0.5 sm:h-1 w-3/4 rounded bg-white/20 mx-auto" />
-                            </div>
-                            <div className="mt-2 sm:mt-3 space-y-0.5 sm:space-y-1">
-                                <div className="h-0.5 sm:h-1 w-full rounded bg-white/15" />
-                                <div className="h-0.5 sm:h-1 w-2/3 rounded bg-white/15" />
-                                <div className="h-0.5 sm:h-1 w-4/5 rounded bg-white/15" />
+                            {/* Profilbild */}
+                            <img 
+                                src={EXAMPLE_PERSON.image}
+                                alt=""
+                                className="w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 object-cover"
+                            />
+                            {/* Namn */}
+                            <p className="text-[5px] sm:text-[6px] font-bold text-white text-center truncate">
+                                {EXAMPLE_PERSON.name}
+                            </p>
+                            {/* Titel */}
+                            <p className="text-[4px] sm:text-[5px] text-white/70 text-center truncate mb-1.5">
+                                {EXAMPLE_PERSON.title}
+                            </p>
+                            {/* Kontakt */}
+                            <div className="space-y-0.5">
+                                <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📧 erik@mail.se</p>
+                                <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📱 070-123 45 67</p>
+                                <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📍 Stockholm</p>
                             </div>
                         </div>
                         {/* Main content */}
-                        <div className="flex-1 p-1.5 sm:p-2">
-                            <div
-                                className="h-1.5 sm:h-2 w-3/4 rounded mb-1.5 sm:mb-2"
-                                style={{ backgroundColor: colors.primary }}
-                            />
-                            <div className="space-y-0.5 sm:space-y-1">
-                                <div className="h-0.5 sm:h-1 w-full rounded" style={{ backgroundColor: colors.muted }} />
-                                <div className="h-0.5 sm:h-1 w-5/6 rounded" style={{ backgroundColor: colors.muted }} />
-                                <div className="h-0.5 sm:h-1 w-4/6 rounded" style={{ backgroundColor: colors.muted }} />
-                            </div>
+                        <div className="flex-1 p-1 sm:p-1.5 overflow-hidden">
+                            {/* Erfarenhet */}
+                            <p className="text-[5px] sm:text-[6px] font-bold mb-0.5" style={{ color: colors.primary }}>
+                                ERFARENHET
+                            </p>
+                            <p className="text-[4px] sm:text-[5px] font-medium" style={{ color: colors.text }}>
+                                Frontend Developer
+                            </p>
+                            <p className="text-[3px] sm:text-[4px] mb-1" style={{ color: colors.muted }}>
+                                TechBolag AB • 2023–Nu
+                            </p>
+                            
+                            {/* Utbildning */}
+                            <p className="text-[5px] sm:text-[6px] font-bold mb-0.5 mt-1.5" style={{ color: colors.primary }}>
+                                UTBILDNING
+                            </p>
+                            <p className="text-[4px] sm:text-[5px] font-medium" style={{ color: colors.text }}>
+                                Systemvetenskap
+                            </p>
+                            <p className="text-[3px] sm:text-[4px]" style={{ color: colors.muted }}>
+                                Stockholms Universitet
+                            </p>
                         </div>
                     </div>
                 ) : (
-                    <div className="h-full">
-                        <div
-                            className="text-center pb-1.5 sm:pb-2 mb-1.5 sm:mb-2 border-b"
-                            style={{ borderColor: colors.primary }}
-                        >
-                            <div
-                                className="h-1.5 sm:h-2 w-1/2 rounded mx-auto mb-0.5 sm:mb-1"
-                                style={{ backgroundColor: colors.text }}
-                            />
-                            <div
-                                className="h-1 sm:h-1.5 w-1/3 rounded mx-auto"
-                                style={{ backgroundColor: colors.primary }}
-                            />
+                    /* Single column layout */
+                    <div className="h-full overflow-hidden">
+                        {/* Header */}
+                        <div className="text-center pb-1 mb-1 border-b" style={{ borderColor: colors.primary }}>
+                            <p className="text-[6px] sm:text-[8px] font-bold" style={{ color: colors.text }}>
+                                {EXAMPLE_PERSON.name}
+                            </p>
+                            <p className="text-[4px] sm:text-[5px]" style={{ color: colors.primary }}>
+                                {EXAMPLE_PERSON.title}
+                            </p>
                         </div>
-                        <div className="space-y-1.5 sm:space-y-2">
-                            <div
-                                className="h-1 sm:h-1.5 w-1/4 rounded"
-                                style={{ backgroundColor: colors.accent }}
-                            />
-                            <div className="space-y-0.5 sm:space-y-1">
-                                <div className="h-0.5 sm:h-1 w-full rounded" style={{ backgroundColor: colors.muted }} />
-                                <div className="h-0.5 sm:h-1 w-5/6 rounded" style={{ backgroundColor: colors.muted }} />
-                            </div>
+                        {/* Kontakt rad */}
+                        <div className="flex justify-center gap-2 mb-1.5 text-[3px] sm:text-[4px]" style={{ color: colors.muted }}>
+                            <span>erik@mail.se</span>
+                            <span>•</span>
+                            <span>Stockholm</span>
                         </div>
+                        {/* Erfarenhet */}
+                        <p className="text-[5px] sm:text-[6px] font-bold mb-0.5" style={{ color: colors.accent }}>
+                            Erfarenhet
+                        </p>
+                        <p className="text-[4px] sm:text-[5px] font-medium" style={{ color: colors.text }}>
+                            Frontend Developer • TechBolag AB
+                        </p>
+                        <p className="text-[3px] sm:text-[4px] mb-1" style={{ color: colors.muted }}>
+                            Utvecklar moderna webbapplikationer...
+                        </p>
                     </div>
                 )}
                 
                 {/* Hover overlay with preview button */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
                     <motion.button
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileHover={{ scale: 1.1 }}
