@@ -606,7 +606,8 @@ function PortfolioTemplateCard({ template, index, totalCount, isSelected, onSele
 }
 
 // ============================================
-// CV TEMPLATE CARD - MED RIKTIGT INNEHÅLL
+// CV TEMPLATE CARD - ALLTID SIDEBAR LAYOUT (din design)
+// Endast färgerna skiljer sig mellan templates
 // ============================================
 
 interface CVCardProps {
@@ -617,7 +618,8 @@ interface CVCardProps {
 }
 
 function CVTemplateCard({ template, isSelected, onSelect, onPreview }: CVCardProps) {
-    const { colors, layout } = template;
+    const { colors } = template;
+    // IGNORERAR layout - ALLA CV:n använder sidebar-layout som din design
 
     return (
         <motion.div
@@ -631,94 +633,64 @@ function CVTemplateCard({ template, isSelected, onSelect, onPreview }: CVCardPro
             whileHover={{ y: -4 }}
             whileTap={{ scale: 0.98 }}
         >
-            {/* A4 Preview - RIKTIGT INNEHÅLL */}
+            {/* A4 Preview - ALLTID SIDEBAR LAYOUT som din CV */}
             <div
                 className="aspect-[1/1.2] p-2 sm:p-3 relative"
                 style={{ backgroundColor: colors.background }}
             >
-                {layout === 'two-column' || layout === 'sidebar' ? (
-                    <div className="flex h-full gap-1 sm:gap-1.5">
-                        {/* Sidebar med riktigt innehåll */}
-                        <div
-                            className="w-[35%] p-1.5 sm:p-2 rounded overflow-hidden"
-                            style={{ backgroundColor: colors.primary }}
-                        >
-                            {/* Profilbild */}
-                            <img 
-                                src={EXAMPLE_PERSON.image}
-                                alt=""
-                                className="w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 object-cover"
-                            />
-                            {/* Namn */}
-                            <p className="text-[5px] sm:text-[6px] font-bold text-white text-center truncate">
-                                {EXAMPLE_PERSON.name}
-                            </p>
-                            {/* Titel */}
-                            <p className="text-[4px] sm:text-[5px] text-white/70 text-center truncate mb-1.5">
-                                {EXAMPLE_PERSON.title}
-                            </p>
-                            {/* Kontakt */}
-                            <div className="space-y-0.5">
-                                <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📧 erik@mail.se</p>
-                                <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📱 070-123 45 67</p>
-                                <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📍 Stockholm</p>
-                            </div>
-                        </div>
-                        {/* Main content */}
-                        <div className="flex-1 p-1 sm:p-1.5 overflow-hidden">
-                            {/* Erfarenhet */}
-                            <p className="text-[5px] sm:text-[6px] font-bold mb-0.5" style={{ color: colors.primary }}>
-                                ERFARENHET
-                            </p>
-                            <p className="text-[4px] sm:text-[5px] font-medium" style={{ color: colors.text }}>
-                                Frontend Developer
-                            </p>
-                            <p className="text-[3px] sm:text-[4px] mb-1" style={{ color: colors.muted }}>
-                                TechBolag AB • 2023–Nu
-                            </p>
-                            
-                            {/* Utbildning */}
-                            <p className="text-[5px] sm:text-[6px] font-bold mb-0.5 mt-1.5" style={{ color: colors.primary }}>
-                                UTBILDNING
-                            </p>
-                            <p className="text-[4px] sm:text-[5px] font-medium" style={{ color: colors.text }}>
-                                Systemvetenskap
-                            </p>
-                            <p className="text-[3px] sm:text-[4px]" style={{ color: colors.muted }}>
-                                Stockholms Universitet
-                            </p>
+                {/* ALLTID 2-kolumn sidebar layout */}
+                <div className="flex h-full gap-1 sm:gap-1.5">
+                    {/* Sidebar med riktigt innehåll */}
+                    <div
+                        className="w-[35%] p-1.5 sm:p-2 rounded overflow-hidden"
+                        style={{ backgroundColor: colors.primary }}
+                    >
+                        {/* Profilbild */}
+                        <img 
+                            src={EXAMPLE_PERSON.image}
+                            alt=""
+                            className="w-6 h-6 sm:w-8 sm:h-8 rounded-full mx-auto mb-1 object-cover"
+                        />
+                        {/* Namn */}
+                        <p className="text-[5px] sm:text-[6px] font-bold text-white text-center truncate">
+                            {EXAMPLE_PERSON.name}
+                        </p>
+                        {/* Titel */}
+                        <p className="text-[4px] sm:text-[5px] text-white/70 text-center truncate mb-1.5">
+                            {EXAMPLE_PERSON.title}
+                        </p>
+                        {/* Kontakt */}
+                        <div className="space-y-0.5">
+                            <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📧 erik@mail.se</p>
+                            <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📱 070-123 45 67</p>
+                            <p className="text-[4px] sm:text-[5px] text-white/60 truncate">📍 Stockholm</p>
                         </div>
                     </div>
-                ) : (
-                    /* Single column layout */
-                    <div className="h-full overflow-hidden">
-                        {/* Header */}
-                        <div className="text-center pb-1 mb-1 border-b" style={{ borderColor: colors.primary }}>
-                            <p className="text-[6px] sm:text-[8px] font-bold" style={{ color: colors.text }}>
-                                {EXAMPLE_PERSON.name}
-                            </p>
-                            <p className="text-[4px] sm:text-[5px]" style={{ color: colors.primary }}>
-                                {EXAMPLE_PERSON.title}
-                            </p>
-                        </div>
-                        {/* Kontakt rad */}
-                        <div className="flex justify-center gap-2 mb-1.5 text-[3px] sm:text-[4px]" style={{ color: colors.muted }}>
-                            <span>erik@mail.se</span>
-                            <span>•</span>
-                            <span>Stockholm</span>
-                        </div>
+                    {/* Main content */}
+                    <div className="flex-1 p-1 sm:p-1.5 overflow-hidden">
                         {/* Erfarenhet */}
-                        <p className="text-[5px] sm:text-[6px] font-bold mb-0.5" style={{ color: colors.accent }}>
-                            Erfarenhet
+                        <p className="text-[5px] sm:text-[6px] font-bold mb-0.5" style={{ color: colors.primary }}>
+                            ERFARENHET
                         </p>
                         <p className="text-[4px] sm:text-[5px] font-medium" style={{ color: colors.text }}>
-                            Frontend Developer • TechBolag AB
+                            Frontend Developer
                         </p>
                         <p className="text-[3px] sm:text-[4px] mb-1" style={{ color: colors.muted }}>
-                            Utvecklar moderna webbapplikationer...
+                            TechBolag AB • 2023–Nu
+                        </p>
+                        
+                        {/* Utbildning */}
+                        <p className="text-[5px] sm:text-[6px] font-bold mb-0.5 mt-1.5" style={{ color: colors.primary }}>
+                            UTBILDNING
+                        </p>
+                        <p className="text-[4px] sm:text-[5px] font-medium" style={{ color: colors.text }}>
+                            Systemvetenskap
+                        </p>
+                        <p className="text-[3px] sm:text-[4px]" style={{ color: colors.muted }}>
+                            Stockholms Universitet
                         </p>
                     </div>
-                )}
+                </div>
                 
                 {/* Hover overlay with preview button */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
