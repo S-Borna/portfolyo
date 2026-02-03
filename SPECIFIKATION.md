@@ -10,14 +10,15 @@
 2. [Varför byggdes den?](#varför-byggdes-den)
 3. [Teknikstack](#teknikstack)
 4. [Projektstruktur](#projektstruktur)
-5. [Autentisering](#autentisering)
-6. [State Management](#state-management)
-7. [Databasmodell](#databasmodell)
-8. [AI-integration](#ai-integration)
-9. [Deployment & Hosting](#deployment--hosting)
-10. [Nuvarande funktioner](#nuvarande-funktioner)
-11. [Flöden i appen](#flöden-i-appen)
-12. [Framtida utveckling](#framtida-utveckling)
+5. [Template-systemet](#template-systemet) ⭐ NY
+6. [Autentisering](#autentisering)
+7. [State Management](#state-management)
+8. [Databasmodell](#databasmodell)
+9. [AI-integration](#ai-integration)
+10. [Deployment & Hosting](#deployment--hosting)
+11. [Nuvarande funktioner](#nuvarande-funktioner)
+12. [Flöden i appen](#flöden-i-appen)
+13. [Framtida utveckling](#framtida-utveckling)
 
 ---
 
@@ -126,6 +127,93 @@ portfolyo/
     ├── wrangler.jsonc          # Cloudflare Workers-config
     └── open-next.config.ts     # OpenNext-adapter
 ```
+
+---
+
+## Template-systemet
+
+> ⚠️ **VIKTIGT:** Se även `src/lib/templates/ARCHITECTURE.md` för teknisk detalj.
+
+### Grundprincip
+
+Alla templates bygger på **EN FAST DESIGN** - saidborna.com för portfolio och ditt CV för CV. 
+Det enda som skiljer templates åt är **FÄRGERNA**. Layouten är identisk.
+
+### Benchmark-design
+
+| Typ | Benchmark | Layout |
+|-----|-----------|--------|
+| **Portfolio** | saidborna.com | Split-hero, floating orbs, projekt-grid |
+| **CV** | Ditt CV | Sidebar (vänster) + Main content (höger) |
+
+### Filer och ansvar
+
+```
+src/lib/templates/
+├── ARCHITECTURE.md          # ⭐ Dokumentation av systemet
+├── cv-renderer-v2.ts        # ✅ CANONICAL - Renderar CV HTML
+├── portfolio-renderer-v2.ts # ✅ CANONICAL - Renderar Portfolio HTML  
+├── templates.ts             # Portfolio template-definitioner
+├── effects.ts               # Animationer, färgscheman
+├── index.ts                 # Central export
+│
+├── cv-renderer.ts           # ❌ DEPRECATED - använd v2
+├── portfolio-renderer.ts    # ❌ DEPRECATED - använd v2
+└── renderer.ts              # ❌ DEPRECATED
+```
+
+### Template-varianter
+
+**CV (50 varianter)** - Alla använder sidebar-layout:
+- Said Dark, Said Light, Said Navy, Said Forest
+- Tom Ford Collection (Noir Extreme, Oud Wood, etc.)
+- Executive Collection
+- Mer...
+
+**Portfolio (100 varianter)** - Alla använder saidborna.com-design:
+- DevOps Crimson, Deep Ocean, Matrix Code
+- Designer Collection
+- Minimal Collection
+- Mer...
+
+### Hur templates fungerar
+
+```
+┌─────────────────────────────────────────┐
+│        CV_TEMPLATES_V2 / PORTFOLIO_TEMPLATES_V2        │
+│        (Definierar färger + metadata)                   │
+└───────────────────┬─────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────┐
+│        renderCVV2() / renderPortfolioV2()              │
+│        (Genererar HTML med vald färg)                  │
+│        Layout är ALLTID samma                           │
+└───────────────────┬─────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────┐
+│        Slutresultat: HTML/PDF                          │
+│        (Samma struktur, olika färger)                  │
+└─────────────────────────────────────────┘
+```
+
+### Vid ändringar
+
+| Vad du vill ändra | Var du gör det |
+|-------------------|----------------|
+| Ny färgvariant CV | `cv-renderer-v2.ts` → `CV_TEMPLATES_V2` |
+| Ny färgvariant Portfolio | `portfolio-renderer-v2.ts` → `PORTFOLIO_TEMPLATES_V2` |
+| Ändra CV-layout | `cv-renderer-v2.ts` → `renderCVV2()` |
+| Ändra Portfolio-layout | `portfolio-renderer-v2.ts` → `renderPortfolioV2()` |
+| Preview i templates-sidan | `src/app/templates/page.tsx` (hårdkodad till din design) |
+
+### Viktiga regler
+
+1. **Lägg ALDRIG till nya layout-typer** - Alla CV = sidebar, alla Portfolio = split-hero
+2. **Endast V2-filer är aktiva** - Ignorera filer utan `-v2`
+3. **Färger definieras EN gång** - I `*_TEMPLATES_V2` arrays
+4. **Preview matchar slutresultat** - Samma struktur överallt
 
 ---
 
@@ -339,21 +427,30 @@ npm run deploy
 - [x] Dashboard med översikt
 - [x] Onboarding-flöde
 - [x] Skapa portfolio
-- [x] Välja mall (4 templates)
+- [x] 100 templates (färgvarianter av saidborna.com-design)
 - [x] Publik portfolio-sida
-- [x] Subdomän-routing (planned)
+- [x] Template-galleri med preview
 
 **CV**
 
 - [x] CV-builder
-- [x] Flera mallar
-- [x] Export (planned)
+- [x] 50 templates (färgvarianter av din CV-design)
+- [x] Sidebar-layout (konsekvent)
+- [x] Template preview med riktigt innehåll
 
 **AI**
 
 - [x] Generera bio-texter
 - [x] Generera projektbeskrivningar
 - [x] Omskrivning av text
+
+**Template-system** ⭐ NY
+
+- [x] Konsoliderat till V2 (single source of truth)
+- [x] ARCHITECTURE.md dokumentation
+- [x] Alla CV = sidebar-layout
+- [x] Alla Portfolio = saidborna.com-design
+- [x] Preview visar riktigt innehåll (namn, bilder, etc.)
 
 ### 🔄 Under utveckling
 
@@ -451,4 +548,4 @@ AI-delen är "nice to have" men inte kritisk. Appen fungerar utan den.
 
 ---
 
-*Senast uppdaterad: 2 februari 2026*
+*Senast uppdaterad: 3 februari 2026*
