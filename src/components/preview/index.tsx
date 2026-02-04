@@ -743,13 +743,13 @@ function getTemplatePreview(template: PortfolioTemplateConfig | CVTemplateConfig
   if ('preview' in template && template.preview) {
     return template.preview;
   }
-  
+
   // For CVTemplateConfigV2, generate gradient from sidebar + accent colors
   if ('sidebarBg' in template) {
     const t = template as CVTemplateConfigV2;
     return `linear-gradient(135deg, ${t.sidebarBg} 0%, ${t.sidebarBg} 33%, ${t.mainBg} 33%, ${t.mainBg} 100%)`;
   }
-  
+
   return 'linear-gradient(135deg, #1a1a1a 0%, #333333 100%)';
 }
 

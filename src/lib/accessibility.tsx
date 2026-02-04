@@ -17,9 +17,9 @@ interface SkipLinkProps {
   children?: React.ReactNode;
 }
 
-export function SkipLink({ 
-  targetId = 'main-content', 
-  children = 'Hoppa till innehåll' 
+export function SkipLink({
+  targetId = 'main-content',
+  children = 'Hoppa till innehåll'
 }: SkipLinkProps) {
   return (
     <a
@@ -129,10 +129,10 @@ interface LiveRegionProps {
   atomic?: boolean;
 }
 
-export function LiveRegion({ 
-  children, 
-  politeness = 'polite', 
-  atomic = true 
+export function LiveRegion({
+  children,
+  politeness = 'polite',
+  atomic = true
 }: LiveRegionProps) {
   return (
     <div
@@ -159,7 +159,7 @@ export function announce(message: string, politeness: 'polite' | 'assertive' = '
 
   // Find or create the live region
   let liveRegion = document.getElementById('a11y-announcer');
-  
+
   if (!liveRegion) {
     liveRegion = document.createElement('div');
     liveRegion.id = 'a11y-announcer';
@@ -172,7 +172,7 @@ export function announce(message: string, politeness: 'polite' | 'assertive' = '
 
   // Clear and set message
   liveRegion.textContent = '';
-  
+
   announceTimeout = setTimeout(() => {
     liveRegion!.textContent = message;
   }, 100);

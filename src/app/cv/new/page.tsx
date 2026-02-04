@@ -692,8 +692,8 @@ function NewCVPageContent() {
                                 key={skill.name}
                                 onClick={() => toggleSkill(skill.name)}
                                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isSelected
-                                    ? 'bg-violet-600 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                  ? 'bg-violet-600 text-white'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                   }`}
                               >
                                 {skill.name}
@@ -766,8 +766,8 @@ function NewCVPageContent() {
                           key={cat.id}
                           onClick={() => setTemplateCategory(cat.id)}
                           className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${templateCategory === cat.id
-                              ? 'bg-violet-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-violet-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                         >
                           {cat.label}
