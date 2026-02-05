@@ -57,9 +57,8 @@ function PortfolioTemplateCard({
 
   return (
     <motion.div
-      className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group ${
-        isSelected ? 'ring-2 ring-violet-500 ring-offset-2 ring-offset-gray-900' : ''
-      } ${isLocked ? 'opacity-60' : ''}`}
+      className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group ${isSelected ? 'ring-2 ring-violet-500 ring-offset-2 ring-offset-gray-900' : ''
+        } ${isLocked ? 'opacity-60' : ''}`}
       onClick={isLocked ? undefined : onClick}
       whileHover={!isLocked ? { y: -8, scale: 1.02 } : {}}
       style={{
@@ -248,9 +247,8 @@ function CVTemplateCard({
 
   return (
     <motion.div
-      className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${
-        isSelected ? 'ring-2 ring-violet-500 ring-offset-2 ring-offset-gray-900' : ''
-      } ${isLocked ? 'opacity-60' : ''}`}
+      className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${isSelected ? 'ring-2 ring-violet-500 ring-offset-2 ring-offset-gray-900' : ''
+        } ${isLocked ? 'opacity-60' : ''}`}
       onClick={isLocked ? undefined : onClick}
       whileHover={!isLocked ? { y: -8, scale: 1.02 } : {}}
     >
@@ -440,23 +438,23 @@ export function TemplateGallery({
   const categories =
     type === 'portfolio'
       ? [
-          { id: 'all', name: 'Alla', icon: LayoutGrid },
-          ...Object.entries(categoryDescriptions).map(([id, desc]) => ({
-            id,
-            name: desc.name,
-            icon: LayoutGrid,
-          })),
-        ]
+        { id: 'all', name: 'Alla', icon: LayoutGrid },
+        ...Object.entries(categoryDescriptions).map(([id, desc]) => ({
+          id,
+          name: desc.name,
+          icon: LayoutGrid,
+        })),
+      ]
       : [
-          { id: 'all', name: 'Alla', icon: LayoutGrid },
-          { id: 'modern', name: 'Modern', icon: LayoutGrid },
-          { id: 'classic', name: 'Klassisk', icon: LayoutGrid },
-          { id: 'creative', name: 'Kreativ', icon: LayoutGrid },
-          { id: 'minimal', name: 'Minimal', icon: LayoutGrid },
-          { id: 'professional', name: 'Professionell', icon: LayoutGrid },
-          { id: 'tech', name: 'Tech', icon: LayoutGrid },
-          { id: 'executive', name: 'Executive', icon: LayoutGrid },
-        ];
+        { id: 'all', name: 'Alla', icon: LayoutGrid },
+        { id: 'modern', name: 'Modern', icon: LayoutGrid },
+        { id: 'classic', name: 'Klassisk', icon: LayoutGrid },
+        { id: 'creative', name: 'Kreativ', icon: LayoutGrid },
+        { id: 'minimal', name: 'Minimal', icon: LayoutGrid },
+        { id: 'professional', name: 'Professionell', icon: LayoutGrid },
+        { id: 'tech', name: 'Tech', icon: LayoutGrid },
+        { id: 'executive', name: 'Executive', icon: LayoutGrid },
+      ];
 
   const canUseTier = (tier: 'free' | 'starter' | 'pro') => {
     if (userTier === 'pro') return true;
@@ -493,20 +491,19 @@ export function TemplateGallery({
         {/* Tier indicator */}
         <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-xl">
           <Crown
-            className={`w-4 h-4 ${
-              userTier === 'pro'
+            className={`w-4 h-4 ${userTier === 'pro'
                 ? 'text-violet-400'
                 : userTier === 'starter'
-                ? 'text-blue-400'
-                : 'text-gray-500'
-            }`}
+                  ? 'text-blue-400'
+                  : 'text-gray-500'
+              }`}
           />
           <span className="text-sm text-gray-300">
             {userTier === 'pro'
               ? 'Alla templates tillgängliga'
               : userTier === 'starter'
-              ? `${type === 'portfolio' ? '25' : '25'} templates`
-              : `${type === 'portfolio' ? '5' : '5'} templates`}
+                ? `${type === 'portfolio' ? '25' : '25'} templates`
+                : `${type === 'portfolio' ? '5' : '5'} templates`}
           </span>
         </div>
       </div>
@@ -517,11 +514,10 @@ export function TemplateGallery({
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-              selectedCategory === cat.id
+            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === cat.id
                 ? 'bg-violet-500 text-white'
                 : 'bg-gray-800 text-gray-400 hover:text-white'
-            }`}
+              }`}
           >
             {cat.name}
           </button>
@@ -533,42 +529,42 @@ export function TemplateGallery({
         <AnimatePresence mode="popLayout">
           {type === 'portfolio'
             ? portfolioTemplates.map((template) => (
-                <motion.div
-                  key={template.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                >
-                  <PortfolioTemplateCard
-                    template={template}
-                    isSelected={selectedId === template.id}
-                    isLocked={isPortfolioLocked(template)}
-                    onClick={() => onSelect(template.id)}
-                    onPreview={
-                      showPreview
-                        ? () => setPreviewTemplate(template.id)
-                        : undefined
-                    }
-                  />
-                </motion.div>
-              ))
+              <motion.div
+                key={template.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <PortfolioTemplateCard
+                  template={template}
+                  isSelected={selectedId === template.id}
+                  isLocked={isPortfolioLocked(template)}
+                  onClick={() => onSelect(template.id)}
+                  onPreview={
+                    showPreview
+                      ? () => setPreviewTemplate(template.id)
+                      : undefined
+                  }
+                />
+              </motion.div>
+            ))
             : cvTemplates.map((template) => (
-                <motion.div
-                  key={template.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                >
-                  <CVTemplateCard
-                    template={template}
-                    isSelected={selectedId === template.id}
-                    isLocked={!canUseTier(template.tier)}
-                    onClick={() => onSelect(template.id)}
-                  />
-                </motion.div>
-              ))}
+              <motion.div
+                key={template.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <CVTemplateCard
+                  template={template}
+                  isSelected={selectedId === template.id}
+                  isLocked={!canUseTier(template.tier)}
+                  onClick={() => onSelect(template.id)}
+                />
+              </motion.div>
+            ))}
         </AnimatePresence>
       </div>
 
