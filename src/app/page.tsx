@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Button,
   Card,
@@ -28,6 +29,238 @@ const {
   ChevronUp,
   ChevronDown,
 } = Icons;
+
+// ============================================
+// ANIMATED CAROUSEL DATA - Färgglada templates
+// ============================================
+
+const CAROUSEL_ITEMS = [
+  // Portfolio 1 - Lila/Magenta
+  {
+    type: 'portfolio' as const,
+    template: 'flag-magenta',
+    name: 'Emma Lindgren',
+    title: 'UX Designer',
+    tagline: 'Skapar intuitiva upplevelser som konverterar. 8 framgångsrika lanseringar.',
+    skills: ['Figma', 'Prototyping', 'User Research', 'Design Systems'],
+    color: '#ec4899', // Pink
+    avatar: 'EL',
+  },
+  // CV 1 - Teal/Grön
+  {
+    type: 'cv' as const,
+    template: 'nature-sage',
+    name: 'Marcus Holm',
+    title: 'BACKEND',
+    subtitle: 'DEVELOPER',
+    tagline: 'Java · Spring · Kubernetes',
+    skills: ['Java', 'Spring Boot', 'PostgreSQL', 'K8s'],
+    color: '#14b8a6', // Teal
+    avatar: 'MH',
+  },
+  // Portfolio 2 - Orange/Ember
+  {
+    type: 'portfolio' as const,
+    template: 'said-ember',
+    name: 'Sofia Bergman',
+    title: 'Data Engineer',
+    tagline: 'Bygger datapipelines som hanterar 50M events/dag.',
+    skills: ['Python', 'Spark', 'Airflow', 'BigQuery'],
+    color: '#f97316', // Orange
+    avatar: 'SB',
+  },
+  // CV 2 - Lila
+  {
+    type: 'cv' as const,
+    template: 'tf-velvet-orchid',
+    name: 'Erik Johansson',
+    title: 'FRONTEND',
+    subtitle: 'SPECIALIST',
+    tagline: 'React · TypeScript · Design',
+    skills: ['React', 'TypeScript', 'Tailwind', 'Next.js'],
+    color: '#a855f7', // Purple
+    avatar: 'EJ',
+  },
+];
+
+// ============================================
+// ANIMATED LIVE PREVIEW CARD COMPONENT
+// ============================================
+
+function AnimatedLivePreviewCard() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+
+  // Rotate through carousel items
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Start exit animation
+      setIsVisible(false);
+      
+      // After exit animation, change item and show entry
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % CAROUSEL_ITEMS.length);
+        setIsVisible(true);
+      }, 400); // Match exit animation duration
+    }, 2500); // 2s visible + 0.5s for animation
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentItem = CAROUSEL_ITEMS[currentIndex];
+  const isPortfolio = currentItem.type === 'portfolio';
+
+  return (
+    <div className="relative">
+      <div className="absolute -inset-4 bg-white/60 blur-2xl rounded-3xl" />
+      <Card className="relative bg-white border-slate-200 shadow-xl p-6 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <Badge variant="primary" className="gap-1">
+            <Sparkles className="h-3 w-3" />
+            Live preview
+          </Badge>
+          <span className="text-xs text-slate-500">
+            portfolyo.se/{currentItem.name.split(' ')[0].toLowerCase()}
+          </span>
+        </div>
+
+        {/* Animated Content */}
+        <div className="relative h-[200px]">
+          <AnimatePresence mode="wait">
+            {isVisible && (
+              <motion.div
+                key={currentIndex}
+                initial={{ 
+                  opacity: 0, 
+                  x: 100,
+                  rotateY: -45,
+                }}
+                animate={{ 
+                  opacity: 1, 
+                  x: 0,
+                  rotateY: 0,
+                }}
+                exit={{ 
+                  opacity: 0, 
+                  x: -200,
+                  rotateY: 45,
+                  scale: 0.8,
+                }}
+                transition={{ 
+                  duration: 0.4,
+                  ease: [0.4, 0, 0.2, 1],
+                }}
+                className="absolute inset-0"
+                style={{ perspective: '1000px' }}
+              >
+                {isPortfolio ? (
+                  // Portfolio Card Design
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div 
+                        className="w-14 h-14 rounded-2xl text-white flex items-center justify-center font-semibold text-lg"
+                        style={{ backgroundColor: currentItem.color }}
+                      >
+                        {currentItem.avatar}
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-500">{currentItem.title}</p>
+                        <p className="text-xl font-semibold text-ink">{currentItem.name}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-slate-600">
+                      {currentItem.tagline}
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {currentItem.skills.map((skill) => (
+                        <div 
+                          key={skill} 
+                          className="rounded-xl border p-3 text-xs text-slate-600"
+                          style={{ borderColor: `${currentItem.color}40` }}
+                        >
+                          {skill}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  // CV Card Design
+                  <div className="flex gap-4 h-full">
+                    {/* CV Sidebar */}
+                    <div 
+                      className="w-24 rounded-xl p-3 flex flex-col items-center text-white"
+                      style={{ backgroundColor: currentItem.color }}
+                    >
+                      <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-semibold text-sm mb-2">
+                        {currentItem.avatar}
+                      </div>
+                      <p className="text-[10px] text-center opacity-80">{currentItem.tagline}</p>
+                    </div>
+                    {/* CV Main Content */}
+                    <div className="flex-1 space-y-3">
+                      <div>
+                        <p className="text-lg font-bold text-ink tracking-wide">{currentItem.title}</p>
+                        <p className="text-sm font-medium" style={{ color: currentItem.color }}>{currentItem.subtitle}</p>
+                      </div>
+                      <p className="text-xs text-slate-500">{currentItem.name}</p>
+                      <div className="space-y-1">
+                        {currentItem.skills.map((skill) => (
+                          <div 
+                            key={skill}
+                            className="text-xs text-slate-600 flex items-center gap-2"
+                          >
+                            <div 
+                              className="w-1.5 h-1.5 rounded-full"
+                              style={{ backgroundColor: currentItem.color }}
+                            />
+                            {skill}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Progress Dots */}
+        <div className="flex items-center justify-center gap-2 mt-4">
+          {CAROUSEL_ITEMS.map((item, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentIndex 
+                  ? 'w-6' 
+                  : 'bg-slate-200'
+              }`}
+              style={{
+                backgroundColor: index === currentIndex ? item.color : undefined
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Type Badge */}
+        <div className="absolute top-4 right-4">
+          <Badge 
+            variant="outline" 
+            className="text-[10px] gap-1"
+            style={{ borderColor: currentItem.color, color: currentItem.color }}
+          >
+            {isPortfolio ? (
+              <><Globe className="h-2.5 w-2.5" /> Portfolio</>
+            ) : (
+              <><FileText className="h-2.5 w-2.5" /> CV</>
+            )}
+          </Badge>
+        </div>
+      </Card>
+    </div>
+  );
+}
 
 // Portfolio sections med scroll-positioner (pixlar i iframe-dokumentet)
 // Med previewMode: Hero=700px, sektioner behöver större offset
@@ -283,37 +516,7 @@ export default function LandingPage() {
             </div>
 
             <div className="relative">
-              <div className="absolute -inset-4 bg-white/60 blur-2xl rounded-3xl" />
-              <Card className="relative bg-white border-slate-200 shadow-xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <Badge variant="primary" className="gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    Live preview
-                  </Badge>
-                  <span className="text-xs text-slate-500">portfolyo.se/said</span>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-ink text-white flex items-center justify-center font-semibold">
-                      SB
-                    </div>
-                    <div>
-                      <p className="text-sm text-slate-500">DevOps Engineer</p>
-                      <p className="text-xl font-semibold text-ink">Said Borna</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-slate-600">
-                    15 års ledarerfarenhet. 5 produkter live. Bygger automatisering som ökar leveranssäkerheten.
-                  </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {['Ledarskap', 'Automation', 'Cloud', 'Reliability'].map((item) => (
-                      <div key={item} className="rounded-xl border border-slate-200 p-3 text-xs text-slate-600">
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Card>
+              <AnimatedLivePreviewCard />
             </div>
           </div>
 
