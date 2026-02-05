@@ -898,25 +898,25 @@ export function CVPreviewV2({ templateId, data, className, scale = 0.5, fillCont
       const parent = containerRef.current.parentElement;
       const parentWidth = parent.clientWidth;
       const parentHeight = parent.clientHeight || 600; // fallback height
-      
+
       const iframeWidth = 794;
       const iframeHeight = 1123;
-      
+
       // Calculate scale to fit both width and height (contain)
       const scaleX = parentWidth / iframeWidth;
       const scaleY = parentHeight / iframeHeight;
       const newScale = Math.min(scaleX, scaleY, 1); // max 1 to avoid upscaling
-      
+
       setContainerScale(Math.max(0.3, newScale)); // min 0.3 for readability
     };
 
     updateScale();
-    
+
     const resizeObserver = new ResizeObserver(updateScale);
     if (containerRef.current.parentElement) {
       resizeObserver.observe(containerRef.current.parentElement);
     }
-    
+
     return () => resizeObserver.disconnect();
   }, [fillContainer, scale]);
 
