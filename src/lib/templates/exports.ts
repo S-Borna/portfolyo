@@ -21,13 +21,13 @@ export {
 // Portfolio Renderer
 export { renderPortfolio, translations } from './renderer';
 
-// CV Renderer
+// CV Renderer V2 (consolidated)
 export {
-    renderCV,
-    getCVTemplate,
-    CV_TEMPLATES,
-    type CVTemplateId,
-} from './cv-renderer';
+    renderCVV2 as renderCV,
+    CV_TEMPLATES_V2 as CV_TEMPLATES,
+    type CVTemplateConfig,
+    type CVData,
+} from './cv-renderer-v2';
 
 // Types
 export type {

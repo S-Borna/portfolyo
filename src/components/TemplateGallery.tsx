@@ -12,8 +12,9 @@ import {
   type TemplateConfig,
   type TemplateCategory,
   categoryDescriptions,
+  ALL_CV_TEMPLATES,
+  type CVTemplate,
 } from '@/lib/templates';
-import { CV_TEMPLATES, type CVTemplateDefinition } from '@/lib/templates/cv-templates';
 import { Icons } from '@/components/ui';
 
 const {
@@ -231,7 +232,7 @@ function PortfolioTemplateCard({
 // ============================================
 
 interface CVTemplateCardProps {
-  template: CVTemplateDefinition;
+  template: CVTemplate;
   isSelected: boolean;
   isLocked: boolean;
   onClick: () => void;
@@ -416,7 +417,7 @@ export function TemplateGallery({
 
   // CV templates
   const cvTemplates = useMemo(() => {
-    let filtered = [...CV_TEMPLATES];
+    let filtered = [...ALL_CV_TEMPLATES];
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -590,7 +591,7 @@ export function TemplateGallery({
       <div className="flex items-center justify-center gap-8 py-4 border-t border-gray-800">
         <div className="text-center">
           <div className="text-2xl font-bold text-white">
-            {type === 'portfolio' ? templates.length : CV_TEMPLATES.length}
+            {type === 'portfolio' ? templates.length : ALL_CV_TEMPLATES.length}
           </div>
           <div className="text-xs text-gray-500">Totalt antal templates</div>
         </div>
@@ -606,7 +607,7 @@ export function TemplateGallery({
           <div className="text-2xl font-bold text-amber-400">
             {type === 'portfolio'
               ? templates.filter((t) => t.popularity > 90).length
-              : CV_TEMPLATES.filter((t) => t.popular).length}
+              : ALL_CV_TEMPLATES.filter((t) => t.popular).length}
           </div>
           <div className="text-xs text-gray-500">Populära val</div>
         </div>
