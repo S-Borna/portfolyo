@@ -382,7 +382,7 @@ const PILLARS = [
   },
   {
     icon: <FileText className="h-5 w-5" />,
-    title: 'Från simpelt CV till wow-faktor',
+    title: 'Från simpelt CV till WOW faktor',
     description: 'Vi transformerar ditt innehåll till ett professionellt CV som imponerar vid första ögonkastet.',
     bullets: ['ATS-kompatibel PDF', 'Inkludera i portfolion', 'Exportera & dela'],
   },
@@ -477,7 +477,7 @@ export default function LandingPage() {
             <div>
               <Badge variant="outline" className="mb-6">49 kr engång – hostat för alltid</Badge>
               <h1 className="text-4xl md:text-6xl font-semibold text-ink mb-6">
-                Från simpelt CV till wow-faktor på 20 sekunder.
+                Från simpelt CV till WOW faktor på 20 sekunder.
               </h1>
               <p className="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl">
                 Skicka ditt underlag. Vi transformerar det till en professionell portfolio och CV som imponerar vid första ögonkastet.
@@ -838,7 +838,6 @@ export default function LandingPage() {
               {/* Copyright */}
               <div className="text-sm text-slate-500 text-center md:text-left">
                 <p>© {new Date().getFullYear()} Portfolyo. Alla rättigheter förbehållna.</p>
-                <p className="mt-1">Org.nr: 559XXX-XXXX • Sverige</p>
               </div>
 
               {/* Built by */}
