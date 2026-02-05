@@ -232,8 +232,8 @@ function AnimatedLivePreviewCard() {
             <div
               key={index}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
-                  ? 'w-6'
-                  : 'bg-slate-200'
+                ? 'w-6'
+                : 'bg-slate-200'
                 }`}
               style={{
                 backgroundColor: index === currentIndex ? item.color : undefined
@@ -244,7 +244,7 @@ function AnimatedLivePreviewCard() {
 
         {/* Type Badge */}
         <div className="absolute top-4 right-4">
-          <div 
+          <div
             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium"
             style={{ borderColor: currentItem.color, color: currentItem.color }}
           >
