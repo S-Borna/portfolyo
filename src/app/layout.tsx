@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Toaster } from 'react-hot-toast';
 import { SecurityShield } from '@/components/SecurityShield';
 import { SkipLink } from '@/lib/accessibility';
+import { CookieConsentBanner } from '@/components/CookieConsent';
 
 export const metadata: Metadata = {
   title: 'PORTFOLYO.SE — Professionell portfolio & CV, hostat åt dig',
@@ -65,6 +66,7 @@ export default function RootLayout({
             },
           }}
         />
+        <CookieConsentBanner />
       </body>
     </html>
   );

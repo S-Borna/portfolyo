@@ -288,44 +288,33 @@ export interface AIGenerationResponse {
   creditsUsed: number;
 }
 
-// Pricing
+// Pricing - Ny modell: Engångsavgift + credits
 export const PRICING = {
-  starter: {
-    name: 'Starter',
+  oneTime: {
+    name: 'Publicering',
     price: 49,
-    credits: 10,
-    features: [
-      'Portfolio-sida',
-      'CV-generator (PDF)',
-      '10 AI-credits/mån',
-      'namn.portfolyo.se subdomain',
-      'Grundläggande statistik',
-      'Email-support',
+    description: 'Engångsavgift – betala en gång, hostat för alltid',
+    includes: [
+      'Portfolio eller CV publicerat live',
+      'Hosting 24/7 på portfolyo.se/{username}',
+      '1 CV-generering ingår',
+      'PDF-export av CV',
+      'Inkludera CV i din portfolio',
     ],
-    limits: {
-      portfolios: 1,
-      cvs: 3,
-      aiCreditsPerMonth: 10,
-    },
   },
-  pro: {
-    name: 'Pro',
-    price: 99,
-    credits: 25,
-    features: [
-      'Allt i Starter',
-      'Egen domän',
-      '25 AI-credits/mån',
-      'Avancerad statistik',
-      'Prioriterad support',
-      'Tillgång till lärresurser',
-      'Export till GitHub',
+  credits: {
+    name: 'Credits',
+    pricePerCredit: 14.99,
+    description: 'Köp credits för ändringar och tillägg',
+    tiers: [
+      { credits: 1, label: 'Ändring på befintligt CV' },
+      { credits: 2, label: 'Nytt CV eller ändring på portfolio' },
+      { credits: 4, label: 'Ny portfolio' },
     ],
-    limits: {
-      portfolios: 3,
-      cvs: 10,
-      aiCreditsPerMonth: 25,
-    },
+    bundles: [
+      { credits: 4, price: 39, savings: '35%' },
+      { credits: 10, price: 79, savings: '47%' },
+    ],
   },
 } as const;
 

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui';
 import { PRICING } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
+import { CookieSettingsButton } from '@/components/CookieConsent';
 
 const {
   Sparkles,
@@ -38,33 +39,33 @@ const CAROUSEL_ITEMS = [
   // Portfolio 1 - Mörk med röd accent
   {
     type: 'portfolio' as const,
-    templateId: 'said-dark',
+    templateId: 'dark-ember',
     profile: 'alex',
-    label: 'Said Dark',
+    label: 'Dark Ember',
     color: '#ef4444', // Red
   },
-  // CV 1 - Elegant Gold (Tobacco Vanille)
+  // CV 1 - Elegant Gold
   {
     type: 'cv' as const,
-    templateId: 'tf-tobacco-vanille',
+    templateId: 'midnight-gold',
     profile: 'erik',
-    label: 'Tobacco Vanille',
+    label: 'Midnight Gold',
     color: '#d4a553', // Gold
   },
   // Portfolio 2 - Teal/Ocean
   {
     type: 'portfolio' as const,
-    templateId: 'nature-ocean',
+    templateId: 'ocean-teal',
     profile: 'maya',
-    label: 'Nature Ocean',
-    color: '#0ea5e9', // Sky blue
+    label: 'Ocean Teal',
+    color: '#14b8a6', // Teal
   },
-  // CV 2 - Nature Sage (Grön)
+  // CV 2 - Forest Earth (Grön)
   {
     type: 'cv' as const,
-    templateId: 'nature-sage',
+    templateId: 'forest-earth',
     profile: 'sofia',
-    label: 'Nature Sage',
+    label: 'Forest Earth',
     color: '#22c55e', // Green
   },
 ];
@@ -347,9 +348,9 @@ function PortfolioPreviewCard({ template }: { template: { id: string; title: str
 }
 
 const HIGHLIGHTS = [
-  { label: 'Portfolio', value: '1', description: 'Hostad på portfolyo.se/{username}' },
-  { label: 'CV', value: '2', description: 'PDF + webbaserad version' },
-  { label: 'Templates', value: '70+', description: '20 portfolio + 50 CV' },
+  { label: 'Live på', value: '20 sek', description: 'Från publicera till din egen URL' },
+  { label: 'Hosting', value: '24/7', description: 'Vi sköter allt, dygnet runt' },
+  { label: 'Templates', value: '40+', description: 'Portfolio + CV i samma DNA' },
   { label: 'Support', value: 'Människor', description: 'Direkt, tydligt, tryggt' },
 ];
 
@@ -375,44 +376,48 @@ const PROCESS = [
 const PILLARS = [
   {
     icon: <Globe className="h-5 w-5" />,
-    title: 'Portfolio som känns ny, varje dag',
-    description: 'Vi hostar, optimerar och håller din sida skarp. Alltid snabb, alltid tillgänglig.',
-    bullets: ['Egen subdomän', 'Snabb laddning', 'Trygg drift'],
+    title: 'Din sida, live på 20 sekunder',
+    description: 'Publicera och dela direkt. Vi hostar din portfolio dygnet runt på portfolyo.se/{username}.',
+    bullets: ['Live hosting 24/7', '20 sek till publicerad', 'Egen personlig URL'],
   },
   {
     icon: <FileText className="h-5 w-5" />,
-    title: 'CV som rekryterare litar på',
-    description: 'ATS-kompatibel, professionellt formaterad och redo för PDF eller webblänk.',
-    bullets: ['ATS-klar', 'PDF + webblänk', 'Konservativt modernt'],
+    title: 'Från simpelt CV till wow-faktor',
+    description: 'Vi transformerar ditt innehåll till ett professionellt CV som imponerar vid första ögonkastet.',
+    bullets: ['ATS-kompatibel PDF', 'Inkludera i portfolion', 'Exportera & dela'],
   },
   {
     icon: <Briefcase className="h-5 w-5" />,
-    title: 'En helhetsbild av din kompetens',
-    description: 'Projekt, resultat och storytelling som gör dig lätt att säga ja till.',
-    bullets: ['Resultatfokuserat', 'Tydlig struktur', 'Anpassat för målrollen'],
+    title: 'Premium-nivå för alla',
+    description: 'Oavsett bakgrund eller inriktning – du får samma seniora, professionella intryck som etablerade profiler.',
+    bullets: ['Resultatfokuserat', 'Tydlig struktur', 'Samma nivå för alla'],
   },
 ];
 
 const FAQS = [
   {
-    question: 'Kan jag använda mitt eget innehåll?',
-    answer: 'Ja. Vi använder det du redan har och förbättrar det – inget behöver börja från noll.',
+    question: 'Hur snabbt är min sida live?',
+    answer: '20 sekunder från att du klickar publicera. Vi hostar den dygnet runt på portfolyo.se/{ditt-namn}.',
   },
   {
-    question: 'Hur snabbt kan jag vara live?',
-    answer: 'De flesta går live samma dag. Vi prioriterar snabb leverans med kvalitet.',
+    question: 'Vad ingår i engångsavgiften?',
+    answer: 'Publicering, hosting för alltid och 1 CV-generering. Du betalar aldrig mer om du inte vill göra ändringar.',
   },
   {
-    question: 'Ingår hosting och uppdateringar?',
-    answer: 'All hosting ingår. Du uppdaterar när du vill, vi hanterar tekniken.',
+    question: 'Hur fungerar credits?',
+    answer: '1 credit = ändring på CV, 2 credits = nytt CV eller ändring på portfolio, 4 credits = ny portfolio. En credit kostar 14,99 kr.',
   },
   {
-    question: 'Passar det här även seniora profiler?',
-    answer: 'Ja. Ton, estetik och struktur är byggda för att kännas seniora och trygga.',
+    question: 'Kan jag inkludera CV i min portfolio?',
+    answer: 'Ja! Ditt CV kan visas som en del av portfolion och laddas ner som PDF av besökare.',
   },
   {
-    question: 'Hur fungerar kredit-systemet?',
-    answer: 'Credits används för större förändringar. Pro ger obegränsad tillgång.',
+    question: 'Passar det även om jag inte är teknisk?',
+    answer: 'Absolut. Vi gör allt det tekniska. Du får ett professionellt resultat oavsett bakgrund.',
+  },
+  {
+    question: 'Vem sköter supporten?',
+    answer: 'Människor. Direkt, tydligt och tryggt. Ingen chattbot, ingen väntetid i dagar.',
   },
 ];
 
@@ -470,18 +475,18 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-[1.1fr,0.9fr] gap-12 items-center">
             <div>
-              <Badge variant="outline" className="mb-6">Premium portfolio & CV — hostat åt dig</Badge>
+              <Badge variant="outline" className="mb-6">49 kr engång – hostat för alltid</Badge>
               <h1 className="text-4xl md:text-6xl font-semibold text-ink mb-6">
-                En professionell närvaro som känns självklar.
+                Från simpelt CV till wow-faktor på 20 sekunder.
               </h1>
               <p className="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl">
-                Portfolyo är för människor som inte vill lägga tid på design, hosting eller format.
-                Vi levererar ett resultat som matchar senior nivå — snabbt, tryggt och redo att dela.
+                Skicka ditt underlag. Vi transformerar det till en professionell portfolio och CV som imponerar vid första ögonkastet.
+                Live på din egen URL direkt.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4 mb-10">
                 <Link href="/register">
                   <Button size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
-                    Skapa min portfolio
+                    Publicera för 49 kr
                   </Button>
                 </Link>
                 <a href="#templates">
@@ -492,16 +497,16 @@ export default function LandingPage() {
               </div>
               <div className="flex flex-wrap items-center gap-6 text-sm text-slate-500">
                 <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 fill-slate-900 text-slate-900" />
-                  <span>Premiumkänsla från dag ett</span>
+                  <Globe className="h-4 w-4" />
+                  <span>Live hosting 24/7</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4" />
-                  <span>All hosting & drift ingår</span>
+                  <FileText className="h-4 w-4" />
+                  <span>CV ingår i portfolio</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Download className="h-4 w-4" />
-                  <span>CV i PDF + webblänk</span>
+                  <span>PDF redo att skicka</span>
                 </div>
               </div>
             </div>
@@ -659,88 +664,69 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 px-4 bg-porcelain">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <Badge variant="outline" className="mb-4">Priser</Badge>
+            <Badge variant="outline" className="mb-4">Enkel prissättning</Badge>
             <h2 className="text-3xl md:text-4xl font-semibold text-ink mb-4">
-              Välj en nivå som matchar din ambition
+              Betala en gång. Hostat för alltid.
             </h2>
             <p className="text-slate-600 max-w-2xl mx-auto">
-              Börja utan risk eller gå direkt på full nivå. Allt är byggt för premiumkänsla.
+              Ingen prenumeration. Ingen dolda kostnader. Du betalar bara när du vill göra ändringar.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="p-8 bg-white">
-              <div className="text-center mb-6">
-                <h3 className="text-lg font-semibold text-ink mb-2">Gratis</h3>
-                <div className="text-4xl font-semibold text-ink">0 kr</div>
-                <p className="text-xs text-slate-500">för alltid</p>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Engångsavgift */}
+            <Card className="p-8 border-2 border-slate-900 bg-white">
+              <div className="flex items-center gap-2 mb-6">
+                <Badge variant="primary" className="gap-1"><Star className="h-3 w-3" /> Allt du behöver</Badge>
               </div>
+              <div className="mb-2">
+                <div className="text-5xl font-semibold text-ink">{PRICING.oneTime.price} kr</div>
+                <p className="text-sm text-slate-500 mt-1">engångsavgift</p>
+              </div>
+              <p className="text-slate-600 text-sm mb-6">{PRICING.oneTime.description}</p>
               <ul className="space-y-3 mb-8 text-sm text-slate-600">
-                {[
-                  '1 portfolio',
-                  '1 CV-template',
-                  'portfolyo.se/{username}',
-                  '3 credits för ändringar',
-                ].map((feature) => (
+                {PRICING.oneTime.includes.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-500" />
+                    <Check className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                     {feature}
                   </li>
                 ))}
               </ul>
               <Link href="/register" className="block">
-                <Button variant="secondary" className="w-full">
-                  Kom igång
+                <Button className="w-full" size="lg">
+                  Publicera nu
                 </Button>
               </Link>
             </Card>
 
-            <Card className="p-8 border border-slate-900 bg-white">
-              <div className="flex items-center justify-between mb-6">
-                <Badge variant="primary" className="gap-1"><Star className="h-3 w-3" /> Populärast</Badge>
-                <Badge variant="outline">Starter</Badge>
-              </div>
+            {/* Credits */}
+            <Card className="p-8 bg-slate-50">
               <div className="mb-6">
-                <div className="text-4xl font-semibold text-ink">{PRICING.starter.price} kr</div>
-                <p className="text-xs text-slate-500">per månad</p>
+                <h3 className="text-xl font-semibold text-ink mb-2">Credits för ändringar</h3>
+                <p className="text-sm text-slate-600">{PRICING.credits.description}</p>
               </div>
-              <ul className="space-y-3 mb-8 text-sm text-slate-600">
-                {PRICING.starter.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-500" />
-                    {feature}
-                  </li>
+              
+              <div className="space-y-3 mb-6">
+                {PRICING.credits.tiers.map((tier) => (
+                  <div key={tier.label} className="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
+                    <span className="text-sm text-slate-700">{tier.label}</span>
+                    <Badge variant="outline">{tier.credits} {tier.credits === 1 ? 'credit' : 'credits'}</Badge>
+                  </div>
                 ))}
-              </ul>
-              <Link href="/register?plan=starter" className="block">
-                <Button className="w-full">
-                  Välj Starter
-                </Button>
-              </Link>
-            </Card>
+              </div>
 
-            <Card className="p-8 bg-ink text-white border border-slate-900">
-              <div className="flex items-center justify-between mb-6">
-                <Badge className="bg-white/10 text-white">Pro</Badge>
-                <Badge className="bg-white/10 text-white">Obegränsat</Badge>
+              <div className="border-t border-slate-200 pt-6">
+                <p className="text-xs text-slate-500 uppercase tracking-wide mb-3">Credit-paket</p>
+                <div className="space-y-2">
+                  {PRICING.credits.bundles.map((bundle) => (
+                    <div key={bundle.credits} className="flex items-center justify-between text-sm">
+                      <span className="text-slate-700">{bundle.credits} credits</span>
+                      <span className="font-medium text-ink">{bundle.price} kr <span className="text-emerald-600 text-xs">({bundle.savings} rabatt)</span></span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-slate-500 mt-4">Eller köp enstaka: {PRICING.credits.pricePerCredit} kr/credit</p>
               </div>
-              <div className="mb-6">
-                <div className="text-4xl font-semibold">{PRICING.pro.price} kr</div>
-                <p className="text-xs text-slate-300">per månad</p>
-              </div>
-              <ul className="space-y-3 mb-8 text-sm text-slate-200">
-                {PRICING.pro.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-400" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/register?plan=pro" className="block">
-                <Button variant="secondary" className="w-full">
-                  Välj Pro
-                </Button>
-              </Link>
             </Card>
           </div>
         </div>
@@ -769,72 +755,107 @@ export default function LandingPage() {
       {/* Closing CTA */}
       <section className="py-20 px-4 bg-ink text-white">
         <div className="max-w-5xl mx-auto text-center">
-          <Badge className="bg-white/10 text-white mb-4">Portfolyo</Badge>
+          <Badge className="bg-white/10 text-white mb-4">49 kr. Live på 20 sek.</Badge>
           <h2 className="text-3xl md:text-4xl font-semibold mb-4">
-            Bygg en portfolio som du faktiskt är stolt över
+            Redo att göra intryck?
           </h2>
           <p className="text-slate-200 max-w-2xl mx-auto mb-8">
-            Ett premiumresultat utan att du behöver tänka på teknik, design eller struktur.
+            Publicera din portfolio och ditt CV idag. Vi sköter hosting, design och teknik — du delar bara länken.
           </p>
           <Link href="/register">
             <Button variant="secondary" size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
-              Starta nu
+              Publicera nu för 49 kr
             </Button>
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 bg-slate-900 text-white">
+      <footer className="py-16 px-4 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
+          {/* Main Footer Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-slate-900 font-bold text-sm">P</span>
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+                  <span className="text-slate-900 font-bold text-lg">P</span>
                 </div>
-                <span className="font-bold text-xl">PORTFOLYO</span>
+                <span className="font-bold text-2xl tracking-tight">PORTFOLYO</span>
               </div>
-              <p className="text-slate-400 text-sm">
-                Premium portfolio- och CV-builder för människor som vill göra intryck.
+              <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-xs">
+                Premium portfolio- och CV-builder för människor som vill göra intryck. 
+                Publicera på 20 sekunder — vi sköter resten.
               </p>
+              <div className="flex items-center gap-4">
+                <a href="https://github.com/S-Borna" target="_blank" rel="noopener" 
+                   className="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://linkedin.com/in/saidborna" target="_blank" rel="noopener"
+                   className="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </a>
+              </div>
             </div>
 
+            {/* Produkt */}
             <div>
-              <h4 className="font-semibold mb-4">Produkt</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="#product" className="hover:text-white">Funktioner</a></li>
-                <li><a href="#pricing" className="hover:text-white">Priser</a></li>
-                <li><a href="#templates" className="hover:text-white">Templates</a></li>
+              <h4 className="font-semibold text-white mb-4">Produkt</h4>
+              <ul className="space-y-3 text-sm text-slate-400">
+                <li><a href="#product" className="hover:text-white transition-colors">Funktioner</a></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">Priser</a></li>
+                <li><a href="#templates" className="hover:text-white transition-colors">Templates</a></li>
+                <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
               </ul>
             </div>
 
+            {/* Resurser */}
             <div>
-              <h4 className="font-semibold mb-4">Resurser</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li><a href="https://sql.saidborna.com" target="_blank" rel="noopener" className="hover:text-white">SQL Arena</a></li>
-                <li><a href="https://www.ginonova.com" target="_blank" rel="noopener" className="hover:text-white">GinoNova</a></li>
+              <h4 className="font-semibold text-white mb-4">Resurser</h4>
+              <ul className="space-y-3 text-sm text-slate-400">
+                <li><a href="https://sql.saidborna.com" target="_blank" rel="noopener" className="hover:text-white transition-colors">SQL Arena</a></li>
+                <li><a href="https://www.ginonova.com" target="_blank" rel="noopener" className="hover:text-white transition-colors">GinoNova</a></li>
+                <li><a href="https://saidborna.com" target="_blank" rel="noopener" className="hover:text-white transition-colors">saidborna.com</a></li>
               </ul>
             </div>
 
+            {/* Legal */}
             <div>
-              <h4 className="font-semibold mb-4">Kontakt</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li>support@portfolyo.se</li>
-                <li>
-                  <a href="https://github.com/S-Borna" target="_blank" rel="noopener" className="hover:text-white">
-                    GitHub
-                  </a>
-                </li>
+              <h4 className="font-semibold text-white mb-4">Legal</h4>
+              <ul className="space-y-3 text-sm text-slate-400">
+                <li><Link href="/terms" className="hover:text-white transition-colors">Allmänna villkor</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Integritetspolicy</Link></li>
+                <li><Link href="/cookies" className="hover:text-white transition-colors">Cookie-policy</Link></li>
+                <li><CookieSettingsButton className="text-sm text-slate-400" /></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-slate-400">
-            <p>© 2026 PORTFOLYO.SE. Alla rättigheter förbehållna.</p>
-            <div className="flex gap-6 mt-4 md:mt-0">
-              <a href="/privacy" className="hover:text-white">Integritetspolicy</a>
-              <a href="/terms" className="hover:text-white">Villkor</a>
+          {/* Divider */}
+          <div className="border-t border-slate-800 pt-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              {/* Copyright */}
+              <div className="text-sm text-slate-500 text-center md:text-left">
+                <p>© {new Date().getFullYear()} Portfolyo. Alla rättigheter förbehållna.</p>
+                <p className="mt-1">Org.nr: 559XXX-XXXX • Sverige</p>
+              </div>
+
+              {/* Built by */}
+              <div className="flex flex-col items-center md:items-end gap-1">
+                <p className="text-sm text-slate-400">
+                  Built & Designed by{' '}
+                  <a href="https://saidborna.com" target="_blank" rel="noopener" 
+                     className="text-white font-medium hover:text-slate-300 transition-colors">
+                    Said Borna
+                  </a>
+                </p>
+                <p className="text-xs text-slate-500">
+                  <a href="mailto:said@saidborna.com" className="hover:text-slate-400 transition-colors">
+                    said@saidborna.com
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
