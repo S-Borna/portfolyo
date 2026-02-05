@@ -113,8 +113,8 @@ export default function UpgradePage() {
 
           <div className="grid sm:grid-cols-3 gap-6">
             {PRICING.credits.bundles.map((bundle, index) => (
-              <Card 
-                key={bundle.credits} 
+              <Card
+                key={bundle.credits}
                 className={`p-6 text-center hover:shadow-lg transition-shadow ${index === 1 ? 'ring-2 ring-slate-900' : ''}`}
               >
                 {index === 1 && (
@@ -130,7 +130,7 @@ export default function UpgradePage() {
                 <div className="text-sm text-emerald-600 font-medium mb-4">
                   Spara {bundle.savings}
                 </div>
-                <Button 
+                <Button
                   className="w-full"
                   variant={index === 1 ? 'primary' : 'secondary'}
                   onClick={() => handleBuyBundle(bundle)}
@@ -151,8 +151,8 @@ export default function UpgradePage() {
           </p>
           <div className="flex items-center justify-center gap-4">
             <span className="text-lg font-semibold text-gray-900">1 credit = {PRICING.credits.pricePerCredit} kr</span>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleBuySingle}
               isLoading={isProcessing && selectedBundle === null}
             >
