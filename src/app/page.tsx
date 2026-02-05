@@ -244,9 +244,8 @@ function AnimatedLivePreviewCard() {
 
         {/* Type Badge */}
         <div className="absolute top-4 right-4">
-          <Badge
-            variant="outline"
-            className="text-[10px] gap-1"
+          <div 
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium"
             style={{ borderColor: currentItem.color, color: currentItem.color }}
           >
             {isPortfolio ? (
@@ -254,7 +253,7 @@ function AnimatedLivePreviewCard() {
             ) : (
               <><FileText className="h-2.5 w-2.5" /> CV</>
             )}
-          </Badge>
+          </div>
         </div>
       </Card>
     </div>
