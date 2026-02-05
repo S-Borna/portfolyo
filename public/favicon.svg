@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Elegant gradient for depth -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a1a"/>
+      <stop offset="50%" style="stop-color:#0f0f0f"/>
+      <stop offset="100%" style="stop-color:#000000"/>
+    </linearGradient>
+    <!-- Subtle shine effect -->
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15"/>
+      <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+    <!-- Gold accent gradient -->
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5d17a"/>
+      <stop offset="50%" style="stop-color:#d4a853"/>
+      <stop offset="100%" style="stop-color:#b8923a"/>
+    </linearGradient>
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Main rounded square background -->
+  <rect x="32" y="32" width="448" height="448" rx="96" ry="96" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- Subtle inner border for depth -->
+  <rect x="40" y="40" width="432" height="432" rx="88" ry="88" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+
+  <!-- Shine overlay -->
+  <rect x="32" y="32" width="448" height="224" rx="96" ry="96" fill="url(#shine)"/>
+
+  <!-- The P letter - bold, modern, slightly condensed -->
+  <text x="256" y="340"
+        font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif"
+        font-size="320"
+        font-weight="700"
+        fill="white"
+        text-anchor="middle"
+        letter-spacing="-10">P</text>
+
+  <!-- Subtle gold accent dot -->
+  <circle cx="380" cy="140" r="24" fill="url(#goldAccent)"/>
+</svg>

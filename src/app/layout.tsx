@@ -10,6 +10,17 @@ export const metadata: Metadata = {
   description: 'En premiumplattform som skapar, hostar och håller din portfolio & CV uppdaterade. Enkelt, tryggt och redo att dela på portfolyo.se/{username}.',
   keywords: ['portfolio', 'CV', 'karriär', 'professionell', 'hostad', 'Sverige'],
   authors: [{ name: 'PORTFOLYO.SE' }],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.png',
+  },
+  manifest: '/site.webmanifest',
   openGraph: {
     title: 'PORTFOLYO.SE — Professionell portfolio & CV, hostat åt dig',
     description: 'Premium portfolio & CV med hosting, uppdateringar och support inkluderat.',
