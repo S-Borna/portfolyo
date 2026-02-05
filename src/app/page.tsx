@@ -210,9 +210,8 @@ function AnimatedLivePreviewCard() {
             {CAROUSEL_ITEMS.map((item, index) => (
               <div
                 key={index}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex ? 'w-6' : 'w-2 bg-slate-200'
-                }`}
+                className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-6' : 'w-2 bg-slate-200'
+                  }`}
                 style={{
                   backgroundColor: index === currentIndex ? item.color : undefined,
                 }}
