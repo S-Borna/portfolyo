@@ -88,7 +88,7 @@ function AnimatedLivePreviewCard() {
         setCurrentIndex((prev) => (prev + 1) % CAROUSEL_ITEMS.length);
         setIsVisible(true);
       }, 500); // Match exit animation duration
-    }, 3000); // 2.5s visible + 0.5s for animation
+    }, 3500); // 3s visible + 0.5s for animation
 
     return () => clearInterval(interval);
   }, []);
@@ -104,20 +104,28 @@ function AnimatedLivePreviewCard() {
   return (
     <div className="relative">
       <div className="absolute -inset-4 bg-white/60 blur-2xl rounded-3xl" />
-      <Card className="relative bg-white border-slate-200 shadow-xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 pb-0">
-          <Badge variant="primary" className="gap-1">
-            <Sparkles className="h-3 w-3" />
-            Live preview
-          </Badge>
-          <span className="text-xs text-slate-500">
+      <Card className="relative bg-white border-slate-200 shadow-2xl overflow-hidden">
+        {/* Header - Browser-style */}
+        <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            {/* Traffic lights */}
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-400" />
+              <div className="w-3 h-3 rounded-full bg-amber-400" />
+              <div className="w-3 h-3 rounded-full bg-green-400" />
+            </div>
+            <Badge variant="primary" className="gap-1 ml-2">
+              <Sparkles className="h-3 w-3" />
+              Live preview
+            </Badge>
+          </div>
+          <span className="text-sm font-medium text-slate-600">
             {currentItem.label}
           </span>
         </div>
 
         {/* Animated Template Preview */}
-        <div className="relative h-[280px] mt-4 overflow-hidden">
+        <div className="relative h-[340px] overflow-hidden bg-slate-100">
           <AnimatePresence mode="wait">
             {isVisible && (
               <motion.div
@@ -125,7 +133,7 @@ function AnimatedLivePreviewCard() {
                 initial={{
                   opacity: 0,
                   x: 150,
-                  rotateY: -30,
+                  rotateY: -25,
                   scale: 0.9,
                 }}
                 animate={{
@@ -137,65 +145,67 @@ function AnimatedLivePreviewCard() {
                 exit={{
                   opacity: 0,
                   x: -200,
-                  rotateY: 30,
+                  rotateY: 25,
                   scale: 0.85,
                 }}
                 transition={{
                   duration: 0.5,
                   ease: [0.4, 0, 0.2, 1],
                 }}
-                className="absolute inset-0"
+                className="absolute inset-0 flex items-start justify-center"
                 style={{ perspective: '1200px' }}
               >
                 {isPortfolio ? (
-                  // Portfolio Preview - Scaled iframe
-                  <div className="relative w-full h-full bg-slate-900 rounded-t-xl overflow-hidden">
+                  // Portfolio Preview - Full width, top-aligned
+                  <div className="relative w-full h-full overflow-hidden">
                     <div
-                      className="absolute origin-top-left"
+                      className="absolute left-1/2"
                       style={{
-                        width: '1200px',
-                        height: '2400px',
-                        transform: 'scale(0.28)',
-                        transformOrigin: 'top left',
+                        width: '1440px',
+                        height: '900px',
+                        transform: 'translateX(-50%) scale(0.36)',
+                        transformOrigin: 'top center',
                       }}
                     >
                       <iframe
                         src={iframeUrl}
                         style={{
                           border: 'none',
-                          width: '1200px',
-                          height: '2400px',
+                          width: '1440px',
+                          height: '900px',
+                          backgroundColor: '#0a0a0a',
                         }}
                         className="pointer-events-none"
                       />
                     </div>
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                    {/* Subtle vignette */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-100/80 via-transparent to-transparent pointer-events-none" />
                   </div>
                 ) : (
-                  // CV Preview - Scaled iframe with sidebar layout
-                  <div className="relative w-full h-full bg-white rounded-t-xl overflow-hidden border-t border-x border-slate-100">
+                  // CV Preview - Centered A4 document
+                  <div className="relative w-full h-full flex justify-center overflow-hidden">
                     <div
-                      className="absolute origin-top-left"
+                      className="absolute shadow-2xl rounded-sm overflow-hidden"
                       style={{
-                        width: '800px',
-                        height: '1130px',
-                        transform: 'scale(0.42)',
-                        transformOrigin: 'top left',
+                        width: '794px',
+                        height: '1123px',
+                        transform: 'scale(0.38)',
+                        transformOrigin: 'top center',
+                        top: '16px',
                       }}
                     >
                       <iframe
                         src={iframeUrl}
                         style={{
                           border: 'none',
-                          width: '800px',
-                          height: '1130px',
+                          width: '794px',
+                          height: '1123px',
                         }}
                         className="pointer-events-none"
                       />
                     </div>
-                    {/* Subtle gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-transparent pointer-events-none" />
+                    {/* Subtle fade */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-100/60 via-transparent to-transparent pointer-events-none" />
                   </div>
                 )}
               </motion.div>
@@ -204,13 +214,20 @@ function AnimatedLivePreviewCard() {
         </div>
 
         {/* Progress Dots & Type Badge */}
-        <div className="p-4 pt-3 flex items-center justify-between">
+        <div className="px-4 py-3 flex items-center justify-between bg-white border-t border-slate-100">
           {/* Progress Dots */}
           <div className="flex items-center gap-2">
             {CAROUSEL_ITEMS.map((item, index) => (
-              <div
+              <button
                 key={index}
-                className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-6' : 'w-2 bg-slate-200'
+                onClick={() => {
+                  setIsVisible(false);
+                  setTimeout(() => {
+                    setCurrentIndex(index);
+                    setIsVisible(true);
+                  }, 300);
+                }}
+                className={`h-2 rounded-full transition-all duration-300 hover:opacity-80 ${index === currentIndex ? 'w-6' : 'w-2 bg-slate-200'
                   }`}
                 style={{
                   backgroundColor: index === currentIndex ? item.color : undefined,
