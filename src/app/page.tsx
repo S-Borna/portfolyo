@@ -96,7 +96,7 @@ function AnimatedLivePreviewCard() {
     const interval = setInterval(() => {
       // Start exit animation
       setIsVisible(false);
-      
+
       // After exit animation, change item and show entry
       setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % CAROUSEL_ITEMS.length);
@@ -131,23 +131,23 @@ function AnimatedLivePreviewCard() {
             {isVisible && (
               <motion.div
                 key={currentIndex}
-                initial={{ 
-                  opacity: 0, 
+                initial={{
+                  opacity: 0,
                   x: 100,
                   rotateY: -45,
                 }}
-                animate={{ 
-                  opacity: 1, 
+                animate={{
+                  opacity: 1,
                   x: 0,
                   rotateY: 0,
                 }}
-                exit={{ 
-                  opacity: 0, 
+                exit={{
+                  opacity: 0,
                   x: -200,
                   rotateY: 45,
                   scale: 0.8,
                 }}
-                transition={{ 
+                transition={{
                   duration: 0.4,
                   ease: [0.4, 0, 0.2, 1],
                 }}
@@ -158,7 +158,7 @@ function AnimatedLivePreviewCard() {
                   // Portfolio Card Design
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                      <div 
+                      <div
                         className="w-14 h-14 rounded-2xl text-white flex items-center justify-center font-semibold text-lg"
                         style={{ backgroundColor: currentItem.color }}
                       >
@@ -174,8 +174,8 @@ function AnimatedLivePreviewCard() {
                     </p>
                     <div className="grid grid-cols-2 gap-3">
                       {currentItem.skills.map((skill) => (
-                        <div 
-                          key={skill} 
+                        <div
+                          key={skill}
                           className="rounded-xl border p-3 text-xs text-slate-600"
                           style={{ borderColor: `${currentItem.color}40` }}
                         >
@@ -188,7 +188,7 @@ function AnimatedLivePreviewCard() {
                   // CV Card Design
                   <div className="flex gap-4 h-full">
                     {/* CV Sidebar */}
-                    <div 
+                    <div
                       className="w-24 rounded-xl p-3 flex flex-col items-center text-white"
                       style={{ backgroundColor: currentItem.color }}
                     >
@@ -206,11 +206,11 @@ function AnimatedLivePreviewCard() {
                       <p className="text-xs text-slate-500">{currentItem.name}</p>
                       <div className="space-y-1">
                         {currentItem.skills.map((skill) => (
-                          <div 
+                          <div
                             key={skill}
                             className="text-xs text-slate-600 flex items-center gap-2"
                           >
-                            <div 
+                            <div
                               className="w-1.5 h-1.5 rounded-full"
                               style={{ backgroundColor: currentItem.color }}
                             />
@@ -231,11 +231,10 @@ function AnimatedLivePreviewCard() {
           {CAROUSEL_ITEMS.map((item, index) => (
             <div
               key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'w-6' 
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
+                  ? 'w-6'
                   : 'bg-slate-200'
-              }`}
+                }`}
               style={{
                 backgroundColor: index === currentIndex ? item.color : undefined
               }}
@@ -245,8 +244,8 @@ function AnimatedLivePreviewCard() {
 
         {/* Type Badge */}
         <div className="absolute top-4 right-4">
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className="text-[10px] gap-1"
             style={{ borderColor: currentItem.color, color: currentItem.color }}
           >
