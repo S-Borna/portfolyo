@@ -7,10 +7,12 @@
 ## 1. SSL/TLS
 
 **Security → SSL/TLS → Overview**
+
 - Encryption mode: **Full (strict)** ✅
 - Edge Certificates: Aktivera alla
 
 **Security → SSL/TLS → Edge Certificates**
+
 - Always Use HTTPS: **ON** ✅
 - Automatic HTTPS Rewrites: **ON** ✅
 - Minimum TLS Version: **TLS 1.2** ✅
@@ -21,6 +23,7 @@
 ## 2. Security Settings
 
 **Security → Settings**
+
 - Security Level: **High** (eller Medium i början)
 - Challenge Passage: **30 minutes**
 - Browser Integrity Check: **ON** ✅
@@ -32,15 +35,19 @@
 **Security → WAF**
 
 ### Managed Rules
+
 Aktivera dessa rulesets:
+
 - ✅ Cloudflare Managed Ruleset
 - ✅ Cloudflare OWASP Core Ruleset
 - ✅ Cloudflare Leaked Credentials Check
 
 ### Custom Rules
+
 Skapa följande regler:
 
 #### Rule 1: Block Bad Bots
+
 ```
 Name: Block Known Bad Bots
 Expression: (cf.client.bot) or (http.user_agent contains "curl") or (http.user_agent contains "wget") or (http.user_agent contains "python") or (http.user_agent contains "scrapy")
@@ -48,6 +55,7 @@ Action: Block
 ```
 
 #### Rule 2: Block DevTools/Scraping Countries (optional)
+
 ```
 Name: Challenge Suspicious Regions
 Expression: (ip.geoip.country in {"RU" "CN" "KP"})
@@ -55,6 +63,7 @@ Action: Managed Challenge
 ```
 
 #### Rule 3: Rate Limit API
+
 ```
 Name: API Rate Limit
 Expression: (starts_with(http.request.uri.path, "/api/"))
@@ -62,6 +71,7 @@ Action: Rate Limit (10 requests/minute)
 ```
 
 #### Rule 4: Block Source Map Requests
+
 ```
 Name: Block Source Maps
 Expression: (http.request.uri.path contains ".map")
@@ -75,9 +85,11 @@ Action: Block
 **Security → Bots**
 
 ### Bot Fight Mode
+
 - **ON** ✅ (tillgängligt på alla planer)
 
 ### Super Bot Fight Mode (Pro+)
+
 - Definitely Automated: **Block**
 - Likely Automated: **Managed Challenge**
 - Verified Bots: **Allow**
@@ -87,6 +99,7 @@ Action: Block
 ## 5. DDoS Protection
 
 **Security → DDoS**
+
 - HTTP DDoS attack protection: **ON** (automatisk)
 - Sensitivity: **High**
 
@@ -97,6 +110,7 @@ Action: Block
 **Rules → Configuration Rules**
 
 ### Rule 1: Cache Static Assets
+
 ```
 Expression: (http.request.uri.path contains "/_next/static/")
 Settings:
@@ -106,6 +120,7 @@ Settings:
 ```
 
 ### Rule 2: Security for API Routes
+
 ```
 Expression: (starts_with(http.request.uri.path, "/api/"))
 Settings:
@@ -115,6 +130,7 @@ Settings:
 ```
 
 ### Rule 3: Cache Images
+
 ```
 Expression: (http.request.uri.path contains "/images/") or (http.request.uri.path contains ".png") or (http.request.uri.path contains ".svg")
 Settings:
@@ -137,6 +153,7 @@ Settings:
 ## 8. Speed → Optimization
 
 **Speed → Optimization**
+
 - Auto Minify: JavaScript, CSS, HTML: **ON** ✅
 - Brotli: **ON** ✅
 - Early Hints: **ON** ✅
@@ -147,11 +164,13 @@ Settings:
 ## 9. Caching
 
 **Caching → Configuration**
+
 - Caching Level: **Standard**
 - Browser Cache TTL: **Respect Existing Headers**
 - Always Online: **ON** ✅
 
 **Caching → Tiered Cache**
+
 - Tiered Cache: **ON** ✅ (Pro+ ger Smart Tiered Cache)
 
 ---
@@ -159,6 +178,7 @@ Settings:
 ## 10. Network
 
 **Network**
+
 - HTTP/2: **ON** ✅
 - HTTP/3 (QUIC): **ON** ✅
 - WebSockets: **ON** ✅ (för Supabase realtime)
@@ -170,6 +190,7 @@ Settings:
 ## 11. Firewall Events & Analytics
 
 **Security → Events**
+
 - Övervaka regelbundet för att se blockade requests
 - Skapa notifieringar för DDoS-attacker
 

@@ -63,22 +63,22 @@ export function initSecurityShield() {
   // ========================================
   // 3. DEVTOOLS DETECTION - MULTIPLE METHODS
   // ========================================
-  
+
   // Method A: Window size difference (docked DevTools)
   let lastOuterWidth = window.outerWidth;
   let lastOuterHeight = window.outerHeight;
-  
+
   const detectViaWindowSize = () => {
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
-    const sizeChanged = Math.abs(lastOuterWidth - window.outerWidth) > 100 || 
-                        Math.abs(lastOuterHeight - window.outerHeight) > 100;
-    
+    const sizeChanged = Math.abs(lastOuterWidth - window.outerWidth) > 100 ||
+      Math.abs(lastOuterHeight - window.outerHeight) > 100;
+
     // Threshold accounts for scrollbars and browser UI
     if ((widthDiff > 200 || heightDiff > 200) && sizeChanged) {
       onDevToolsWarning('window_size');
     }
-    
+
     lastOuterWidth = window.outerWidth;
     lastOuterHeight = window.outerHeight;
   };
@@ -87,7 +87,7 @@ export function initSecurityShield() {
   const detectViaConsoleLog = () => {
     const element = document.createElement('div');
     Object.defineProperty(element, 'id', {
-      get: function() {
+      get: function () {
         onDevToolsWarning('console_trap');
         return 'security-check';
       }
@@ -104,7 +104,7 @@ export function initSecurityShield() {
     // eslint-disable-next-line no-debugger
     debugger;
     const duration = performance.now() - start;
-    
+
     // If debugger takes more than 100ms, DevTools is likely open
     if (duration > 100) {
       onDevToolsWarning('debugger_timing');
@@ -113,8 +113,8 @@ export function initSecurityShield() {
 
   // Method D: toString trap on function
   const detectViaToString = () => {
-    const fn = function() {};
-    fn.toString = function() {
+    const fn = function () { };
+    fn.toString = function () {
       onDevToolsWarning('tostring_trap');
       return '';
     };
@@ -127,7 +127,7 @@ export function initSecurityShield() {
   const onDevToolsWarning = (method: string) => {
     devtoolsWarnings++;
     logSecurityEvent('devtools_warning', method);
-    
+
     if (devtoolsWarnings >= MAX_WARNINGS && !securityTriggered) {
       onDevToolsDetected();
     }
@@ -139,9 +139,9 @@ export function initSecurityShield() {
   const onDevToolsDetected = () => {
     if (securityTriggered) return;
     securityTriggered = true;
-    
+
     logSecurityEvent('devtools_detected', 'lockdown');
-    
+
     // Clear all sensitive content
     document.body.innerHTML = `
       <div style="
@@ -168,7 +168,7 @@ export function initSecurityShield() {
             Säkerhetssystem aktiverat
           </h1>
           <p style="color: #94a3b8; line-height: 1.6; margin-bottom: 1.5rem;">
-            Utvecklarverktyg har detekterats. För att skydda innehållet på denna sida 
+            Utvecklarverktyg har detekterats. För att skydda innehållet på denna sida
             har åtkomsten begränsats.
           </p>
           <p style="color: #64748b; font-size: 0.875rem;">
@@ -180,16 +180,16 @@ export function initSecurityShield() {
         </div>
       </div>
     `;
-    
+
     // Clear all scripts
     document.querySelectorAll('script').forEach(s => s.remove());
-    
+
     // Block all further keyboard input
     document.addEventListener('keydown', (e) => {
       e.preventDefault();
       e.stopPropagation();
     }, { capture: true });
-    
+
     // Block all mouse events except clicking reload link
     document.addEventListener('mousedown', (e) => {
       if (!(e.target instanceof HTMLAnchorElement)) {
@@ -205,7 +205,7 @@ export function initSecurityShield() {
     e.preventDefault();
     logSecurityEvent('copy_attempt', '');
   }, { capture: true });
-  
+
   document.addEventListener('cut', (e) => {
     e.preventDefault();
     logSecurityEvent('cut_attempt', '');
@@ -226,7 +226,7 @@ export function initSecurityShield() {
       user-select: none !important;
       -webkit-touch-callout: none !important;
     }
-    
+
     /* Disable image dragging */
     img {
       -webkit-user-drag: none !important;
@@ -236,12 +236,12 @@ export function initSecurityShield() {
       user-drag: none !important;
       pointer-events: none;
     }
-    
+
     /* Allow pointer events on linked images */
     a img {
       pointer-events: auto;
     }
-    
+
     /* Disable print styling */
     @media print {
       body * {
@@ -273,7 +273,7 @@ export function initSecurityShield() {
     'font-weight: bold',
     'text-shadow: 2px 2px 4px rgba(0,0,0,0.3)',
   ].join(';');
-  
+
   console.log('%c⛔ STOPP!', consoleStyles);
   console.log(
     '%cDetta är en säkrad webbplats. Utvecklarverktygen övervakas.',
@@ -312,7 +312,7 @@ function logSecurityEvent(event: string, details: string) {
   // In production, this could send to a logging service
   const timestamp = new Date().toISOString();
   const log = { timestamp, event, details, url: window.location.href };
-  
+
   // Store in sessionStorage for debugging
   const logs = JSON.parse(sessionStorage.getItem('security_logs') || '[]');
   logs.push(log);
