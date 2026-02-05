@@ -31,55 +31,41 @@ const {
 } = Icons;
 
 // ============================================
-// ANIMATED CAROUSEL DATA - Färgglada templates
+// ANIMATED CAROUSEL DATA - Riktiga templates med iframes
 // ============================================
 
 const CAROUSEL_ITEMS = [
-  // Portfolio 1 - Lila/Magenta
+  // Portfolio 1 - Mörk med röd accent
   {
     type: 'portfolio' as const,
-    template: 'flag-magenta',
-    name: 'Emma Lindgren',
-    title: 'UX Designer',
-    tagline: 'Skapar intuitiva upplevelser som konverterar. 8 framgångsrika lanseringar.',
-    skills: ['Figma', 'Prototyping', 'User Research', 'Design Systems'],
-    color: '#ec4899', // Pink
-    avatar: 'EL',
+    templateId: 'said-dark',
+    profile: 'alex',
+    label: 'Said Dark',
+    color: '#ef4444', // Red
   },
-  // CV 1 - Teal/Grön
+  // CV 1 - Elegant Gold (Tobacco Vanille)
   {
     type: 'cv' as const,
-    template: 'nature-sage',
-    name: 'Marcus Holm',
-    title: 'BACKEND',
-    subtitle: 'DEVELOPER',
-    tagline: 'Java · Spring · Kubernetes',
-    skills: ['Java', 'Spring Boot', 'PostgreSQL', 'K8s'],
-    color: '#14b8a6', // Teal
-    avatar: 'MH',
+    templateId: 'tf-tobacco-vanille',
+    profile: 'erik',
+    label: 'Tobacco Vanille',
+    color: '#d4a553', // Gold
   },
-  // Portfolio 2 - Orange/Ember
+  // Portfolio 2 - Teal/Ocean
   {
     type: 'portfolio' as const,
-    template: 'said-ember',
-    name: 'Sofia Bergman',
-    title: 'Data Engineer',
-    tagline: 'Bygger datapipelines som hanterar 50M events/dag.',
-    skills: ['Python', 'Spark', 'Airflow', 'BigQuery'],
-    color: '#f97316', // Orange
-    avatar: 'SB',
+    templateId: 'nature-ocean',
+    profile: 'maya',
+    label: 'Nature Ocean',
+    color: '#0ea5e9', // Sky blue
   },
-  // CV 2 - Lila
+  // CV 2 - Nature Sage (Grön)
   {
     type: 'cv' as const,
-    template: 'tf-velvet-orchid',
-    name: 'Erik Johansson',
-    title: 'FRONTEND',
-    subtitle: 'SPECIALIST',
-    tagline: 'React · TypeScript · Design',
-    skills: ['React', 'TypeScript', 'Tailwind', 'Next.js'],
-    color: '#a855f7', // Purple
-    avatar: 'EJ',
+    templateId: 'nature-sage',
+    profile: 'sofia',
+    label: 'Nature Sage',
+    color: '#22c55e', // Green
   },
 ];
 
@@ -101,8 +87,8 @@ function AnimatedLivePreviewCard() {
       setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % CAROUSEL_ITEMS.length);
         setIsVisible(true);
-      }, 400); // Match exit animation duration
-    }, 2500); // 2s visible + 0.5s for animation
+      }, 500); // Match exit animation duration
+    }, 3000); // 2.5s visible + 0.5s for animation
 
     return () => clearInterval(interval);
   }, []);
@@ -110,115 +96,106 @@ function AnimatedLivePreviewCard() {
   const currentItem = CAROUSEL_ITEMS[currentIndex];
   const isPortfolio = currentItem.type === 'portfolio';
 
+  // Build iframe URL
+  const iframeUrl = isPortfolio
+    ? `/api/portfolio-preview?template=${currentItem.templateId}&profile=${currentItem.profile}`
+    : `/api/cv-preview?template=${currentItem.templateId}&profile=${currentItem.profile}`;
+
   return (
     <div className="relative">
       <div className="absolute -inset-4 bg-white/60 blur-2xl rounded-3xl" />
-      <Card className="relative bg-white border-slate-200 shadow-xl p-6 overflow-hidden">
+      <Card className="relative bg-white border-slate-200 shadow-xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between p-4 pb-0">
           <Badge variant="primary" className="gap-1">
             <Sparkles className="h-3 w-3" />
             Live preview
           </Badge>
           <span className="text-xs text-slate-500">
-            portfolyo.se/{currentItem.name.split(' ')[0].toLowerCase()}
+            {currentItem.label}
           </span>
         </div>
 
-        {/* Animated Content */}
-        <div className="relative h-[200px]">
+        {/* Animated Template Preview */}
+        <div className="relative h-[280px] mt-4 overflow-hidden">
           <AnimatePresence mode="wait">
             {isVisible && (
               <motion.div
                 key={currentIndex}
                 initial={{
                   opacity: 0,
-                  x: 100,
-                  rotateY: -45,
+                  x: 150,
+                  rotateY: -30,
+                  scale: 0.9,
                 }}
                 animate={{
                   opacity: 1,
                   x: 0,
                   rotateY: 0,
+                  scale: 1,
                 }}
                 exit={{
                   opacity: 0,
                   x: -200,
-                  rotateY: 45,
-                  scale: 0.8,
+                  rotateY: 30,
+                  scale: 0.85,
                 }}
                 transition={{
-                  duration: 0.4,
+                  duration: 0.5,
                   ease: [0.4, 0, 0.2, 1],
                 }}
                 className="absolute inset-0"
-                style={{ perspective: '1000px' }}
+                style={{ perspective: '1200px' }}
               >
                 {isPortfolio ? (
-                  // Portfolio Card Design
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-14 h-14 rounded-2xl text-white flex items-center justify-center font-semibold text-lg"
-                        style={{ backgroundColor: currentItem.color }}
-                      >
-                        {currentItem.avatar}
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-500">{currentItem.title}</p>
-                        <p className="text-xl font-semibold text-ink">{currentItem.name}</p>
-                      </div>
+                  // Portfolio Preview - Scaled iframe
+                  <div className="relative w-full h-full bg-slate-900 rounded-t-xl overflow-hidden">
+                    <div
+                      className="absolute origin-top-left"
+                      style={{
+                        width: '1200px',
+                        height: '2400px',
+                        transform: 'scale(0.28)',
+                        transformOrigin: 'top left',
+                      }}
+                    >
+                      <iframe
+                        src={iframeUrl}
+                        style={{
+                          border: 'none',
+                          width: '1200px',
+                          height: '2400px',
+                        }}
+                        className="pointer-events-none"
+                      />
                     </div>
-                    <p className="text-sm text-slate-600">
-                      {currentItem.tagline}
-                    </p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {currentItem.skills.map((skill) => (
-                        <div
-                          key={skill}
-                          className="rounded-xl border p-3 text-xs text-slate-600"
-                          style={{ borderColor: `${currentItem.color}40` }}
-                        >
-                          {skill}
-                        </div>
-                      ))}
-                    </div>
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                   </div>
                 ) : (
-                  // CV Card Design
-                  <div className="flex gap-4 h-full">
-                    {/* CV Sidebar */}
+                  // CV Preview - Scaled iframe with sidebar layout
+                  <div className="relative w-full h-full bg-white rounded-t-xl overflow-hidden border-t border-x border-slate-100">
                     <div
-                      className="w-24 rounded-xl p-3 flex flex-col items-center text-white"
-                      style={{ backgroundColor: currentItem.color }}
+                      className="absolute origin-top-left"
+                      style={{
+                        width: '800px',
+                        height: '1130px',
+                        transform: 'scale(0.42)',
+                        transformOrigin: 'top left',
+                      }}
                     >
-                      <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-semibold text-sm mb-2">
-                        {currentItem.avatar}
-                      </div>
-                      <p className="text-[10px] text-center opacity-80">{currentItem.tagline}</p>
+                      <iframe
+                        src={iframeUrl}
+                        style={{
+                          border: 'none',
+                          width: '800px',
+                          height: '1130px',
+                        }}
+                        className="pointer-events-none"
+                      />
                     </div>
-                    {/* CV Main Content */}
-                    <div className="flex-1 space-y-3">
-                      <div>
-                        <p className="text-lg font-bold text-ink tracking-wide">{currentItem.title}</p>
-                        <p className="text-sm font-medium" style={{ color: currentItem.color }}>{currentItem.subtitle}</p>
-                      </div>
-                      <p className="text-xs text-slate-500">{currentItem.name}</p>
-                      <div className="space-y-1">
-                        {currentItem.skills.map((skill) => (
-                          <div
-                            key={skill}
-                            className="text-xs text-slate-600 flex items-center gap-2"
-                          >
-                            <div
-                              className="w-1.5 h-1.5 rounded-full"
-                              style={{ backgroundColor: currentItem.color }}
-                            />
-                            {skill}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {/* Subtle gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-transparent pointer-events-none" />
                   </div>
                 )}
               </motion.div>
@@ -226,24 +203,24 @@ function AnimatedLivePreviewCard() {
           </AnimatePresence>
         </div>
 
-        {/* Progress Dots */}
-        <div className="flex items-center justify-center gap-2 mt-4">
-          {CAROUSEL_ITEMS.map((item, index) => (
-            <div
-              key={index}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
-                ? 'w-6'
-                : 'bg-slate-200'
+        {/* Progress Dots & Type Badge */}
+        <div className="p-4 pt-3 flex items-center justify-between">
+          {/* Progress Dots */}
+          <div className="flex items-center gap-2">
+            {CAROUSEL_ITEMS.map((item, index) => (
+              <div
+                key={index}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex ? 'w-6' : 'w-2 bg-slate-200'
                 }`}
-              style={{
-                backgroundColor: index === currentIndex ? item.color : undefined
-              }}
-            />
-          ))}
-        </div>
+                style={{
+                  backgroundColor: index === currentIndex ? item.color : undefined,
+                }}
+              />
+            ))}
+          </div>
 
-        {/* Type Badge */}
-        <div className="absolute top-4 right-4">
+          {/* Type Badge */}
           <div
             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium"
             style={{ borderColor: currentItem.color, color: currentItem.color }}
