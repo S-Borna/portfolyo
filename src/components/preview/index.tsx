@@ -878,9 +878,48 @@ interface CVPreviewV2Props {
   };
   className?: string;
   scale?: number;
+  fillContainer?: boolean;
 }
 
-export function CVPreviewV2({ templateId, data, className, scale = 0.5 }: CVPreviewV2Props) {
+export function CVPreviewV2({ templateId, data, className, scale = 0.5, fillContainer = false }: CVPreviewV2Props) {
+  // Reference for container to measure dimensions
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [containerScale, setContainerScale] = React.useState(scale);
+
+  // Update scale when fillContainer and container resizes
+  React.useEffect(() => {
+    if (!fillContainer || !containerRef.current) {
+      setContainerScale(scale);
+      return;
+    }
+
+    const updateScale = () => {
+      if (!containerRef.current?.parentElement) return;
+      const parent = containerRef.current.parentElement;
+      const parentWidth = parent.clientWidth;
+      const parentHeight = parent.clientHeight || 600; // fallback height
+      
+      const iframeWidth = 794;
+      const iframeHeight = 1123;
+      
+      // Calculate scale to fit both width and height (contain)
+      const scaleX = parentWidth / iframeWidth;
+      const scaleY = parentHeight / iframeHeight;
+      const newScale = Math.min(scaleX, scaleY, 1); // max 1 to avoid upscaling
+      
+      setContainerScale(Math.max(0.3, newScale)); // min 0.3 for readability
+    };
+
+    updateScale();
+    
+    const resizeObserver = new ResizeObserver(updateScale);
+    if (containerRef.current.parentElement) {
+      resizeObserver.observe(containerRef.current.parentElement);
+    }
+    
+    return () => resizeObserver.disconnect();
+  }, [fillContainer, scale]);
+
   // Convert editor data to CVData format
   const cvData: CVData = useMemo(() => {
     // Split title into title/subtitle
@@ -963,34 +1002,47 @@ export function CVPreviewV2({ templateId, data, className, scale = 0.5 }: CVPrev
   // Calculate scaled dimensions
   const iframeWidth = 794; // A4 width in pixels at 96dpi
   const iframeHeight = 1123; // A4 height in pixels at 96dpi
-  const scaledWidth = iframeWidth * scale;
-  const scaledHeight = iframeHeight * scale;
+  const activeScale = fillContainer ? containerScale : scale;
+  const scaledWidth = iframeWidth * activeScale;
+  const scaledHeight = iframeHeight * activeScale;
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         'rounded-lg overflow-hidden shadow-2xl bg-white',
         isDark ? 'border border-gray-700' : 'border border-gray-200',
+        fillContainer && 'w-full flex items-center justify-center',
         className
       )}
-      style={{
+      style={fillContainer ? {
+        position: 'relative',
+        minHeight: `${scaledHeight}px`,
+      } : {
         width: `${scaledWidth}px`,
         height: `${scaledHeight}px`,
         position: 'relative',
       }}
     >
-      <iframe
-        srcDoc={html}
-        style={{
-          width: `${iframeWidth}px`,
-          height: `${iframeHeight}px`,
-          transform: `scale(${scale})`,
-          transformOrigin: 'top left',
-          border: 'none',
-          display: 'block',
-        }}
-        title="CV Preview"
-      />
+      <div style={{
+        width: `${scaledWidth}px`,
+        height: `${scaledHeight}px`,
+        position: 'relative',
+        flexShrink: 0,
+      }}>
+        <iframe
+          srcDoc={html}
+          style={{
+            width: `${iframeWidth}px`,
+            height: `${iframeHeight}px`,
+            transform: `scale(${activeScale})`,
+            transformOrigin: 'top left',
+            border: 'none',
+            display: 'block',
+          }}
+          title="CV Preview"
+        />
+      </div>
     </div>
   );
 }

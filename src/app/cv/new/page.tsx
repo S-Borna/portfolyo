@@ -869,11 +869,11 @@ function NewCVPageContent() {
                     </div>
                   </div>
 
-                  <div className="overflow-hidden rounded-xl bg-white">
+                  <div className="overflow-hidden rounded-xl bg-gray-50" style={{ height: 'calc(100vh - 280px)', minHeight: '500px' }}>
                     <CVPreviewV2
                       templateId={selectedTemplateId}
                       data={previewData}
-                      scale={0.55}
+                      fillContainer
                     />
                   </div>
 
