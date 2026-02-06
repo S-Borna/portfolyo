@@ -10,8 +10,8 @@ const MAIN_DOMAIN = 'portfolyo.se';
 // ============================================
 
 const securityHeaders = {
-  // Prevent clickjacking - strict
-  'X-Frame-Options': 'DENY',
+  // Prevent clickjacking - allow same-origin iframes for previews
+  'X-Frame-Options': 'SAMEORIGIN',
 
   // Prevent MIME type sniffing
   'X-Content-Type-Options': 'nosniff',
@@ -19,67 +19,35 @@ const securityHeaders = {
   // Enable XSS filter in older browsers
   'X-XSS-Protection': '1; mode=block',
 
-  // Control referrer information - strict
+  // Referrer - send origin on cross-origin, full on same-origin
   'Referrer-Policy': 'strict-origin-when-cross-origin',
 
-  // Permissions policy - disable everything unused
+  // Permissions policy - only disable truly dangerous APIs
   'Permissions-Policy': [
-    'accelerometer=()',
-    'ambient-light-sensor=()',
-    'autoplay=()',
-    'battery=()',
     'camera=()',
-    'cross-origin-isolated=()',
-    'display-capture=()',
-    'document-domain=()',
-    'encrypted-media=()',
-    'execution-while-not-rendered=()',
-    'execution-while-out-of-viewport=()',
-    'fullscreen=()',
-    'geolocation=()',
-    'gyroscope=()',
-    'keyboard-map=()',
-    'magnetometer=()',
     'microphone=()',
-    'midi=()',
-    'navigation-override=()',
+    'geolocation=()',
     'payment=()',
-    'picture-in-picture=()',
-    'publickey-credentials-get=()',
-    'screen-wake-lock=()',
-    'sync-xhr=()',
     'usb=()',
-    'web-share=()',
-    'xr-spatial-tracking=()',
   ].join(', '),
 
-  // Content Security Policy - strict
+  // Content Security Policy - relaxed but still protective
   'Content-Security-Policy': [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://www.google-analytics.com https://region1.google-analytics.com",
-    "frame-ancestors 'none'",
+    "frame-src 'self'",
+    "frame-ancestors 'self'",
     "base-uri 'self'",
     "form-action 'self'",
     "upgrade-insecure-requests",
-    "block-all-mixed-content",
   ].join('; '),
 
-  // HSTS - Force HTTPS (1 year, include subdomains, preload ready)
+  // HSTS - Force HTTPS
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-
-  // Cross-Origin policies
-  'Cross-Origin-Opener-Policy': 'same-origin',
-  'Cross-Origin-Embedder-Policy': 'credentialless',
-  'Cross-Origin-Resource-Policy': 'same-origin',
-
-  // Cache control for HTML (no caching sensitive pages)
-  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-  'Pragma': 'no-cache',
-  'Expires': '0',
 };
 
 function addSecurityHeaders(response: NextResponse): NextResponse {
