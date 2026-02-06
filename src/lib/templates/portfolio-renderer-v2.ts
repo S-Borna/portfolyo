@@ -2235,6 +2235,9 @@ function renderCvModal(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): str
     const title = 'Curriculum Vitae';
     const downloadText = data.language === 'sv' ? 'Ladda ner PDF' : 'Download PDF';
 
+    const isPdf = data.cvUrl.toLowerCase().endsWith('.pdf');
+    const iframeSrc = isPdf ? `${escapeHtml(data.cvUrl)}#zoom=80` : escapeHtml(data.cvUrl);
+
     return `
     <div class="cv-modal-overlay" id="cvModal">
         <div class="cv-modal">
@@ -2244,7 +2247,7 @@ function renderCvModal(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): str
                     <span>${title}</span>
                 </div>
                 <div class="cv-modal-actions">
-                    <a href="${escapeHtml(data.cvUrl)}" download class="cv-download-btn">
+                    <a href="${escapeHtml(data.cvUrl)}" ${isPdf ? 'download' : 'target="_blank"'} class="cv-download-btn">
                         <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                         <span>${downloadText}</span>
                     </a>
@@ -2252,7 +2255,7 @@ function renderCvModal(data: PortfolioDataV2, t: PortfolioTemplateConfigV2): str
                 </div>
             </div>
             <div class="cv-modal-body">
-                <iframe src="${escapeHtml(data.cvUrl)}#zoom=80" title="${title}"></iframe>
+                <iframe src="${iframeSrc}" title="${title}"></iframe>
             </div>
         </div>
     </div>`;

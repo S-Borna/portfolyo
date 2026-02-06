@@ -20,7 +20,7 @@ const SAMPLE_DATA_SV: PortfolioDataV2 = {
     title: 'DevOps Engineer',
     tagline: 'Jag automatiserar, övervakar och optimerar. Med en passion för CI/CD pipelines och infrastructure as code, bygger jag broar mellan utveckling och drift.',
     profileImageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-    cvUrl: '/cv.pdf',
+    cvUrl: '/api/cv-preview?template=said-dark&profile=said',
 
     metaItems: [
         { label: 'Baserad i', value: 'Malmö, Sverige' },
@@ -379,6 +379,8 @@ export async function GET(request: Request) {
         title: guruProfile.title,
         tagline: guruProfile.tagline,
         profileImageUrl: guruProfile.profileImageUrl,
+        // Point CV link to the CV preview API instead of a static file
+        cvUrl: `/api/cv-preview?template=said-dark&profile=${profile}`,
     };
 
     // Rendera portfolion med previewMode för kompakta sektioner
