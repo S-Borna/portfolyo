@@ -7,7 +7,18 @@ import {
   RATE_LIMITS,
 } from '@/lib/rate-limit';
 
-const anthropic = new Anthropic();
+// Lazy-init: Cloudflare Workers don't populate process.env at module-load time
+let _anthropic: Anthropic | null = null;
+function getAnthropic(): Anthropic {
+  if (!_anthropic) {
+    _anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+      // Use global fetch for Cloudflare Workers compatibility
+      fetch: globalThis.fetch.bind(globalThis),
+    });
+  }
+  return _anthropic;
+}
 
 const SYSTEM_PROMPT = `Du är en expert på att skriva professionella texter på svenska för portfolios och CV:n.
 
@@ -120,6 +131,77 @@ Förbättra texten genom att:
 Svara ENDAST med den förbättrade texten, ingen annan text.`;
         break;
 
+      case 'timeline-description':
+        userPrompt = `Skriv en professionell beskrivning för en timeline-post i en portfolio.
+
+Detaljer:
+- Typ: ${context.type || 'erfarenhet'}
+- Titel: ${context.title || 'Position'}
+- Organisation: ${context.subtitle || 'Företag/Skola'}
+- Period: ${context.period || 'Ej angiven'}
+
+Skriv en beskrivning på 2-3 meningar som:
+1. Beskriver ansvarsområden eller kurser
+2. Nämner specifika teknologier eller metoder
+3. Framhäver resultat och lärdomar
+
+Svara ENDAST med beskrivningen, ingen annan text.`;
+        break;
+
+      case 'parse-cv':
+        userPrompt = `Analysera följande CV-text och extrahera strukturerad data.
+
+CV-TEXT:
+"""
+${context.text}
+"""
+
+Svara med EXAKT DENNA JSON-struktur (inget annat):
+{
+  "fullName": "Namn",
+  "title": "Titel/Roll",
+  "email": "email@domain.com",
+  "phone": "telefonnummer",
+  "location": "Stad, Land",
+  "linkedin": "linkedin-url eller null",
+  "github": "github-url eller null",
+  "website": "webbplats-url eller null",
+  "bio": "2-3 meningar professionell sammanfattning baserat på CV:t",
+  "experience": [
+    {
+      "title": "Jobbtitel",
+      "company": "Företag",
+      "period": "Start – Slut",
+      "description": "Kort beskrivning av rollen",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "degree": "Utbildning/Program",
+      "institution": "Skola/Universitet",
+      "period": "Start – Slut",
+      "description": "Inriktning eller kurser"
+    }
+  ],
+  "skills": ["Skill1", "Skill2", "Skill3"],
+  "projects": [
+    {
+      "name": "Projektnamn",
+      "description": "Kort beskrivning",
+      "tags": ["Tech1", "Tech2"],
+      "url": "url eller null"
+    }
+  ]
+}
+
+Regler:
+- Extrahera ALL data du kan hitta
+- Om ett fält saknas, använd null eller tom array
+- Skriv bio:n på svenska, professionellt
+- Svara ENBART med JSON, ingen annan text`;
+        break;
+
       default:
         return NextResponse.json(
           { error: 'Unknown generation type' },
@@ -127,9 +209,9 @@ Svara ENDAST med den förbättrade texten, ingen annan text.`;
         );
     }
 
-    const message = await anthropic.messages.create({
+    const message = await getAnthropic().messages.create({
       model: 'claude-3-5-haiku-20241022',
-      max_tokens: 500,
+      max_tokens: type === 'parse-cv' ? 2000 : 500,
       system: SYSTEM_PROMPT,
       messages: [
         {
@@ -157,7 +239,8 @@ Svara ENDAST med den förbättrade texten, ingen annan text.`;
       }
     );
   } catch (error) {
-    console.error('AI Generation error:', error);
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('AI Generation error:', errMsg);
     return NextResponse.json(
       { error: 'Failed to generate content' },
       { status: 500 }

@@ -118,7 +118,9 @@ export default function LoginPage() {
         await Promise.all([syncPortfoliosFromSupabase(), syncCVsFromSupabase()]);
 
         toast.success('Välkommen tillbaka!');
-        router.push('/dashboard');
+        // Full page navigation to ensure session is loaded fresh
+        const redirect = new URLSearchParams(window.location.search).get('redirect');
+        window.location.href = redirect || '/dashboard';
       }
     } catch (err) {
       console.error('Login error:', err);

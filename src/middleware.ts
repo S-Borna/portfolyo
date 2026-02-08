@@ -68,19 +68,8 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get('host') || '';
 
-  // ============================================
-  // SERVER-SIDE AUTH CHECK FOR PROTECTED ROUTES
-  // ============================================
-  const pathname = url.pathname;
-  if (isProtectedRoute(pathname)) {
-    const supabaseAuth = request.cookies.getAll().find(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'));
-    if (!supabaseAuth) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      const response = NextResponse.redirect(loginUrl);
-      return addSecurityHeaders(response);
-    }
-  }
+  // NOTE: Auth is handled client-side via Supabase JS (localStorage sessions).
+  // Server-side cookie check removed — standard Supabase client doesn't set cookies.
 
   // Utvecklingsmiljö - localhost
   if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {

@@ -25,6 +25,7 @@ import { PORTFOLIO_TEMPLATES_V2 } from '@/lib/templates/portfolio-renderer-v2';
 
 const {
   ArrowLeft,
+  ArrowRight,
   Save,
   Eye,
   ExternalLink,
@@ -45,6 +46,8 @@ const {
   Trash2,
   Edit3,
   Check,
+  FileText,
+  Download,
 } = Icons;
 
 export default function PortfolioEditorPage() {
@@ -65,8 +68,14 @@ export default function PortfolioEditorPage() {
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingFor, setGeneratingFor] = useState<string | null>(null);
+  const [customSkill, setCustomSkill] = useState('');
   const [showPreview, setShowPreview] = useState(true);
   const [selectedTemplateId, setSelectedTemplateId] = useState('said-dark');
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importCvText, setImportCvText] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
+  const [userCvs, setUserCvs] = useState<any[]>([]);
 
   // Find portfolio from store
   const storePortfolio = portfolios.find(p => p.id === portfolioId);
@@ -385,6 +394,321 @@ export default function PortfolioEditorPage() {
     }
   };
 
+  const handleGenerateProjectDesc = async (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    if (credits < CREDIT_COSTS.bio) {
+      toast.error('Inte tillräckligt med credits');
+      return;
+    }
+    setGeneratingFor(projectId);
+    try {
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'project-description',
+          context: {
+            projectName: project.name,
+            technologies: project.tags,
+            description: project.description,
+          },
+        }),
+      });
+      if (!response.ok) throw new Error('Generation failed');
+      const data = await response.json();
+      updateProject(projectId, { description: data.content });
+      useCredits(CREDIT_COSTS.bio);
+      toast.success('Beskrivning genererad!');
+    } catch (error) {
+      toast.error('Kunde inte generera beskrivning');
+    } finally {
+      setGeneratingFor(null);
+    }
+  };
+
+  const handleGenerateTimelineDesc = async (entryId: string) => {
+    const entry = timeline.find(e => e.id === entryId);
+    if (!entry) return;
+    if (credits < CREDIT_COSTS.bio) {
+      toast.error('Inte tillräckligt med credits');
+      return;
+    }
+    setGeneratingFor(entryId);
+    try {
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'timeline-description',
+          context: {
+            type: entry.type,
+            title: entry.title,
+            subtitle: entry.subtitle,
+            period: entry.period,
+          },
+        }),
+      });
+      if (!response.ok) throw new Error('Generation failed');
+      const data = await response.json();
+      updateTimelineEntry(entryId, { description: data.content });
+      useCredits(CREDIT_COSTS.bio);
+      toast.success('Beskrivning genererad!');
+    } catch (error) {
+      toast.error('Kunde inte generera beskrivning');
+    } finally {
+      setGeneratingFor(null);
+    }
+  };
+
+  const addCustomSkill = () => {
+    const name = customSkill.trim();
+    if (!name) return;
+    if (techStack.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+      toast.error('Redan tillagd');
+      return;
+    }
+    setTechStack([...techStack, { name, icon: name.toLowerCase().replace(/[.\s]/g, ''), category: 'tools', proficiency: 'intermediate' }]);
+    setCustomSkill('');
+  };
+
+  const tabOrder = ['profile', 'projects', 'timeline', 'skills', 'contact', 'settings'];
+  const nextTab = () => {
+    const idx = tabOrder.indexOf(activeTab);
+    if (idx < tabOrder.length - 1) setActiveTab(tabOrder[idx + 1]);
+  };
+  const prevTab = () => {
+    const idx = tabOrder.indexOf(activeTab);
+    if (idx > 0) setActiveTab(tabOrder[idx - 1]);
+  };
+
+  // Fetch user's CVs from Supabase for import
+  useEffect(() => {
+    if (!mounted) return;
+    const fetchCvs = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data } = await supabase
+        .from('cvs')
+        .select('*')
+        .eq('user_id', session.user.id);
+      if (data && data.length > 0) setUserCvs(data);
+    };
+    fetchCvs();
+  }, [mounted]);
+
+  // Import from an existing CV in the database
+  const handleImportFromCv = (cv: any) => {
+    const pi = cv.personal_info || cv.personalInfo || {};
+    const exp = cv.experience || [];
+    const edu = cv.education || [];
+    const sk = cv.skills || [];
+    const pr = cv.projects || [];
+
+    setProfile({
+      ...profile,
+      fullName: pi.fullName || pi.full_name || profile.fullName,
+      title: pi.title || profile.title,
+      tagline: pi.title || profile.tagline,
+      bio: cv.summary || profile.bio,
+      location: pi.location || profile.location,
+    });
+
+    if (exp.length > 0) {
+      setTimeline(prev => [
+        ...prev.filter(t => t.type !== 'work'),
+        ...exp.map((e: any, i: number) => ({
+          id: generateId(),
+          title: e.title || '',
+          subtitle: e.company || '',
+          description: e.description || (e.achievements || []).join('. '),
+          period: e.startDate && e.endDate ? `${e.startDate} – ${e.endDate}` : (e.startDate || ''),
+          type: 'work' as const,
+          current: e.current || false,
+          achievements: e.achievements || [],
+          tags: [],
+          order: i,
+        })),
+      ]);
+    }
+
+    if (edu.length > 0) {
+      setTimeline(prev => [
+        ...prev.filter(t => t.type !== 'education'),
+        ...edu.map((e: any, i: number) => ({
+          id: generateId(),
+          title: e.degree || e.field || '',
+          subtitle: e.institution || '',
+          description: e.description || '',
+          period: e.startDate && e.endDate ? `${e.startDate} – ${e.endDate}` : (e.startDate || ''),
+          type: 'education' as const,
+          current: e.current || false,
+          achievements: e.achievements || [],
+          tags: [],
+          order: i,
+        })),
+      ]);
+    }
+
+    if (sk.length > 0) {
+      const allSkills: string[] = sk.flatMap((cat: any) => 
+        typeof cat === 'string' ? [cat] : (cat.skills || [])
+      );
+      const newTech = allSkills
+        .filter(s => !techStack.some(t => t.name.toLowerCase() === s.toLowerCase()))
+        .map(s => ({
+          name: s,
+          icon: s.toLowerCase().replace(/[.\s]/g, ''),
+          category: 'tools' as const,
+          proficiency: 'intermediate' as const,
+        }));
+      setTechStack(prev => [...prev, ...newTech]);
+    }
+
+    if (pr.length > 0) {
+      const newProjects = pr.map((p: any, i: number) => ({
+        id: generateId(),
+        name: p.name || '',
+        description: p.description || '',
+        tags: p.technologies || [],
+        links: { live: p.url || '' },
+        featured: i === 0,
+        order: i,
+      }));
+      setProjects(prev => [...prev, ...newProjects]);
+    }
+
+    setContact({
+      ...contact,
+      email: pi.email || contact.email,
+      phone: pi.phone || contact.phone,
+      linkedin: pi.linkedin || contact.linkedin,
+      github: pi.github || contact.github,
+      website: pi.website || contact.website,
+    });
+
+    setShowImportModal(false);
+    toast.success('CV-data importerad! Granska och justera fälten.');
+  };
+
+  // Parse pasted CV text with AI and populate fields
+  const handleParseCvText = async () => {
+    if (!importCvText.trim()) {
+      toast.error('Klistra in din CV-text först');
+      return;
+    }
+    setIsImporting(true);
+    try {
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'parse-cv',
+          context: { text: importCvText },
+        }),
+      });
+      if (!response.ok) throw new Error('Parse failed');
+      const data = await response.json();
+
+      // The AI returns JSON as the content string — parse it
+      let parsed;
+      try {
+        parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
+      } catch {
+        toast.error('Kunde inte tolka AI-svaret. Försök igen.');
+        return;
+      }
+
+      // Map parsed data into editor state
+      setProfile({
+        ...profile,
+        fullName: parsed.fullName || profile.fullName,
+        title: parsed.title || profile.title,
+        tagline: parsed.title || profile.tagline,
+        bio: parsed.bio || profile.bio,
+        location: parsed.location || profile.location,
+      });
+
+      if (parsed.experience?.length > 0) {
+        setTimeline(prev => [
+          ...prev.filter(t => t.type !== 'work'),
+          ...parsed.experience.map((e: any, i: number) => ({
+            id: generateId(),
+            title: e.title || '',
+            subtitle: e.company || '',
+            description: e.description || '',
+            period: e.period || '',
+            type: 'work' as const,
+            current: e.current || false,
+            achievements: [],
+            tags: [],
+            order: i,
+          })),
+        ]);
+      }
+
+      if (parsed.education?.length > 0) {
+        setTimeline(prev => [
+          ...prev.filter(t => t.type !== 'education'),
+          ...parsed.education.map((e: any, i: number) => ({
+            id: generateId(),
+            title: e.degree || '',
+            subtitle: e.institution || '',
+            description: e.description || '',
+            period: e.period || '',
+            type: 'education' as const,
+            current: false,
+            achievements: [],
+            tags: [],
+            order: i,
+          })),
+        ]);
+      }
+
+      if (parsed.skills?.length > 0) {
+        const newTech = parsed.skills
+          .filter((s: string) => !techStack.some(t => t.name.toLowerCase() === s.toLowerCase()))
+          .map((s: string) => ({
+            name: s,
+            icon: s.toLowerCase().replace(/[.\s]/g, ''),
+            category: 'tools' as const,
+            proficiency: 'intermediate' as const,
+          }));
+        setTechStack(prev => [...prev, ...newTech]);
+      }
+
+      if (parsed.projects?.length > 0) {
+        const newProjects = parsed.projects.map((p: any, i: number) => ({
+          id: generateId(),
+          name: p.name || '',
+          description: p.description || '',
+          tags: p.tags || [],
+          links: { live: p.url || '' },
+          featured: i === 0,
+          order: i,
+        }));
+        setProjects(prev => [...prev, ...newProjects]);
+      }
+
+      setContact({
+        ...contact,
+        email: parsed.email || contact.email,
+        phone: parsed.phone || contact.phone,
+        linkedin: parsed.linkedin || contact.linkedin,
+        github: parsed.github || contact.github,
+        website: parsed.website || contact.website,
+      });
+
+      setShowImportModal(false);
+      setImportCvText('');
+      toast.success('CV analyserad och importerad! 🎉 Granska alla fält.');
+    } catch (error) {
+      toast.error('Kunde inte analysera CV-texten. Försök igen.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const addProject = () => {
     setProjects([
       ...projects,
@@ -525,6 +849,116 @@ export default function PortfolioEditorPage() {
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="space-y-6">
+                {/* Import from CV Banner */}
+                <Card className="p-5 border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-violet-100 rounded-lg">
+                        <Download className="h-5 w-5 text-violet-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Importera från CV</h3>
+                        <p className="text-sm text-gray-600">
+                          {userCvs.length > 0
+                            ? 'Fyll i portfolion med data från ditt befintliga CV'
+                            : 'Klistra in din CV-text så fyller vi i automatiskt med AI'}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowImportModal(true)}
+                      leftIcon={<FileText className="h-4 w-4" />}
+                    >
+                      Importera
+                    </Button>
+                  </div>
+                </Card>
+
+                {/* Import Modal */}
+                {showImportModal && (
+                  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+                      <div className="p-6 border-b border-gray-200">
+                        <div className="flex items-center justify-between">
+                          <h2 className="text-xl font-bold text-gray-900">Importera CV-data</h2>
+                          <button
+                            onClick={() => { setShowImportModal(false); setImportCvText(''); }}
+                            className="p-2 hover:bg-gray-100 rounded-lg"
+                          >
+                            <X className="h-5 w-5 text-gray-500" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="p-6 space-y-6">
+                        {/* Option 1: Import from existing CV */}
+                        {userCvs.length > 0 && (
+                          <div>
+                            <h3 className="font-semibold text-gray-900 mb-3">Från ditt sparade CV</h3>
+                            <div className="space-y-2">
+                              {userCvs.map((cv) => (
+                                <button
+                                  key={cv.id}
+                                  onClick={() => handleImportFromCv(cv)}
+                                  className="w-full flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:border-violet-300 hover:bg-violet-50 transition-all text-left"
+                                >
+                                  <FileText className="h-5 w-5 text-violet-600 flex-shrink-0" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-gray-900 truncate">
+                                      {cv.personal_info?.fullName || cv.name || 'CV'}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      {cv.personal_info?.title || 'Ingen titel'} • Uppdaterad {new Date(cv.updated_at).toLocaleDateString('sv-SE')}
+                                    </p>
+                                  </div>
+                                  <ArrowRight className="h-4 w-4 text-gray-400" />
+                                </button>
+                              ))}
+                            </div>
+
+                            <div className="relative my-6">
+                              <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-200" />
+                              </div>
+                              <div className="relative flex justify-center">
+                                <span className="px-3 bg-white text-sm text-gray-500">eller</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Option 2: Paste CV text */}
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-2">Klistra in CV-text</h3>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Kopiera texten från ditt CV (PDF, Word, LinkedIn) och klistra in nedan. 
+                            AI:n analyserar och fyller i alla fält automatiskt.
+                          </p>
+                          <Textarea
+                            value={importCvText}
+                            onChange={(e) => setImportCvText(e.target.value)}
+                            placeholder={`Klistra in din CV-text här...\n\nExempel:\nSaid Borna\nDevOps Engineer\nStockholm, Sverige\n\nErfarenhet:\n• Cloud Engineer på Company AB (2024 – Pågående)\n  Arbetade med AWS, Terraform, Kubernetes...\n\nUtbildning:\n• Systemutvecklare .NET, Chas Academy (2023 – 2025)\n\nSkills: Docker, Kubernetes, AWS, Python, CI/CD`}
+                            rows={10}
+                            className="font-mono text-sm"
+                          />
+                          <div className="flex justify-end mt-3">
+                            <Button
+                              onClick={handleParseCvText}
+                              isLoading={isImporting}
+                              leftIcon={<Sparkles className="h-4 w-4" />}
+                              disabled={!importCvText.trim()}
+                            >
+                              {isImporting ? 'Analyserar...' : 'Analysera med AI'}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <Card className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">Grundläggande information</h2>
 
@@ -583,7 +1017,9 @@ export default function PortfolioEditorPage() {
                 </Card>
 
                 <Card className="p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Vad söker du?</h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">Vad söker du?</h2>
+                  </div>
 
                   <div className="grid gap-4">
                     <Input
@@ -615,6 +1051,13 @@ export default function PortfolioEditorPage() {
                     )}
                   </div>
                 </Card>
+
+                {/* Navigation */}
+                <div className="flex justify-end pt-2">
+                  <Button onClick={nextTab} rightIcon={<ArrowRight className="h-4 w-4" />}>
+                    Nästa: Projekt
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -657,12 +1100,27 @@ export default function PortfolioEditorPage() {
                           onChange={(e) => updateProject(project.id, { name: e.target.value })}
                         />
 
-                        <Textarea
-                          label="Beskrivning"
-                          value={project.description}
-                          onChange={(e) => updateProject(project.id, { description: e.target.value })}
-                          rows={3}
-                        />
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-sm font-medium text-gray-700">Beskrivning</label>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleGenerateProjectDesc(project.id)}
+                              isLoading={generatingFor === project.id}
+                              leftIcon={<Sparkles className="h-3.5 w-3.5" />}
+                              disabled={credits < CREDIT_COSTS.bio || !project.name}
+                            >
+                              AI-generera
+                            </Button>
+                          </div>
+                          <Textarea
+                            value={project.description}
+                            onChange={(e) => updateProject(project.id, { description: e.target.value })}
+                            rows={3}
+                            placeholder="Beskriv projektet, tekniska utmaningar och lösningar..."
+                          />
+                        </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <Input
@@ -710,6 +1168,16 @@ export default function PortfolioEditorPage() {
                     </Card>
                   ))
                 )}
+
+                {/* Navigation */}
+                <div className="flex justify-between pt-2">
+                  <Button variant="outline" onClick={prevTab} leftIcon={<ArrowLeft className="h-4 w-4" />}>
+                    Profil
+                  </Button>
+                  <Button onClick={nextTab} rightIcon={<ArrowRight className="h-4 w-4" />}>
+                    Nästa: Timeline
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -736,18 +1204,26 @@ export default function PortfolioEditorPage() {
                   timeline.map((entry, index) => (
                     <Card key={entry.id} className="p-6">
                       <div className="flex items-start justify-between mb-4">
-                        <select
-                          value={entry.type}
-                          onChange={(e) => updateTimelineEntry(entry.id, {
-                            type: e.target.value as TimelineEntry['type']
-                          })}
-                          className="px-3 py-1 rounded-lg border border-gray-200 text-sm"
-                        >
-                          <option value="education">🎓 Utbildning</option>
-                          <option value="work">💼 Arbete</option>
-                          <option value="project">🚀 Projekt</option>
-                          <option value="achievement">🏆 Achievement</option>
-                        </select>
+                        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                          {[
+                            { value: 'education', label: '🎓 Utbildning' },
+                            { value: 'work', label: '💼 Arbete' },
+                            { value: 'project', label: '🚀 Projekt' },
+                            { value: 'achievement', label: '🏆 Prestation' },
+                          ].map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => updateTimelineEntry(entry.id, { type: opt.value as TimelineEntry['type'] })}
+                              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                                entry.type === opt.value
+                                  ? 'bg-white text-gray-900 shadow-sm'
+                                  : 'text-gray-500 hover:text-gray-700'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
                         <button
                           onClick={() => removeTimelineEntry(entry.id)}
                           className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
@@ -761,25 +1237,41 @@ export default function PortfolioEditorPage() {
                           label="Titel"
                           value={entry.title}
                           onChange={(e) => updateTimelineEntry(entry.id, { title: e.target.value })}
+                          placeholder={entry.type === 'education' ? 'T.ex. Systemutvecklare .NET' : 'T.ex. Frontend Developer'}
                         />
                         <Input
-                          label="Undertitel"
+                          label="Organisation"
                           value={entry.subtitle}
                           onChange={(e) => updateTimelineEntry(entry.id, { subtitle: e.target.value })}
-                          placeholder="Företag, skola, etc."
+                          placeholder={entry.type === 'education' ? 'T.ex. Chas Academy' : 'T.ex. Företag AB'}
                         />
                         <Input
                           label="Period"
                           value={entry.period}
                           onChange={(e) => updateTimelineEntry(entry.id, { period: e.target.value })}
-                          placeholder="Sep 2025 - Pågående"
+                          placeholder="Sep 2025 – Pågående"
                         />
-                        <Textarea
-                          label="Beskrivning"
-                          value={entry.description}
-                          onChange={(e) => updateTimelineEntry(entry.id, { description: e.target.value })}
-                          rows={2}
-                        />
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-sm font-medium text-gray-700">Beskrivning</label>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleGenerateTimelineDesc(entry.id)}
+                              isLoading={generatingFor === entry.id}
+                              leftIcon={<Sparkles className="h-3.5 w-3.5" />}
+                              disabled={credits < CREDIT_COSTS.bio || !entry.title}
+                            >
+                              AI-generera
+                            </Button>
+                          </div>
+                          <Textarea
+                            value={entry.description}
+                            onChange={(e) => updateTimelineEntry(entry.id, { description: e.target.value })}
+                            rows={2}
+                            placeholder="Beskriv dina ansvarsområden, kurser eller achievements..."
+                          />
+                        </div>
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
@@ -793,6 +1285,16 @@ export default function PortfolioEditorPage() {
                     </Card>
                   ))
                 )}
+
+                {/* Navigation */}
+                <div className="flex justify-between pt-2">
+                  <Button variant="outline" onClick={prevTab} leftIcon={<ArrowLeft className="h-4 w-4" />}>
+                    Projekt
+                  </Button>
+                  <Button onClick={nextTab} rightIcon={<ArrowRight className="h-4 w-4" />}>
+                    Nästa: Skills
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -831,13 +1333,49 @@ export default function PortfolioEditorPage() {
                 </Card>
 
                 <Card className="p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Valda skills ({techStack.length})</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {techStack.map((tech) => (
-                      <TechBadge key={tech.name} name={tech.name} icon={tech.icon} />
-                    ))}
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Lägg till egen skill</h2>
+                  <div className="flex gap-2">
+                    <Input
+                      value={customSkill}
+                      onChange={(e) => setCustomSkill(e.target.value)}
+                      placeholder="T.ex. Terraform, Figma, Agile..."
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
+                    />
+                    <Button onClick={addCustomSkill} disabled={!customSkill.trim()}>
+                      Lägg till
+                    </Button>
                   </div>
                 </Card>
+
+                <Card className="p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Valda skills ({techStack.length})</h2>
+                  {techStack.length === 0 ? (
+                    <p className="text-gray-500 text-sm">Välj skills ovan eller lägg till egna</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {techStack.map((tech) => (
+                        <button
+                          key={tech.name}
+                          onClick={() => setTechStack(techStack.filter(t => t.name !== tech.name))}
+                          className="group flex items-center gap-1.5 px-3 py-1.5 bg-violet-100 text-violet-700 rounded-lg text-sm font-medium hover:bg-red-100 hover:text-red-600 transition-colors"
+                        >
+                          {tech.name}
+                          <X className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+
+                {/* Navigation */}
+                <div className="flex justify-between pt-2">
+                  <Button variant="outline" onClick={prevTab} leftIcon={<ArrowLeft className="h-4 w-4" />}>
+                    Timeline
+                  </Button>
+                  <Button onClick={nextTab} rightIcon={<ArrowRight className="h-4 w-4" />}>
+                    Nästa: Kontakt
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -898,6 +1436,16 @@ export default function PortfolioEditorPage() {
                     <span className="text-sm text-gray-700">Visa kontaktformulär på portfolion</span>
                   </label>
                 </Card>
+
+                {/* Navigation */}
+                <div className="flex justify-between pt-2">
+                  <Button variant="outline" onClick={prevTab} leftIcon={<ArrowLeft className="h-4 w-4" />}>
+                    Skills
+                  </Button>
+                  <Button onClick={nextTab} rightIcon={<ArrowRight className="h-4 w-4" />}>
+                    Nästa: Design
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -960,6 +1508,16 @@ export default function PortfolioEditorPage() {
                     />
                   </div>
                 </Card>
+
+                {/* Navigation */}
+                <div className="flex justify-between pt-2">
+                  <Button variant="outline" onClick={prevTab} leftIcon={<ArrowLeft className="h-4 w-4" />}>
+                    Kontakt
+                  </Button>
+                  <Button onClick={handleSave} leftIcon={<Save className="h-4 w-4" />} isLoading={isSaving}>
+                    Spara portfolio
+                  </Button>
+                </div>
               </div>
             )}
           </div>
