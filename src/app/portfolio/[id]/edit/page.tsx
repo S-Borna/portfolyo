@@ -1215,8 +1215,8 @@ export default function PortfolioEditorPage() {
                               key={opt.value}
                               onClick={() => updateTimelineEntry(entry.id, { type: opt.value as TimelineEntry['type'] })}
                               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${entry.type === opt.value
-                                  ? 'bg-white text-gray-900 shadow-sm'
-                                  : 'text-gray-500 hover:text-gray-700'
+                                ? 'bg-white text-gray-900 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700'
                                 }`}
                             >
                               {opt.label}
