@@ -551,7 +551,7 @@ export default function PortfolioEditorPage() {
     }
 
     if (sk.length > 0) {
-      const allSkills: string[] = sk.flatMap((cat: any) => 
+      const allSkills: string[] = sk.flatMap((cat: any) =>
         typeof cat === 'string' ? [cat] : (cat.skills || [])
       );
       const newTech = allSkills
@@ -933,7 +933,7 @@ export default function PortfolioEditorPage() {
                         <div>
                           <h3 className="font-semibold text-gray-900 mb-2">Klistra in CV-text</h3>
                           <p className="text-sm text-gray-600 mb-3">
-                            Kopiera texten från ditt CV (PDF, Word, LinkedIn) och klistra in nedan. 
+                            Kopiera texten från ditt CV (PDF, Word, LinkedIn) och klistra in nedan.
                             AI:n analyserar och fyller i alla fält automatiskt.
                           </p>
                           <Textarea
@@ -1214,11 +1214,10 @@ export default function PortfolioEditorPage() {
                             <button
                               key={opt.value}
                               onClick={() => updateTimelineEntry(entry.id, { type: opt.value as TimelineEntry['type'] })}
-                              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                                entry.type === opt.value
+                              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${entry.type === opt.value
                                   ? 'bg-white text-gray-900 shadow-sm'
                                   : 'text-gray-500 hover:text-gray-700'
-                              }`}
+                                }`}
                             >
                               {opt.label}
                             </button>
