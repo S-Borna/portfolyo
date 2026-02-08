@@ -48,9 +48,20 @@ export default function DashboardPage() {
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+        const timeout = setTimeout(() => {
+            // Safety: if getSession hangs, stop loading after 5s
+            if (mounted && loading) {
+                setLoading(false);
+                router.replace('/login');
+            }
+        }, 5000);
+
         const init = async () => {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
+
+                if (!mounted) return;
 
                 if (!session) {
                     const { usePortfolyoStore } = await import('@/lib/store');
@@ -88,7 +99,8 @@ export default function DashboardPage() {
                     if (analyticsData) setAnalytics(analyticsData);
                 }
 
-                setLoading(false);
+                if (mounted) setLoading(false);
+                clearTimeout(timeout);
 
                 // Handle payment return from Stripe
                 const paymentStatus = searchParams.get('payment');
@@ -107,11 +119,16 @@ export default function DashboardPage() {
                 }
             } catch (error) {
                 console.error('Dashboard init error:', error);
-                setLoading(false);
+                if (mounted) setLoading(false);
             }
         };
 
         init();
+
+        return () => {
+            mounted = false;
+            clearTimeout(timeout);
+        };
     }, [router, searchParams]);
 
     const handleLogout = async () => {

@@ -24,22 +24,34 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // Check actual Supabase session on mount - not local store
+  // Check actual Supabase session on mount - with timeout safety
   useEffect(() => {
+    let mounted = true;
+    const timeout = setTimeout(() => {
+      // Safety: if getSession hangs, show login form after 2s
+      if (mounted) setCheckingAuth(false);
+    }, 2000);
+
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
         if (session?.user) {
-          // User has valid session, redirect to dashboard
           router.replace('/dashboard');
           return;
         }
       } catch (err) {
         console.error('Session check error:', err);
       }
-      setCheckingAuth(false);
+      if (mounted) setCheckingAuth(false);
+      clearTimeout(timeout);
     };
     checkSession();
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+    };
   }, [router]);
 
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
