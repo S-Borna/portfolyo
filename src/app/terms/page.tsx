@@ -69,30 +69,32 @@ export default function TermsPage() {
 
                         <h3 className="text-xl font-semibold text-slate-800 mb-3">3.1 Engångsavgift</h3>
                         <p className="text-slate-600 mb-4">
-                            Publicering av portfolio eller CV kostar <strong>49 SEK</strong> som engångsbetalning. Denna avgift inkluderar:
+                            Publicering av din portfolio och CV kostar <strong>349 SEK</strong> som engångsbetalning. Denna avgift inkluderar:
                         </p>
                         <ul className="space-y-2 text-slate-600 mb-6">
                             <li>Permanent publicering på portfolyo.se/användarnamn</li>
                             <li>Hosting utan tidsbegränsning</li>
-                            <li>1 (en) CV-generering</li>
-                            <li>PDF-export</li>
+                            <li>1 portfolio + 1 CV</li>
+                            <li>PDF-export av CV</li>
+                            <li>10 credits för framtida ändringar</li>
                         </ul>
 
                         <h3 className="text-xl font-semibold text-slate-800 mb-3">3.2 Credits</h3>
                         <p className="text-slate-600 mb-4">
-                            Ändringar och tillägg kräver credits enligt följande tabell:
+                            Ändringar och tillägg efter publicering kräver credits enligt följande tabell:
                         </p>
                         <ul className="space-y-2 text-slate-600 mb-6">
-                            <li><strong>1 credit:</strong> Ändring på befintligt CV</li>
-                            <li><strong>2 credits:</strong> Nytt CV eller ändring på befintlig portfolio</li>
-                            <li><strong>4 credits:</strong> Ny portfolio</li>
+                            <li><strong>1 credit:</strong> Ändring på befintligt CV (text, info, layout)</li>
+                            <li><strong>2 credits:</strong> Ändring på portfolio (innehåll, projekt, bio)</li>
+                            <li><strong>3 credits:</strong> Ny CV-generering (helt nytt CV)</li>
                         </ul>
-                        <p className="text-slate-600 mb-4">Credits kan köpas enligt följande priser:</p>
+                        <p className="text-slate-600 mb-4">Credits kan köpas i paket enligt följande priser:</p>
                         <ul className="space-y-2 text-slate-600 mb-6">
-                            <li>4 credits: 39 SEK</li>
-                            <li>10 credits: 79 SEK</li>
-                            <li>Enstaka credit: 14,99 SEK</li>
+                            <li>3 credits: 69 SEK (spara 21%)</li>
+                            <li>5 credits: 99 SEK (spara 32%)</li>
+                            <li>10 credits: 179 SEK (spara 38%)</li>
                         </ul>
+                        <p className="text-slate-600 mb-4">Enstaka credit: 29 SEK styck.</p>
 
                         <h3 className="text-xl font-semibold text-slate-800 mb-3">3.3 Betalningsvillkor</h3>
                         <ul className="space-y-2 text-slate-600">

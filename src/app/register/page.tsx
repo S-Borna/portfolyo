@@ -7,12 +7,13 @@ import toast from 'react-hot-toast';
 import { Button, Input, Card, Icons } from '@/components/ui';
 import { usePortfolyoStore } from '@/lib/store';
 import { supabase } from '@/lib/supabase';
+import { syncUserFromSupabase, syncPortfoliosFromSupabase, syncCVsFromSupabase } from '@/lib/sync';
 
 const { Lock, Mail, ArrowRight, Sparkles, Github, User } = Icons;
 
 export default function RegisterPage() {
     const router = useRouter();
-    const { login, isAuthenticated } = usePortfolyoStore();
+    const { isAuthenticated } = usePortfolyoStore();
 
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
@@ -65,8 +66,8 @@ export default function RegisterPage() {
             return;
         }
 
-        if (!password || password.length < 6) {
-            toast.error('Lösenordet måste vara minst 6 tecken');
+        if (!password || password.length < 8) {
+            toast.error('Lösenordet måste vara minst 8 tecken');
             return;
         }
 
@@ -97,17 +98,9 @@ export default function RegisterPage() {
             // If session exists, user is logged in directly (email confirmation disabled)
             // If no session but user exists, email confirmation is required
             if (data.session) {
-                // Direct login - no email confirmation required
-                login({
-                    id: data.user!.id,
-                    email: data.user!.email || '',
-                    name: fullName,
-                    createdAt: new Date(data.user!.created_at),
-                    updatedAt: new Date(),
-                    plan: 'free',
-                    credits: 3,
-                    creditsUsed: 0,
-                });
+                // Sync user data from database (credits, plan, etc.)
+                await syncUserFromSupabase();
+                await Promise.all([syncPortfoliosFromSupabase(), syncCVsFromSupabase()]);
 
                 toast.success('Konto skapat! Välkommen till Portfolyo!');
                 router.push('/dashboard');

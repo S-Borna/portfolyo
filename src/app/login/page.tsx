@@ -12,12 +12,12 @@ import {
 } from '@/components/ui';
 import { usePortfolyoStore } from '@/lib/store';
 import { supabase } from '@/lib/supabase';
+import { syncUserFromSupabase, syncPortfoliosFromSupabase, syncCVsFromSupabase } from '@/lib/sync';
 
 const { Lock, Mail, ArrowRight, Sparkles, Github } = Icons;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = usePortfolyoStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -101,16 +101,9 @@ export default function LoginPage() {
       }
 
       if (data.user && data.session) {
-        login({
-          id: data.user.id,
-          email: data.user.email || '',
-          name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || '',
-          createdAt: new Date(data.user.created_at),
-          updatedAt: new Date(),
-          plan: 'free',
-          credits: 3,
-          creditsUsed: 0,
-        });
+        // Sync user data from database (credits, plan, etc.)
+        await syncUserFromSupabase();
+        await Promise.all([syncPortfoliosFromSupabase(), syncCVsFromSupabase()]);
 
         toast.success('Välkommen tillbaka!');
         router.push('/dashboard');

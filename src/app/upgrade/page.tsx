@@ -12,6 +12,7 @@ import {
   Icons,
 } from '@/components/ui';
 import { usePortfolyoStore } from '@/lib/store';
+import { supabase } from '@/lib/supabase';
 import { PRICING } from '@/lib/types';
 
 const { ArrowLeft, Check, Sparkles, CreditCard, Zap } = Icons;
@@ -37,24 +38,43 @@ export default function UpgradePage() {
     setSelectedBundle(bundle.credits);
     setIsProcessing(true);
 
-    // Simulate payment processing
-    setTimeout(() => {
-      addCredits(bundle.credits);
-      toast.success(`🎉 +${bundle.credits} credits tillagt!`);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Du måste vara inloggad');
+        setIsProcessing(false);
+        return;
+      }
+
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          type: `credits_${bundle.credits}`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error(data.error || 'Kunde inte starta betalning');
+        setIsProcessing(false);
+        setSelectedBundle(null);
+      }
+    } catch (err) {
+      console.error('Payment error:', err);
+      toast.error('Betalningsfel. Försök igen.');
       setIsProcessing(false);
       setSelectedBundle(null);
-    }, 1500);
+    }
   };
 
   const handleBuySingle = async () => {
-    setIsProcessing(true);
-
-    // Simulate payment processing
-    setTimeout(() => {
-      addCredits(1);
-      toast.success(`🎉 +1 credit tillagt!`);
-      setIsProcessing(false);
-    }, 1500);
+    // Single credits use the 3-pack as minimum
+    toast('Tips: Köp 3 credits för 69 kr – bättre pris!', { icon: '💡' });
   };
 
   if (!mounted) {
@@ -82,10 +102,10 @@ export default function UpgradePage() {
             Köp credits
           </Badge>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Credits för ändringar och tillägg
+            Gör ändringar på din sida
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Använd credits för att göra ändringar på ditt CV, skapa nya CVs eller portfolios.
+            Alla ändringar efter publicering kostar credits. Köp i paket och spara.
           </p>
         </div>
 
@@ -93,7 +113,7 @@ export default function UpgradePage() {
         <Card className="p-6 mb-10 bg-slate-50">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Zap className="h-5 w-5 text-slate-600" />
-            Så fungerar credits
+            Vad kostar en ändring?
           </h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {PRICING.credits.tiers.map((tier) => (
@@ -175,15 +195,15 @@ export default function UpgradePage() {
               },
               {
                 q: 'Vad kostar det att publicera?',
-                a: 'Att publicera din första portfolio eller CV kostar 49 kr som engångsavgift. 1 CV-generering ingår.',
+                a: '349 kr engångsavgift. Din portfolio och CV — live, hostad och professionellt designad.',
               },
               {
-                q: 'Kan jag få tillbaka pengar för oanvända credits?',
-                a: 'Nej, men credits går aldrig ut så du kan använda dem när du vill.',
+                q: 'Kan jag ha flera portfolios?',
+                a: 'Nej — en portfolio och ett CV per användare. Din sida är personlig och byggd för dig.',
               },
               {
                 q: 'Vad räknas som en "ändring"?',
-                a: 'En ändring är t.ex. att byta ut text, lägga till ett projekt, eller uppdatera kontaktinfo på ditt CV eller portfolio.',
+                a: 'En ändring är t.ex. att byta ut text, lägga till ett projekt, uppdatera kontaktinfo eller ändra layout.',
               },
             ].map((item, i) => (
               <Card key={i} className="p-6">

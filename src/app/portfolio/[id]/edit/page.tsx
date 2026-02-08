@@ -17,6 +17,7 @@ import {
 } from '@/components/ui';
 import { PortfolioPreviewV2 } from '@/components/preview';
 import { usePortfolyoStore } from '@/lib/store';
+import { supabase } from '@/lib/supabase';
 import { TECH_STACK_OPTIONS, CREDIT_COSTS } from '@/lib/types';
 import type { ProjectShowcase, TimelineEntry, TechStackItem } from '@/lib/types';
 import { generateId, getPortfolioUrl } from '@/lib/utils';
@@ -67,8 +68,101 @@ export default function PortfolioEditorPage() {
   const [showPreview, setShowPreview] = useState(true);
   const [selectedTemplateId, setSelectedTemplateId] = useState('said-dark');
 
-  // Find portfolio
-  const portfolio = portfolios.find(p => p.id === portfolioId);
+  // Find portfolio from store
+  const storePortfolio = portfolios.find(p => p.id === portfolioId);
+  const [portfolio, setPortfolioState] = useState(storePortfolio);
+  const [loadingFromDb, setLoadingFromDb] = useState(!storePortfolio);
+
+  // If not in store, fetch from Supabase
+  useEffect(() => {
+    if (!storePortfolio && mounted) {
+      const fetchFromDb = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const { data } = await supabase
+          .from('portfolios')
+          .select('*')
+          .eq('id', portfolioId)
+          .eq('user_id', session.user.id)
+          .single();
+        if (data) {
+          // Convert DB format to store format (same as sync.ts)
+          const converted = {
+            id: data.id,
+            userId: data.user_id,
+            slug: data.username || '',
+            template: data.template_id || 'developer',
+            profile: {
+              fullName: data.title || '',
+              title: data.tagline || '',
+              tagline: data.tagline || '',
+              bio: data.bio || '',
+              avatar: data.avatar_url || undefined,
+              location: data.location || undefined,
+              highlights: data.highlights || [],
+              seeking: data.is_seeking ? (data.seeking_type || 'lia') : undefined,
+              seekingDetails: data.is_seeking ? {
+                type: data.seeking_type || 'lia',
+                period: data.seeking_period || '',
+                location: data.seeking_location || '',
+                interests: data.seeking_interests || [],
+              } : undefined,
+            },
+            projects: (data.projects || []).map((proj: any) => ({
+              id: proj.id || generateId(),
+              name: proj.name || '',
+              description: proj.description || '',
+              tags: proj.tags || [],
+              links: proj.links || {},
+              featured: proj.featured || false,
+              order: proj.order || 0,
+            })),
+            timeline: (data.timeline || []).map((t: any) => ({
+              id: t.id || generateId(),
+              title: t.title || '',
+              subtitle: t.subtitle || '',
+              description: t.description || '',
+              period: t.period || '',
+              type: t.type || 'education',
+              current: t.current || false,
+              achievements: t.achievements || [],
+              tags: t.tags || [],
+              order: t.order || 0,
+            })),
+            techStack: (data.skills || data.tech_stack || []).map((s: any) =>
+              typeof s === 'string'
+                ? { name: s, icon: s.toLowerCase(), category: 'tools', proficiency: 'intermediate' }
+                : s
+            ),
+            contact: {
+              email: data.email || '',
+              phone: data.phone || undefined,
+              linkedin: data.linkedin || undefined,
+              github: data.github || undefined,
+              website: data.website || undefined,
+              showContactForm: true,
+            },
+            settings: {
+              primaryColor: data.theme?.accent_color || '#8B5CF6',
+              accentColor: data.theme?.accent_color || '#6366F1',
+              fontFamily: 'inter' as const,
+              darkMode: data.theme?.dark_mode !== false,
+              showAnalytics: false,
+            },
+            status: data.status || 'draft',
+            createdAt: new Date(data.created_at),
+            updatedAt: new Date(data.updated_at),
+          };
+          setPortfolioState(converted as any);
+        }
+        setLoadingFromDb(false);
+      };
+      fetchFromDb();
+    } else if (storePortfolio) {
+      setPortfolioState(storePortfolio);
+      setLoadingFromDb(false);
+    }
+  }, [storePortfolio, mounted, portfolioId]);
 
   // Local state for editing
   const [profile, setProfile] = useState(portfolio?.profile || {
@@ -157,7 +251,7 @@ export default function PortfolioEditorPage() {
     highlights: profile.highlights?.map(h => h.label || h.value) || [],
   }), [profile, projects, timeline, techStack, contact]);
 
-  if (!mounted || !isAuthenticated) {
+  if (!mounted || !isAuthenticated || loadingFromDb) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600" />
@@ -182,6 +276,7 @@ export default function PortfolioEditorPage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Update local store
       updatePortfolio(portfolioId, {
         profile,
         projects,
@@ -190,7 +285,43 @@ export default function PortfolioEditorPage() {
         contact,
         settings,
       });
-      toast.success('Portfolio sparad!');
+
+      // Persist to Supabase
+      const { error } = await supabase
+        .from('portfolios')
+        .update({
+          title: profile.fullName,
+          tagline: profile.tagline || profile.title,
+          bio: profile.bio,
+          location: profile.location,
+          avatar_url: profile.avatar,
+          email: contact.email,
+          phone: contact.phone,
+          linkedin: contact.linkedin,
+          github: contact.github,
+          website: contact.website,
+          skills: techStack.map(t => ({ name: t.name, icon: t.icon, category: t.category, proficiency: t.proficiency })),
+          projects: projects.map(p => ({ id: p.id, name: p.name, description: p.description, tags: p.tags, links: p.links, featured: p.featured, image: p.image, order: p.order })),
+          timeline: timeline.map(t => ({ id: t.id, title: t.title, subtitle: t.subtitle, description: t.description, period: t.period, type: t.type, current: t.current, achievements: t.achievements, tags: t.tags, order: t.order })),
+          highlights: profile.highlights,
+          is_seeking: !!profile.seeking,
+          seeking_type: profile.seekingDetails?.type,
+          seeking_period: profile.seekingDetails?.period,
+          seeking_location: profile.seekingDetails?.location,
+          theme: {
+            accent_color: settings.primaryColor,
+            dark_mode: settings.darkMode,
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', portfolioId);
+
+      if (error) {
+        console.error('Save to DB error:', error);
+        toast.error('Sparat lokalt men inte i databasen');
+      } else {
+        toast.success('Portfolio sparad!');
+      }
     } catch (error) {
       toast.error('Kunde inte spara');
     } finally {

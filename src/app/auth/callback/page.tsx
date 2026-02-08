@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePortfolyoStore } from '@/lib/store';
 import { supabase } from '@/lib/supabase';
+import { syncUserFromSupabase, syncPortfoliosFromSupabase, syncCVsFromSupabase } from '@/lib/sync';
 
 // Force dynamic rendering - this page needs runtime env vars
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,6 @@ export const dynamic = 'force-dynamic';
 function AuthCallbackContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { login } = usePortfolyoStore();
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -42,7 +42,7 @@ function AuthCallbackContent() {
                     }
                     if (data.session) {
                         console.log('Session created from code exchange');
-                        loginUser(data.session.user);
+                        await loginUser(data.session.user);
                         return;
                     }
                 }
@@ -64,7 +64,7 @@ function AuthCallbackContent() {
                     }
                     if (data.session) {
                         console.log('Session created from token verification');
-                        loginUser(data.session.user);
+                        await loginUser(data.session.user);
                         return;
                     }
                 }
@@ -82,7 +82,7 @@ function AuthCallbackContent() {
 
                 if (session?.user) {
                     console.log('Found existing session');
-                    loginUser(session.user);
+                    await loginUser(session.user);
                     return;
                 }
 
@@ -96,23 +96,16 @@ function AuthCallbackContent() {
             }
         };
 
-        const loginUser = (user: any) => {
-            login({
-                id: user.id,
-                email: user.email || '',
-                name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '',
-                createdAt: new Date(user.created_at),
-                updatedAt: new Date(),
-                plan: 'free',
-                credits: 3,
-                creditsUsed: 0,
-            });
+        const loginUser = async (user: any) => {
+            // Sync real data from database instead of hardcoding
+            await syncUserFromSupabase();
+            await Promise.all([syncPortfoliosFromSupabase(), syncCVsFromSupabase()]);
 
             router.push('/dashboard');
         };
 
         handleCallback();
-    }, [router, login, searchParams]);
+    }, [router, searchParams]);
 
     if (error) {
         return (

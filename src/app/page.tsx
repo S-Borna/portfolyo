@@ -400,16 +400,20 @@ const FAQS = [
     answer: '20 sekunder från att du klickar publicera. Vi hostar den dygnet runt på portfolyo.se/{ditt-namn}.',
   },
   {
-    question: 'Vad ingår i engångsavgiften?',
-    answer: 'Publicering, hosting för alltid och 1 CV-generering. Du betalar aldrig mer om du inte vill göra ändringar.',
+    question: 'Vad ingår i 349 kr?',
+    answer: 'Din personliga portfolio med CV — live, hostad och professionellt designad. Allt tekniskt sköter vi. Du delar bara länken.',
   },
   {
-    question: 'Hur fungerar credits?',
-    answer: '1 credit = ändring på CV, 2 credits = nytt CV eller ändring på portfolio, 4 credits = ny portfolio. En credit kostar 14,99 kr.',
+    question: 'Hur fungerar ändringar?',
+    answer: 'Alla ändringar efter publicering kostar credits. 1 credit = CV-ändring (29 kr), 2 credits = portfolio-ändring. Köp i paket och spara.',
+  },
+  {
+    question: 'Kan jag ha flera portfolios?',
+    answer: 'En portfolio och ett CV per användare. Din sida är personlig — byggd för dig.',
   },
   {
     question: 'Kan jag inkludera CV i min portfolio?',
-    answer: 'Ja! Ditt CV kan visas som en del av portfolion och laddas ner som PDF av besökare.',
+    answer: 'Ja! Ditt CV visas direkt i portfolion och kan laddas ner som PDF av besökare.',
   },
   {
     question: 'Passar det även om jag inte är teknisk?',
@@ -475,7 +479,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-[1.1fr,0.9fr] gap-12 items-center">
             <div>
-              <Badge variant="outline" className="mb-6">49 kr engång – hostat för alltid</Badge>
+              <Badge variant="outline" className="mb-6">349 kr — din sida live för alltid</Badge>
               <h1 className="text-4xl md:text-6xl font-semibold text-ink mb-6">
                 Från simpelt CV till WOW faktor på 20 sekunder.
               </h1>
@@ -486,7 +490,7 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row items-center gap-4 mb-10">
                 <Link href="/register">
                   <Button size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
-                    Publicera för 49 kr
+                    Publicera för 349 kr
                   </Button>
                 </Link>
                 <a href="#templates">
@@ -666,10 +670,10 @@ export default function LandingPage() {
           <div className="text-center mb-14">
             <Badge variant="outline" className="mb-4">Enkel prissättning</Badge>
             <h2 className="text-3xl md:text-4xl font-semibold text-ink mb-4">
-              Betala en gång. Hostat för alltid.
+              Betala en gång. Din sida — för alltid.
             </h2>
             <p className="text-slate-600 max-w-2xl mx-auto">
-              Ingen prenumeration. Ingen dolda kostnader. Du betalar bara när du vill göra ändringar.
+              Ingen prenumeration. Ingen dolda kostnader. En personlig portfolio och CV. Ändringar när du vill.
             </p>
           </div>
 
@@ -755,16 +759,16 @@ export default function LandingPage() {
       {/* Closing CTA */}
       <section className="py-20 px-4 bg-ink text-white">
         <div className="max-w-5xl mx-auto text-center">
-          <Badge className="bg-white/10 text-white mb-4">49 kr. Live på 20 sek.</Badge>
+          <Badge className="bg-white/10 text-white mb-4">349 kr. Live på 20 sek.</Badge>
           <h2 className="text-3xl md:text-4xl font-semibold mb-4">
             Redo att göra intryck?
           </h2>
           <p className="text-slate-200 max-w-2xl mx-auto mb-8">
-            Publicera din portfolio och ditt CV idag. Vi sköter hosting, design och teknik — du delar bara länken.
+            Din portfolio och CV — professionellt designat, hostat och live. Vi sköter allt tekniskt.
           </p>
           <Link href="/register">
             <Button variant="secondary" size="lg" rightIcon={<ArrowRight className="h-5 w-5" />}>
-              Publicera nu för 49 kr
+              Publicera nu för 349 kr
             </Button>
           </Link>
         </div>

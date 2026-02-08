@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /dashboard
+Disallow: /onboarding
+Disallow: /upgrade
+Disallow: /cv/
+Disallow: /portfolio/
+
+# Public portfolios are indexable
+Allow: /p/
+
+Sitemap: https://portfolyo.se/sitemap.xml

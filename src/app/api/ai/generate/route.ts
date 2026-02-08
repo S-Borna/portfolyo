@@ -128,7 +128,7 @@ Svara ENDAST med den förbättrade texten, ingen annan text.`;
     }
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-3-5-haiku-20241022',
       max_tokens: 500,
       system: SYSTEM_PROMPT,
       messages: [

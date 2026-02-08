@@ -98,9 +98,91 @@ export async function syncPortfoliosFromSupabase(): Promise<SyncResult> {
             return { success: false, error: 'Kunde inte hämta portfolios' };
         }
 
-        // Konvertera och uppdatera store
-        // TODO: Implement full portfolio sync
-        // For now, this ensures we have server data priority
+        // Konvertera DB-portfolios till Zustand-format och uppdatera store
+        if (portfolios && portfolios.length > 0) {
+            const store = usePortfolyoStore.getState();
+            const convertedPortfolios = portfolios.map((p: any) => ({
+                id: p.id,
+                userId: p.user_id,
+                slug: p.username || '',
+                template: p.template_id || 'developer',
+                customDomain: undefined,
+                profile: {
+                    fullName: p.title || '',
+                    title: p.tagline || '',
+                    tagline: p.tagline || '',
+                    bio: p.bio || '',
+                    avatar: p.avatar_url || undefined,
+                    location: p.location || undefined,
+                    highlights: p.highlights || [],
+                    seeking: p.is_seeking ? (p.seeking_type || 'lia') : undefined,
+                    seekingDetails: p.is_seeking ? {
+                        type: p.seeking_type || 'lia',
+                        period: p.seeking_period || p.lia_period || '',
+                        location: p.seeking_location || p.lia_location || '',
+                        interests: p.seeking_interests || p.lia_interests || [],
+                    } : undefined,
+                },
+                projects: (p.projects || []).map((proj: any) => ({
+                    id: proj.id || crypto.randomUUID(),
+                    name: proj.name || '',
+                    description: proj.description || '',
+                    tags: proj.tags || [],
+                    links: proj.links || { live: proj.url },
+                    featured: proj.featured || false,
+                    order: proj.order || 0,
+                })),
+                timeline: (p.timeline || []).map((t: any) => ({
+                    id: t.id || crypto.randomUUID(),
+                    title: t.title || '',
+                    subtitle: t.subtitle || t.organization || '',
+                    description: t.description || '',
+                    period: t.period || `${t.startDate || ''} – ${t.endDate || 'Pågående'}`,
+                    type: t.type || 'education',
+                    current: t.current || false,
+                    achievements: t.achievements || [],
+                    tags: t.tags || [],
+                    order: t.order || 0,
+                })),
+                techStack: (p.skills || p.tech_stack || []).map((s: any) =>
+                    typeof s === 'string'
+                        ? { name: s, icon: s.toLowerCase().replace(/[.\s]/g, ''), category: 'tools', proficiency: 'intermediate' }
+                        : { name: s.name, icon: s.icon || s.name?.toLowerCase(), category: s.category || 'tools', proficiency: s.proficiency || 'intermediate' }
+                ),
+                contact: {
+                    email: p.email || '',
+                    phone: p.phone || undefined,
+                    linkedin: p.linkedin || undefined,
+                    github: p.github || undefined,
+                    website: p.website || undefined,
+                    calendly: p.calendly || undefined,
+                    showContactForm: true,
+                },
+                settings: {
+                    primaryColor: p.theme?.accent_color || '#8B5CF6',
+                    accentColor: p.theme?.accent_color || '#6366F1',
+                    fontFamily: 'inter' as const,
+                    darkMode: p.theme?.dark_mode !== false,
+                    showAnalytics: false,
+                },
+                analytics: {
+                    totalViews: 0,
+                    uniqueVisitors: 0,
+                    cvDownloads: 0,
+                    contactClicks: 0,
+                },
+                status: p.status || (p.is_published ? 'published' : 'draft'),
+                createdAt: new Date(p.created_at),
+                updatedAt: new Date(p.updated_at),
+                publishedAt: p.published_at ? new Date(p.published_at) : undefined,
+            }));
+
+            // Replace portfolios in store
+            usePortfolyoStore.setState({
+                portfolios: convertedPortfolios,
+                activePortfolioId: convertedPortfolios[0]?.id || null,
+            });
+        }
 
         return { success: true };
     } catch (error) {
@@ -137,21 +219,20 @@ export async function savePortfolioToSupabase(portfolioId: string): Promise<Sync
             website: portfolio.contact.website,
             github: portfolio.contact.github,
             linkedin: portfolio.contact.linkedin,
-            tech_stack: portfolio.techStack,
+            skills: portfolio.techStack.map(t => ({ name: t.name, icon: t.icon, category: t.category, proficiency: t.proficiency })),
             projects: portfolio.projects,
             timeline: portfolio.timeline,
             highlights: portfolio.profile.highlights,
             theme: {
-                primary_color: portfolio.settings.primaryColor,
-                accent_color: portfolio.settings.accentColor,
+                accent_color: portfolio.settings.primaryColor || portfolio.settings.accentColor,
                 dark_mode: portfolio.settings.darkMode,
             },
             status: portfolio.status,
-            is_published: portfolio.status === 'published',
-            is_seeking_lia: !!portfolio.profile.seeking,
-            lia_period: portfolio.profile.seekingDetails?.period,
-            lia_location: portfolio.profile.seekingDetails?.location,
-            lia_interests: portfolio.profile.seekingDetails?.interests || [],
+            is_seeking: !!portfolio.profile.seeking,
+            seeking_type: portfolio.profile.seekingDetails?.type,
+            seeking_period: portfolio.profile.seekingDetails?.period,
+            seeking_location: portfolio.profile.seekingDetails?.location,
+            seeking_interests: portfolio.profile.seekingDetails?.interests || [],
             updated_at: new Date().toISOString(),
         };
 
@@ -196,7 +277,42 @@ export async function syncCVsFromSupabase(): Promise<SyncResult> {
             return { success: false, error: 'Kunde inte hämta CVs' };
         }
 
-        // TODO: Implement full CV sync
+        if (cvs && cvs.length > 0) {
+            const convertedCVs = cvs.map((c: any) => ({
+                id: c.id,
+                userId: c.user_id,
+                portfolioId: c.portfolio_id,
+                name: c.name || 'Mitt CV',
+                template: c.template_id || 'modern',
+                personalInfo: {
+                    fullName: c.full_name || '',
+                    title: c.title || '',
+                    email: c.email || '',
+                    phone: c.phone,
+                    location: c.location,
+                    linkedin: c.linkedin,
+                    github: c.github,
+                    website: c.website,
+                },
+                summary: c.summary || '',
+                experience: c.experience || [],
+                education: c.education || [],
+                skills: c.skills || [],
+                languages: c.languages || [],
+                certifications: c.certifications || [],
+                projects: c.projects || [],
+                settings: {
+                    primaryColor: c.settings?.primary_color || '#8B5CF6',
+                    showPhoto: c.settings?.show_photo ?? false,
+                    pageSize: c.settings?.page_size || 'a4',
+                    fontSize: c.settings?.font_size || 'medium',
+                },
+                createdAt: new Date(c.created_at),
+                updatedAt: new Date(c.updated_at),
+            }));
+
+            usePortfolyoStore.setState({ cvs: convertedCVs });
+        }
 
         return { success: true };
     } catch (error) {

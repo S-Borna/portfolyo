@@ -5,7 +5,7 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
-const SYSTEM_PROMPT = `Du är en expert på att skriva professionell portfolio- och CV-content för svenska studenter och nyexaminerade. 
+const SYSTEM_PROMPT = `Du är en expert på att skriva professionell portfolio- och CV-content för svenska studenter och nyexaminerade.
 
 REGLER:
 - Skriv alltid på svenska om inte annat anges
@@ -95,7 +95,7 @@ Returnera ENDAST den omskrivna texten.`,
   const prompt = prompts[request.type] || prompts['rewrite'];
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-3-5-haiku-20241022',
     max_tokens: 1024,
     system: SYSTEM_PROMPT,
     messages: [
@@ -110,7 +110,7 @@ Returnera ENDAST den omskrivna texten.`,
   if (content.type === 'text') {
     return content.text;
   }
-  
+
   throw new Error('Unexpected response type');
 }
 
@@ -133,7 +133,7 @@ export async function generatePortfolioFromOnboarding(onboardingData: Record<str
       .replace(/```json\n?/g, '')
       .replace(/```\n?/g, '')
       .trim();
-    
+
     return JSON.parse(cleanedResponse);
   } catch {
     // Fallback if JSON parsing fails

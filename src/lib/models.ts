@@ -458,45 +458,14 @@ export interface PublishResponse {
 // PRICING & LIMITS
 // ============================================
 
+// En portfolio + ett CV per användare. Ändringar kostar credits.
 export const TIER_LIMITS = {
-    free: {
+    user: {
         portfolios: 1,
         cvs: 1,
-        templates: 3,
-        ai_credits: 3,
-        custom_domain: false,
-        analytics: false,
-    },
-    standard: {
-        portfolios: 3,
-        cvs: 5,
-        templates: 20,
-        ai_credits: 25,
+        templates: 'all',
         custom_domain: false,
         analytics: true,
-    },
-    premium: {
-        portfolios: 10,
-        cvs: 25,
-        templates: 100,
-        ai_credits: 100,
-        custom_domain: true,
-        analytics: true,
-    },
-} as const;
-
-export const PRICING = {
-    standard: {
-        monthly: 79,
-        yearly: 59,
-        name: 'Standard',
-        description: 'För den som vill sticka ut',
-    },
-    premium: {
-        monthly: 149,
-        yearly: 119,
-        name: 'Premium',
-        description: 'För proffs och ambitiösa',
     },
 } as const;
 
@@ -620,6 +589,149 @@ export function toRenderData(portfolio: DbPortfolio): PortfolioRenderData {
         } : undefined,
         language: portfolio.language,
         show_cv: portfolio.show_cv_download,
+    };
+}
+
+/**
+ * Convert DB portfolio to V2 render data (saidborna.com format)
+ */
+export function toRenderDataV2(portfolio: DbPortfolio): import('@/lib/templates/portfolio-renderer-v2').PortfolioDataV2 {
+    const lang = portfolio.language || 'sv';
+    const fullName = portfolio.title || '';
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    // Build meta items from available data
+    const metaItems: { label: string; value: string }[] = [];
+    if (portfolio.location) metaItems.push({ label: lang === 'sv' ? 'Baserad i' : 'Based in', value: portfolio.location });
+
+    const educationEntries = (portfolio.timeline || []).filter(t => t.type === 'education');
+    if (educationEntries.length > 0) {
+        const current = educationEntries.find(e => e.current) || educationEntries[0];
+        metaItems.push({ label: lang === 'sv' ? 'Studerar' : 'Studying', value: current.subtitle || current.title || '' });
+    }
+
+    if (portfolio.email) metaItems.push({ label: 'E-post', value: portfolio.email });
+
+    // Build about paragraphs from bio
+    const bio = portfolio.bio || '';
+    const bioParagraphs = bio.split('\n\n').filter(Boolean);
+    const aboutParagraphs = bioParagraphs.length > 0
+        ? bioParagraphs.map((p, i) => {
+            const sentences = p.split('. ');
+            return {
+                highlight: sentences[0] ? sentences[0] + (sentences.length > 1 ? '.' : '') : '',
+                text: sentences.length > 1 ? sentences.slice(1).join('. ') : '',
+            };
+        })
+        : [{ highlight: fullName, text: portfolio.tagline || '' }];
+
+    // Build stats from portfolio data
+    const projects = portfolio.projects || [];
+    const timeline = portfolio.timeline || [];
+    const skills = portfolio.skills || [];
+    const stats: { number: string; label: string }[] = [
+        { number: String(projects.length), label: lang === 'sv' ? 'Projekt' : 'Projects' },
+        { number: String(skills.length) + '+', label: lang === 'sv' ? 'Verktyg' : 'Tools' },
+        { number: String(timeline.length), label: lang === 'sv' ? 'Erfarenheter' : 'Experiences' },
+        { number: portfolio.is_seeking ? '✓' : '–', label: lang === 'sv' ? 'Söker LIA' : 'Seeking Internship' },
+    ];
+
+    // Build seeking banner
+    const seeking = portfolio.is_seeking ? {
+        active: true,
+        title: portfolio.seeking_title || (lang === 'sv' ? 'Söker LIA-plats' : 'Seeking Internship'),
+        description: portfolio.seeking_description || '',
+        details: [
+            ...(portfolio.seeking_period ? [{ label: lang === 'sv' ? 'Period' : 'Period', value: portfolio.seeking_period }] : []),
+            ...(portfolio.seeking_location ? [{ label: lang === 'sv' ? 'Plats' : 'Location', value: portfolio.seeking_location }] : []),
+        ],
+        bgText: lang === 'sv' ? 'LIA' : 'INTERN',
+    } : undefined;
+
+    // Build projects
+    const v2Projects = projects.map(p => ({
+        tag: (p.tags && p.tags[0]) || 'Projekt',
+        badge: p.featured ? '⭐' : undefined,
+        name: p.name || '',
+        description: p.description || '',
+        techStack: p.tags || [],
+        link: {
+            url: p.links?.live || p.links?.github || '#',
+            label: lang === 'sv' ? 'Visa projekt →' : 'View project →',
+        },
+        previewImageUrl: p.image,
+    }));
+
+    // Build timeline
+    const sortedTimeline = [...timeline].sort((a, b) => (a.order || 0) - (b.order || 0));
+    const v2Timeline = {
+        intro: lang === 'sv'
+            ? `Min utbildningsresa och professionella erfarenheter.`
+            : `My educational journey and professional experiences.`,
+        currentPosition: sortedTimeline.findIndex(t => t.current) ?? sortedTimeline.length - 1,
+        markers: sortedTimeline.map(t => ({
+            date: t.period || '',
+        })),
+        cards: sortedTimeline.map(t => ({
+            period: t.period || '',
+            title: t.title || '',
+            subtitle: t.subtitle || '',
+            description: t.description || '',
+            highlights: t.achievements || [],
+            badges: t.tags || [],
+            isCurrent: t.current || false,
+        })),
+    };
+
+    // Build tech stack with devicon URLs
+    const v2TechStack = skills.map(s => {
+        const name = typeof s === 'string' ? s : s.name;
+        const iconSlug = name.toLowerCase().replace(/[.\s]/g, '').replace('c#', 'csharp').replace('c++', 'cplusplus');
+        return {
+            name,
+            tier: (typeof s === 'object' && s.category) || 'tools',
+            iconUrl: `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${iconSlug}/${iconSlug}-original.svg`,
+            tooltip: name,
+        };
+    });
+
+    // Build contact
+    const contactLinks: { label: string; url: string; type: 'email' | 'phone' | 'linkedin' | 'github' | 'other' }[] = [];
+    if (portfolio.email) contactLinks.push({ label: portfolio.email, url: `mailto:${portfolio.email}`, type: 'email' });
+    if (portfolio.phone) contactLinks.push({ label: portfolio.phone, url: `tel:${portfolio.phone}`, type: 'phone' });
+    if (portfolio.linkedin) contactLinks.push({ label: 'LinkedIn', url: portfolio.linkedin, type: 'linkedin' });
+    if (portfolio.github) contactLinks.push({ label: 'GitHub', url: portfolio.github, type: 'github' });
+    if (portfolio.website) contactLinks.push({ label: portfolio.website.replace(/https?:\/\//, ''), url: portfolio.website, type: 'other' });
+
+    return {
+        language: lang as 'sv' | 'en',
+        fullName,
+        firstName,
+        lastName,
+        title: portfolio.tagline || '',
+        tagline: portfolio.tagline || '',
+        profileImageUrl: portfolio.avatar_url || undefined,
+        cvUrl: portfolio.show_cv_download ? `/api/cv-preview?portfolio=${portfolio.id}` : undefined,
+        metaItems,
+        about: {
+            paragraphs: aboutParagraphs,
+        },
+        stats,
+        seeking,
+        projects: v2Projects,
+        timeline: v2Timeline,
+        techStack: v2TechStack,
+        contact: {
+            title: lang === 'sv' ? 'Kontakt' : 'Contact',
+            subtitle: lang === 'sv' ? 'Hör av dig!' : 'Get in touch!',
+            links: contactLinks,
+        },
+        footer: {
+            copyright: `© ${new Date().getFullYear()} ${fullName}`,
+            location: portfolio.location || '',
+        },
     };
 }
 

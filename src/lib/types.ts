@@ -288,48 +288,51 @@ export interface AIGenerationResponse {
   creditsUsed: number;
 }
 
-// Pricing - Ny modell: Engångsavgift + credits
+// Pricing - Engångsavgift + credits per ändring
+// En användare = en portfolio + ett CV. Inga gratisändringar.
 export const PRICING = {
   oneTime: {
     name: 'Publicering',
-    price: 49,
-    description: 'Engångsavgift – betala en gång, hostat för alltid',
+    price: 349,
+    description: 'Engångsavgift – din portfolio och CV live för alltid',
     includes: [
-      'Portfolio eller CV publicerat live',
-      'Hosting 24/7 på portfolyo.se/{username}',
-      '1 CV-generering ingår',
+      'Din personliga portfolio live på portfolyo.se/{username}',
+      'CV genererat och inkluderat i portfolion',
       'PDF-export av CV',
-      'Inkludera CV i din portfolio',
+      'Hosting 24/7 — vi sköter allt tekniskt',
+      'Professionell design med animationer och interaktioner',
+      'SEO-optimerad med Open Graph & meta-tags',
     ],
   },
   credits: {
     name: 'Credits',
-    pricePerCredit: 14.99,
-    description: 'Köp credits för ändringar och tillägg',
+    pricePerCredit: 29,
+    description: 'Köp credits för att göra ändringar efter publicering',
     tiers: [
-      { credits: 1, label: 'Ändring på befintligt CV' },
-      { credits: 2, label: 'Nytt CV eller ändring på portfolio' },
-      { credits: 4, label: 'Ny portfolio' },
+      { credits: 1, label: 'Ändring på CV (text, info, layout)' },
+      { credits: 2, label: 'Ändring på portfolio (innehåll, projekt, bio)' },
+      { credits: 3, label: 'Ny CV-generering (helt nytt CV)' },
     ],
     bundles: [
-      { credits: 4, price: 39, savings: '35%' },
-      { credits: 10, price: 79, savings: '47%' },
+      { credits: 3, price: 69, savings: '21%' },
+      { credits: 5, price: 99, savings: '32%' },
+      { credits: 10, price: 179, savings: '38%' },
     ],
+  },
+  limits: {
+    portfoliosPerUser: 1,
+    cvsPerUser: 1,
   },
 } as const;
 
-export const CREDIT_PACKS = [
-  { credits: 10, price: 29 },
-  { credits: 25, price: 59 },
-  { credits: 100, price: 199 },
-] as const;
-
 export const CREDIT_COSTS = {
+  'cv-edit': 1,
+  'portfolio-edit': 2,
+  'new-cv': 3,
   'bio': 1,
   'project-description': 1,
   'achievement': 1,
   'cv-summary': 1,
-  'full-portfolio': 3,
   'rewrite': 1,
 } as const;
 

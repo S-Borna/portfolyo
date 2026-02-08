@@ -151,49 +151,66 @@ export default function OnboardingPage() {
                     user_id: userId,
                     username: username,
                     template_id: state.template_id,
+                    template_family: 'crimson',
                     title: state.full_name,
                     tagline: state.title,
+                    bio: '',
                     location: state.location,
                     email: state.email,
                     phone: state.phone,
+                    skills: state.skills.map((s: string) => ({
+                        name: s,
+                        icon: s.toLowerCase().replace(/[.\s]/g, ''),
+                        category: 'tools',
+                        proficiency: 'intermediate',
+                    })),
                     tech_stack: state.skills,
                     projects: state.projects.map((p, i) => ({
                         id: crypto.randomUUID(),
                         name: p.name,
                         description: p.description,
                         tags: p.technologies,
-                        url: p.url,
-                        github: p.github,
+                        links: { live: p.url, github: p.github },
                         featured: i === 0,
                         order: i,
                     })),
                     timeline: [
-                        ...state.education.map((e) => ({
+                        ...state.education.map((e, i) => ({
                             id: crypto.randomUUID(),
                             type: 'education',
                             title: e.degree,
-                            organization: e.institution,
+                            subtitle: e.institution,
                             description: e.field,
-                            startDate: e.start_date,
-                            endDate: e.current ? null : e.end_date,
+                            period: `${e.start_date} – ${e.current ? 'Pågående' : e.end_date}`,
                             current: e.current,
+                            order: i,
                         })),
-                        ...state.experience.map((e) => ({
+                        ...state.experience.map((e, i) => ({
                             id: crypto.randomUUID(),
                             type: 'work',
                             title: e.title,
-                            organization: e.company,
+                            subtitle: e.company,
                             description: e.description,
-                            startDate: e.start_date,
-                            endDate: e.current ? null : e.end_date,
+                            period: `${e.start_date} – ${e.current ? 'Pågående' : e.end_date}`,
                             current: e.current,
+                            order: i + state.education.length,
                         })),
                     ],
+                    highlights: [],
                     is_seeking_lia: state.is_seeking,
+                    is_seeking: state.is_seeking,
+                    seeking_type: state.is_seeking ? 'lia' : null,
+                    seeking_title: state.is_seeking ? `Söker LIA` : null,
+                    seeking_description: state.is_seeking ? `Söker LIA-plats inom ${state.title}` : null,
+                    seeking_period: state.seeking_period || null,
+                    seeking_location: state.seeking_location || null,
+                    seeking_interests: state.seeking_interests,
                     lia_period: state.seeking_period || null,
                     lia_location: state.seeking_location || null,
                     lia_interests: state.seeking_interests,
-                    is_published: false,
+                    language: 'sv',
+                    show_cv_download: true,
+                    status: 'draft',
                 })
                 .select()
                 .single();
@@ -243,10 +260,10 @@ export default function OnboardingPage() {
                                         onClick={() => i <= step && setStep(i)}
                                         disabled={i > step}
                                         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${i === step
-                                                ? 'bg-ink text-white'
-                                                : i < step
-                                                    ? 'bg-emerald-50 text-emerald-700'
-                                                    : 'bg-slate-100 text-slate-400'
+                                            ? 'bg-ink text-white'
+                                            : i < step
+                                                ? 'bg-emerald-50 text-emerald-700'
+                                                : 'bg-slate-100 text-slate-400'
                                             }`}
                                     >
                                         {i < step ? (
@@ -383,8 +400,8 @@ function StepBasics({ state, update }: StepProps) {
                                 key={s.value}
                                 onClick={() => update('current_situation', s.value)}
                                 className={`p-4 rounded-xl border-2 text-left transition-all ${state.current_situation === s.value
-                                        ? 'border-ink bg-slate-50'
-                                        : 'border-slate-200 hover:border-slate-300'
+                                    ? 'border-ink bg-slate-50'
+                                    : 'border-slate-200 hover:border-slate-300'
                                     }`}
                             >
                                 <span className="font-medium text-ink">{s.label}</span>
@@ -466,8 +483,8 @@ function StepBasics({ state, update }: StepProps) {
                                         key={t.value}
                                         onClick={() => update('seeking_type', t.value)}
                                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${state.seeking_type === t.value
-                                                ? 'bg-ink text-white'
-                                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                            ? 'bg-ink text-white'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                             }`}
                                     >
                                         {t.label}
@@ -818,10 +835,10 @@ function StepDesign({ state, update }: StepProps) {
                                     key={template.id}
                                     onClick={() => !isLocked && update('template_id', template.id)}
                                     className={`relative p-3 rounded-xl border-2 text-left transition-all ${isSelected
-                                            ? 'border-ink ring-2 ring-ink/20'
-                                            : isLocked
-                                                ? 'border-slate-200 opacity-60'
-                                                : 'border-slate-200 hover:border-slate-300'
+                                        ? 'border-ink ring-2 ring-ink/20'
+                                        : isLocked
+                                            ? 'border-slate-200 opacity-60'
+                                            : 'border-slate-200 hover:border-slate-300'
                                         }`}
                                 >
                                     {/* Mini Preview */}

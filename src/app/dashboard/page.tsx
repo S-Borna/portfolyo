@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Button, Card, Badge, Icons } from '@/components/ui';
 import type { DbPortfolio, DbAnalytics, DbProfile } from '@/lib/models';
+import toast from 'react-hot-toast';
 
 const {
     Globe,
@@ -38,6 +39,7 @@ const {
 
 export default function DashboardPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<DbProfile | null>(null);
     const [portfolio, setPortfolio] = useState<DbPortfolio | null>(null);
@@ -87,6 +89,22 @@ export default function DashboardPage() {
                 }
 
                 setLoading(false);
+
+                // Handle payment return from Stripe
+                const paymentStatus = searchParams.get('payment');
+                const paymentType = searchParams.get('type');
+                if (paymentStatus === 'success') {
+                    if (paymentType === 'publish') {
+                        toast.success('Betalning genomförd! Din portfolio publiceras...');
+                    } else if (paymentType === 'credits') {
+                        toast.success('Credits har lagts till på ditt konto!');
+                    }
+                    // Clean URL params
+                    router.replace('/dashboard', { scroll: false });
+                } else if (paymentStatus === 'cancelled') {
+                    toast.error('Betalningen avbröts.');
+                    router.replace('/dashboard', { scroll: false });
+                }
             } catch (error) {
                 console.error('Dashboard init error:', error);
                 setLoading(false);
@@ -94,7 +112,7 @@ export default function DashboardPage() {
         };
 
         init();
-    }, [router]);
+    }, [router, searchParams]);
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -472,6 +490,23 @@ function PublishModal({
     const [available, setAvailable] = useState<boolean | null>(null);
     const [publishing, setPublishing] = useState(false);
     const [error, setError] = useState('');
+    const [hasPaid, setHasPaid] = useState<boolean | null>(null);
+    const [loadingPayment, setLoadingPayment] = useState(false);
+
+    // Check if user has already paid
+    useEffect(() => {
+        const checkPayment = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('has_paid')
+                .eq('id', user.id)
+                .single();
+            setHasPaid(profile?.has_paid || false);
+        };
+        checkPayment();
+    }, []);
 
     const checkAvailability = async (value: string) => {
         if (value.length < 3) {
@@ -492,11 +527,61 @@ function PublishModal({
         checkAvailability(value);
     };
 
-    const handlePublish = async () => {
+    const handlePayAndPublish = async () => {
         if (!available || username.length < 3) return;
 
-        setPublishing(true);
+        setLoadingPayment(true);
         setError('');
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setError('Du måste vara inloggad');
+                setLoadingPayment(false);
+                return;
+            }
+
+            // If already paid, publish directly
+            if (hasPaid) {
+                await doPublish();
+                return;
+            }
+
+            // Create Stripe checkout session
+            const response = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.id,
+                    type: 'publish',
+                    portfolioId: portfolio.id,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.url) {
+                // Save chosen username before redirecting
+                await supabase
+                    .from('portfolios')
+                    .update({ username: username })
+                    .eq('id', portfolio.id);
+
+                // Redirect to Stripe Checkout
+                window.location.href = data.url;
+            } else {
+                setError(data.error || 'Kunde inte starta betalning');
+                setLoadingPayment(false);
+            }
+        } catch (err) {
+            console.error('Payment error:', err);
+            setError('Betalningsfel. Försök igen.');
+            setLoadingPayment(false);
+        }
+    };
+
+    const doPublish = async () => {
+        setPublishing(true);
 
         const { data, error: publishError } = await supabase.rpc('publish_portfolio', {
             p_portfolio_id: portfolio.id,
@@ -504,8 +589,9 @@ function PublishModal({
         });
 
         if (publishError || !data) {
-            setError('Kunde inte publicera. Försök igen.');
+            setError(publishError?.message || 'Kunde inte publicera. Försök igen.');
             setPublishing(false);
+            setLoadingPayment(false);
             return;
         }
 
@@ -521,8 +607,23 @@ function PublishModal({
 
                 <h2 className="text-xl font-semibold text-ink mb-2">Publicera din portfolio</h2>
                 <p className="text-slate-500 text-sm mb-6">
-                    Välj ett användarnamn för din unika subdomän.
+                    {hasPaid
+                        ? 'Välj ett användarnamn för din portfolio.'
+                        : 'Engångsavgift 349 kr – din portfolio live för alltid.'}
                 </p>
+
+                {/* What's included */}
+                {!hasPaid && (
+                    <div className="bg-slate-50 rounded-xl p-4 mb-6 text-sm">
+                        <p className="font-medium text-ink mb-2">Inkluderat:</p>
+                        <ul className="space-y-1 text-slate-600">
+                            <li className="flex items-center gap-2"><Check className="w-3 h-3 text-emerald-500" /> Portfolio + CV live på din egen URL</li>
+                            <li className="flex items-center gap-2"><Check className="w-3 h-3 text-emerald-500" /> Professionell design med animationer</li>
+                            <li className="flex items-center gap-2"><Check className="w-3 h-3 text-emerald-500" /> SEO-optimerad med Open Graph</li>
+                            <li className="flex items-center gap-2"><Check className="w-3 h-3 text-emerald-500" /> Hosting – vi sköter allt tekniskt</li>
+                        </ul>
+                    </div>
+                )}
 
                 <div className="mb-6">
                     <label className="block text-sm font-medium text-ink mb-2">
@@ -568,11 +669,11 @@ function PublishModal({
                         Avbryt
                     </Button>
                     <Button
-                        onClick={handlePublish}
-                        disabled={!available || username.length < 3 || publishing}
+                        onClick={handlePayAndPublish}
+                        disabled={!available || username.length < 3 || publishing || loadingPayment}
                         className="flex-1"
                     >
-                        {publishing ? 'Publicerar...' : 'Publicera'}
+                        {loadingPayment ? 'Förbereder...' : publishing ? 'Publicerar...' : hasPaid ? 'Publicera' : 'Betala & publicera – 349 kr'}
                     </Button>
                 </div>
             </div>
