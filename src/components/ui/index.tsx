@@ -52,6 +52,7 @@ import {
   Grid,
   LayoutGrid,
   Maximize2,
+  Upload,
 } from 'lucide-react';
 
 // ============ BUTTON ============
@@ -698,4 +699,5 @@ export const Icons = {
   Grid,
   LayoutGrid,
   Maximize2,
+  Upload,
 };

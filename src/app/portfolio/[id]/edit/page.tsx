@@ -48,6 +48,7 @@ const {
   Check,
   FileText,
   Download,
+  Upload,
 } = Icons;
 
 export default function PortfolioEditorPage() {
@@ -732,11 +733,63 @@ export default function PortfolioEditorPage() {
 
       setShowImportModal(false);
       setImportCvText('');
-      toast.success('CV analyserad och importerad! 🎉 Granska alla fält.');
+      toast.success('CV analyserad och importerad! Granska alla fält.');
     } catch (error) {
       toast.error('Kunde inte analysera CV-texten. Försök igen.');
     } finally {
       setIsImporting(false);
+    }
+  };
+
+  // Handle CV file upload (PDF)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast.error('Filen är för stor (max 5MB)');
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      let text = '';
+
+      if (file.type === 'application/pdf') {
+        // Load pdf.js from CDN for client-side PDF text extraction
+        const pdfjsLib = await import('pdfjs-dist');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const pages: string[] = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          pages.push(content.items.map((item: any) => item.str).join(' '));
+        }
+        text = pages.join('\n\n');
+      } else {
+        // Plain text / Word (read as text)
+        text = await file.text();
+      }
+
+      if (!text.trim()) {
+        toast.error('Kunde inte extrahera text från filen. Prova att kopiera och klistra in texten istället.');
+        return;
+      }
+
+      // Set the extracted text and trigger AI parse
+      setImportCvText(text);
+      toast.success('Text extraherad! Klicka "Analysera med AI" för att fylla i fälten.');
+    } catch (error) {
+      console.error('File upload error:', error);
+      toast.error('Kunde inte läsa filen. Prova att kopiera och klistra in texten istället.');
+    } finally {
+      setIsImporting(false);
+      // Reset file input
+      e.target.value = '';
     }
   };
 
@@ -881,31 +934,57 @@ export default function PortfolioEditorPage() {
             {activeTab === 'profile' && (
               <div className="space-y-6">
                 {/* Import from CV Banner */}
-                <Card className="p-5 border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-violet-100 rounded-lg">
-                        <Download className="h-5 w-5 text-violet-600" />
+                {userCvs.length > 0 && !profile.fullName ? (
+                  <Card className="p-5 border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-emerald-100 rounded-lg">
+                          <FileText className="h-5 w-5 text-emerald-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">Vi hittade ditt CV!</h3>
+                          <p className="text-sm text-gray-600">
+                            Fyll i portfolion direkt från ditt sparade CV — helt gratis, inga credits.
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">Importera från CV</h3>
-                        <p className="text-sm text-gray-600">
-                          {userCvs.length > 0
-                            ? 'Fyll i portfolion med data från ditt befintliga CV'
-                            : 'Klistra in din CV-text så fyller vi i automatiskt med AI'}
-                        </p>
-                      </div>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleImportFromCv(userCvs[0])}
+                        leftIcon={<Zap className="h-4 w-4" />}
+                      >
+                        Fyll i nu
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowImportModal(true)}
-                      leftIcon={<FileText className="h-4 w-4" />}
-                    >
-                      Importera
-                    </Button>
-                  </div>
-                </Card>
+                  </Card>
+                ) : (
+                  <Card className="p-5 border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-violet-100 rounded-lg">
+                          <Download className="h-5 w-5 text-violet-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">Importera från CV</h3>
+                          <p className="text-sm text-gray-600">
+                            {userCvs.length > 0
+                              ? 'Fyll i portfolion med data från ditt befintliga CV'
+                              : 'Ladda upp ditt CV eller klistra in texten'}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowImportModal(true)}
+                        leftIcon={<FileText className="h-4 w-4" />}
+                      >
+                        Importera
+                      </Button>
+                    </div>
+                  </Card>
+                )}
 
                 {/* Import Modal */}
                 {showImportModal && (
@@ -960,12 +1039,55 @@ export default function PortfolioEditorPage() {
                           </div>
                         )}
 
-                        {/* Option 2: Paste CV text */}
+                        {/* Option 2: Upload CV file */}
+                        <div>
+                          <h3 className="font-semibold text-gray-900 mb-2">Ladda upp CV-fil</h3>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Ladda upp ditt CV som PDF så extraherar vi texten automatiskt.
+                          </p>
+                          <label className="flex items-center justify-center gap-3 p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-violet-400 hover:bg-violet-50/50 transition-all cursor-pointer group">
+                            <Upload className="h-6 w-6 text-gray-400 group-hover:text-violet-500 transition-colors" />
+                            <div className="text-center">
+                              <p className="font-medium text-gray-700 group-hover:text-violet-700">
+                                {isImporting ? 'Läser fil...' : 'Välj PDF-fil'}
+                              </p>
+                              <p className="text-xs text-gray-500">PDF, max 5MB</p>
+                            </div>
+                            <input
+                              type="file"
+                              accept=".pdf"
+                              onChange={handleFileUpload}
+                              className="hidden"
+                              disabled={isImporting}
+                            />
+                          </label>
+                        </div>
+
+                        {importCvText ? (
+                          <div className="relative my-4">
+                            <div className="absolute inset-0 flex items-center">
+                              <div className="w-full border-t border-gray-200" />
+                            </div>
+                            <div className="relative flex justify-center">
+                              <span className="px-3 bg-white text-sm text-gray-500">text extraherad</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="relative my-4">
+                            <div className="absolute inset-0 flex items-center">
+                              <div className="w-full border-t border-gray-200" />
+                            </div>
+                            <div className="relative flex justify-center">
+                              <span className="px-3 bg-white text-sm text-gray-500">eller klistra in manuellt</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Option 3: Paste CV text */}
                         <div>
                           <h3 className="font-semibold text-gray-900 mb-2">Klistra in CV-text</h3>
                           <p className="text-sm text-gray-600 mb-3">
                             Kopiera texten från ditt CV (PDF, Word, LinkedIn) och klistra in nedan.
-                            AI:n analyserar och fyller i alla fält automatiskt.
                           </p>
                           <Textarea
                             value={importCvText}
