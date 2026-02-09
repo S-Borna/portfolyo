@@ -742,7 +742,7 @@ export default function PortfolioEditorPage() {
   };
 
   // Load pdf.js from CDN for client-side PDF text extraction
-  const loadPdfJs = (): Promise<typeof import('pdfjs-dist')> => {
+  const loadPdfJs = (): Promise<any> => {
     return new Promise((resolve, reject) => {
       // Check if already loaded
       if ((window as any).pdfjsLib) {
