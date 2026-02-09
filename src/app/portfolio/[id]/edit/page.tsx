@@ -352,7 +352,6 @@ export default function PortfolioEditorPage() {
     seeking_period: profile.seekingDetails?.period || null,
     seeking_location: profile.seekingDetails?.location || null,
     lia_period: profile.seekingDetails?.period || null,
-    lia_location: profile.seekingDetails?.location || null,
     template_id: selectedTemplateId,
     theme: {
       accent_color: settings.primaryColor,
@@ -360,6 +359,45 @@ export default function PortfolioEditorPage() {
     },
     updated_at: new Date().toISOString(),
   });
+
+  // Find or create the portfolio row in Supabase.
+  // The local Zustand store may have a non-UUID id that doesn't exist in the DB.
+  // This function ensures a real DB row exists and returns its UUID.
+  const ensureDbPortfolio = async (userId: string): Promise<string | null> => {
+    // First: try finding existing portfolio by user_id
+    const { data: existing } = await supabase
+      .from('portfolios')
+      .select('id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (existing) return existing.id;
+
+    // No portfolio in DB — create one
+    const slug = portfolio.slug || generateSlug(profile.fullName);
+    const { data: created, error: insertErr } = await supabase
+      .from('portfolios')
+      .insert({
+        user_id: userId,
+        username: slug,
+        template_family: 'crimson',
+        status: 'draft',
+        language: 'sv',
+        show_cv_download: true,
+        ...buildDbPayload(),
+      })
+      .select('id')
+      .single();
+
+    if (insertErr || !created) {
+      console.error('Insert portfolio error:', insertErr);
+      return null;
+    }
+
+    return created.id;
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -382,11 +420,18 @@ export default function PortfolioEditorPage() {
         return;
       }
 
-      // Persist to Supabase
+      // Ensure portfolio exists in DB (creates if missing)
+      const dbId = await ensureDbPortfolio(session.user.id);
+      if (!dbId) {
+        toast.error('Kunde inte spara till databasen');
+        return;
+      }
+
+      // Persist to Supabase using the real DB id
       const { error } = await supabase
         .from('portfolios')
         .update(buildDbPayload())
-        .eq('id', portfolioId)
+        .eq('id', dbId)
         .eq('user_id', session.user.id);
 
       if (error) {
@@ -414,6 +459,13 @@ export default function PortfolioEditorPage() {
         return;
       }
 
+      // Ensure portfolio exists in DB (creates if missing)
+      const dbId = await ensureDbPortfolio(session.user.id);
+      if (!dbId) {
+        toast.error('Kunde inte publicera. Försök igen.');
+        return;
+      }
+
       // Save all data + set published status in Supabase
       const slug = portfolio.slug || generateSlug(profile.fullName);
       const { error } = await supabase
@@ -424,7 +476,7 @@ export default function PortfolioEditorPage() {
           status: 'published',
           published_at: new Date().toISOString(),
         })
-        .eq('id', portfolioId)
+        .eq('id', dbId)
         .eq('user_id', session.user.id);
 
       if (error) {
