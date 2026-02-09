@@ -20,7 +20,7 @@ import { usePortfolyoStore } from '@/lib/store';
 import { supabase } from '@/lib/supabase';
 import { TECH_STACK_OPTIONS, CREDIT_COSTS } from '@/lib/types';
 import type { ProjectShowcase, TimelineEntry, TechStackItem } from '@/lib/types';
-import { generateId, getPortfolioUrl } from '@/lib/utils';
+import { generateId, generateSlug, getPortfolioUrl } from '@/lib/utils';
 import { PORTFOLIO_TEMPLATES_V2 } from '@/lib/templates/portfolio-renderer-v2';
 
 const {
@@ -329,6 +329,38 @@ export default function PortfolioEditorPage() {
     );
   }
 
+  // Build the Supabase update payload from current editor state
+  const buildDbPayload = () => ({
+    title: profile.fullName,
+    tagline: profile.tagline || profile.title,
+    bio: profile.bio,
+    location: profile.location,
+    avatar_url: profile.avatar || null,
+    email: contact.email,
+    phone: contact.phone || null,
+    linkedin: contact.linkedin || null,
+    github: contact.github || null,
+    website: contact.website || null,
+    skills: techStack.map(t => ({ name: t.name, icon: t.icon, category: t.category, proficiency: t.proficiency })),
+    tech_stack: techStack.map(t => t.name),
+    projects: projects.map(p => ({ id: p.id, name: p.name, description: p.description, tags: p.tags, links: p.links, featured: p.featured, image: p.image, order: p.order })),
+    timeline: timeline.map(t => ({ id: t.id, title: t.title, subtitle: t.subtitle, description: t.description, period: t.period, type: t.type, current: t.current, achievements: t.achievements, tags: t.tags, order: t.order })),
+    highlights: profile.highlights,
+    is_seeking: !!profile.seeking,
+    is_seeking_lia: !!profile.seeking,
+    seeking_type: profile.seekingDetails?.type || null,
+    seeking_period: profile.seekingDetails?.period || null,
+    seeking_location: profile.seekingDetails?.location || null,
+    lia_period: profile.seekingDetails?.period || null,
+    lia_location: profile.seekingDetails?.location || null,
+    template_id: selectedTemplateId,
+    theme: {
+      accent_color: settings.primaryColor,
+      dark_mode: settings.darkMode,
+    },
+    updated_at: new Date().toISOString(),
+  });
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -342,35 +374,20 @@ export default function PortfolioEditorPage() {
         settings,
       });
 
+      // Verify auth session before writing to DB
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Du är inte inloggad. Logga in och försök igen.');
+        router.push('/login');
+        return;
+      }
+
       // Persist to Supabase
       const { error } = await supabase
         .from('portfolios')
-        .update({
-          title: profile.fullName,
-          tagline: profile.tagline || profile.title,
-          bio: profile.bio,
-          location: profile.location,
-          avatar_url: profile.avatar,
-          email: contact.email,
-          phone: contact.phone,
-          linkedin: contact.linkedin,
-          github: contact.github,
-          website: contact.website,
-          skills: techStack.map(t => ({ name: t.name, icon: t.icon, category: t.category, proficiency: t.proficiency })),
-          projects: projects.map(p => ({ id: p.id, name: p.name, description: p.description, tags: p.tags, links: p.links, featured: p.featured, image: p.image, order: p.order })),
-          timeline: timeline.map(t => ({ id: t.id, title: t.title, subtitle: t.subtitle, description: t.description, period: t.period, type: t.type, current: t.current, achievements: t.achievements, tags: t.tags, order: t.order })),
-          highlights: profile.highlights,
-          is_seeking: !!profile.seeking,
-          seeking_type: profile.seekingDetails?.type,
-          seeking_period: profile.seekingDetails?.period,
-          seeking_location: profile.seekingDetails?.location,
-          theme: {
-            accent_color: settings.primaryColor,
-            dark_mode: settings.darkMode,
-          },
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', portfolioId);
+        .update(buildDbPayload())
+        .eq('id', portfolioId)
+        .eq('user_id', session.user.id);
 
       if (error) {
         console.error('Save to DB error:', error);
@@ -379,6 +396,7 @@ export default function PortfolioEditorPage() {
         toast.success('Portfolio sparad!');
       }
     } catch (error) {
+      console.error('Save error:', error);
       toast.error('Kunde inte spara');
     } finally {
       setIsSaving(false);
@@ -388,6 +406,34 @@ export default function PortfolioEditorPage() {
   const handlePublish = async () => {
     setIsSaving(true);
     try {
+      // Verify auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Du är inte inloggad. Logga in och försök igen.');
+        router.push('/login');
+        return;
+      }
+
+      // Save all data + set published status in Supabase
+      const slug = portfolio.slug || generateSlug(profile.fullName);
+      const { error } = await supabase
+        .from('portfolios')
+        .update({
+          ...buildDbPayload(),
+          username: slug,
+          status: 'published',
+          published_at: new Date().toISOString(),
+        })
+        .eq('id', portfolioId)
+        .eq('user_id', session.user.id);
+
+      if (error) {
+        console.error('Publish to DB error:', error);
+        toast.error('Kunde inte publicera. Försök igen.');
+        return;
+      }
+
+      // Update local store
       updatePortfolio(portfolioId, {
         profile,
         projects,
@@ -397,8 +443,14 @@ export default function PortfolioEditorPage() {
         settings,
       });
       publishPortfolio(portfolioId);
-      toast.success('Portfolio publicerad! 🎉');
+
+      const publishedUrl = getPortfolioUrl(slug);
+      toast.success(`Publicerad! Tillgänglig på ${slug}.portfolyo.se`);
+
+      // Redirect to dashboard after short delay so user sees the toast
+      setTimeout(() => router.push('/dashboard'), 1500);
     } catch (error) {
+      console.error('Publish error:', error);
       toast.error('Kunde inte publicera');
     } finally {
       setIsSaving(false);
