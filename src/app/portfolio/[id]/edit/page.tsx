@@ -291,6 +291,21 @@ export default function PortfolioEditorPage() {
       : [],
   }), [profile, projects, timeline, techStack, contact]);
 
+  // Fetch user's CVs from Supabase for import
+  useEffect(() => {
+    if (!mounted) return;
+    const fetchCvs = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data } = await supabase
+        .from('cvs')
+        .select('*')
+        .eq('user_id', session.user.id);
+      if (data && data.length > 0) setUserCvs(data);
+    };
+    fetchCvs();
+  }, [mounted]);
+
   if (!mounted || !isAuthenticated || loadingFromDb) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -512,21 +527,6 @@ export default function PortfolioEditorPage() {
     const idx = tabOrder.indexOf(activeTab);
     if (idx > 0) setActiveTab(tabOrder[idx - 1]);
   };
-
-  // Fetch user's CVs from Supabase for import
-  useEffect(() => {
-    if (!mounted) return;
-    const fetchCvs = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      const { data } = await supabase
-        .from('cvs')
-        .select('*')
-        .eq('user_id', session.user.id);
-      if (data && data.length > 0) setUserCvs(data);
-    };
-    fetchCvs();
-  }, [mounted]);
 
   // Import from an existing CV in the database
   const handleImportFromCv = (cv: any) => {
