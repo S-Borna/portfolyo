@@ -741,7 +741,30 @@ export default function PortfolioEditorPage() {
     }
   };
 
-  // Handle CV file upload (PDF)
+  // Load pdf.js from CDN for client-side PDF text extraction
+  const loadPdfJs = (): Promise<typeof import('pdfjs-dist')> => {
+    return new Promise((resolve, reject) => {
+      // Check if already loaded
+      if ((window as any).pdfjsLib) {
+        return resolve((window as any).pdfjsLib);
+      }
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      script.onload = () => {
+        const lib = (window as any).pdfjsLib;
+        if (lib) {
+          lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          resolve(lib);
+        } else {
+          reject(new Error('pdf.js loaded but pdfjsLib not available'));
+        }
+      };
+      script.onerror = () => reject(new Error('Failed to load pdf.js'));
+      document.head.appendChild(script);
+    });
+  };
+
+  // Handle CV file upload (PDF/text)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -756,31 +779,31 @@ export default function PortfolioEditorPage() {
     try {
       let text = '';
 
-      if (file.type === 'application/pdf') {
-        // Load pdf.js from CDN for client-side PDF text extraction
-        const pdfjsLib = await import('pdfjs-dist');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
-
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        // Use pdf.js from CDN for reliable PDF text extraction (handles all formats)
+        const pdfjsLib = await loadPdfJs();
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const pages: string[] = [];
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
-          pages.push(content.items.map((item: any) => item.str).join(' '));
+          const pageText = content.items
+            .map((item: any) => item.str)
+            .join(' ');
+          if (pageText.trim()) pages.push(pageText);
         }
         text = pages.join('\n\n');
       } else {
-        // Plain text / Word (read as text)
+        // Plain text file
         text = await file.text();
       }
 
       if (!text.trim()) {
-        toast.error('Kunde inte extrahera text från filen. Prova att kopiera och klistra in texten istället.');
+        toast.error('Kunde inte extrahera text från filen. PDF:en kan vara skannad (bild). Prova att kopiera och klistra in texten istället.');
         return;
       }
 
-      // Set the extracted text and trigger AI parse
       setImportCvText(text);
       toast.success('Text extraherad! Klicka "Analysera med AI" för att fylla i fälten.');
     } catch (error) {
@@ -1604,43 +1627,6 @@ export default function PortfolioEditorPage() {
             {/* Settings Tab */}
             {activeTab === 'settings' && (
               <div className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Färger</h2>
-
-                  <div className="grid gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Primärfärg</label>
-                      <div className="flex gap-3">
-                        {['#8B5CF6', '#6366F1', '#3B82F6', '#14B8A6', '#10B981', '#F59E0B', '#EF4444', '#EC4899'].map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => setSettings({ ...settings, primaryColor: color })}
-                            className={`w-10 h-10 rounded-full transition-all ${settings.primaryColor === color
-                              ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
-                              : 'hover:scale-105'
-                              }`}
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Tema</h2>
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={settings.darkMode}
-                      onChange={(e) => setSettings({ ...settings, darkMode: e.target.checked })}
-                      className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
-                    />
-                    <span className="text-sm text-gray-700">Mörkt tema</span>
-                  </label>
-                </Card>
-
                 <Card className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4">SEO</h2>
 

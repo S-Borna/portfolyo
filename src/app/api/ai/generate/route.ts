@@ -149,7 +149,7 @@ Svara ENDAST med beskrivningen, ingen annan text.`;
         break;
 
       case 'parse-cv':
-        userPrompt = `Analysera följande CV-text och extrahera strukturerad data.
+        userPrompt = `Du är en expert på att analysera CV:n och skapa imponerande portfoliopresentationer. Analysera följande CV-text noggrant och extrahera ALL tillgänglig information.
 
 CV-TEXT:
 """
@@ -158,48 +158,55 @@ ${context.text}
 
 Svara med EXAKT DENNA JSON-struktur (inget annat):
 {
-  "fullName": "Namn",
-  "title": "Titel/Roll",
-  "email": "email@domain.com",
-  "phone": "telefonnummer",
-  "location": "Stad, Land",
+  "fullName": "Fullständigt namn",
+  "title": "Professionell titel (t.ex. 'DevOps Engineer' eller 'Fullstack-utvecklare')",
+  "email": "email eller null",
+  "phone": "telefonnummer eller null",
+  "location": "Stad eller null",
   "linkedin": "linkedin-url eller null",
   "github": "github-url eller null",
   "website": "webbplats-url eller null",
-  "bio": "2-3 meningar professionell sammanfattning baserat på CV:t",
+  "bio": "3-4 meningar — en engagerande, professionell sammanfattning. Beskriv personen i tredje person. Framhäv kärnkompetenser, erfarenhet och vad som gör personen unik. Var specifik med teknologier och åstadkommanden.",
   "experience": [
     {
       "title": "Jobbtitel",
-      "company": "Företag",
-      "period": "Start – Slut",
-      "description": "Kort beskrivning av rollen",
-      "current": false
+      "company": "Företagsnamn",
+      "period": "Jan 2024 – Pågående",
+      "description": "2-3 meningar som beskriver ansvar, åstadkommanden och teknologier. Var specifik med resultat och siffror om möjligt.",
+      "current": true
     }
   ],
   "education": [
     {
-      "degree": "Utbildning/Program",
-      "institution": "Skola/Universitet",
-      "period": "Start – Slut",
-      "description": "Inriktning eller kurser"
+      "degree": "Programnamn / Examen",
+      "institution": "Skola / Universitet",
+      "period": "2024 – 2026",
+      "description": "Inriktning, relevanta kurser eller utmärkelser"
     }
   ],
-  "skills": ["Skill1", "Skill2", "Skill3"],
+  "skills": ["Linux", "Docker", "Kubernetes", "Python", "CI/CD"],
   "projects": [
     {
       "name": "Projektnamn",
-      "description": "Kort beskrivning",
-      "tags": ["Tech1", "Tech2"],
+      "description": "2-3 meningar som beskriver projektet, teknologier och resultat.",
+      "tags": ["React", "Node.js", "Docker"],
       "url": "url eller null"
     }
   ]
 }
 
-Regler:
-- Extrahera ALL data du kan hitta
-- Om ett fält saknas, använd null eller tom array
-- Skriv bio:n på svenska, professionellt
-- Svara ENBART med JSON, ingen annan text`;
+VIKTIGA REGLER:
+- Extrahera ABSOLUT ALL data. Missa inget.
+- Skriv engagerande, proffsiga beskrivningar — inte bara kopiera rå text
+- Bio ska vara 3-4 meningar, skriven på svenska i tredje person, och sälja in personen
+- Erfarenhetsbeskrivningar: 2-3 meningar per post med konkreta detaljer
+- Utbildningsbeskrivningar: nämn relevanta kurser eller fokusområden
+- Skills: lista ALLA tekniska färdigheter, verktyg, språk och ramverk separat (inte grupperade)
+- Projekt: beskriv varje projekt med vad det gör, vilken teknik som användes, och impact
+- Om personen har egna företag/konsultuppdrag, lista dem under experience
+- Period-format: "Månad År – Månad År" eller "Månad År – Pågående"
+- Om ett fält saknas helt, använd null (strängar) eller tom array (listor)
+- Svara ENBART med valid JSON, absolut ingen annan text`;
         break;
 
       default:
@@ -211,7 +218,7 @@ Regler:
 
     const message = await getAnthropic().messages.create({
       model: 'claude-3-5-haiku-20241022',
-      max_tokens: type === 'parse-cv' ? 2000 : 500,
+      max_tokens: type === 'parse-cv' ? 4000 : 500,
       system: SYSTEM_PROMPT,
       messages: [
         {

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head><title>PDF Upload Test</title></head>
+<body>
+<h1>PDF Upload Test (pdf.js CDN)</h1>
+<div id="result">Laddar pdf.js...</div>
+<input type="file" id="fileInput" accept=".pdf,.txt" disabled />
+<pre id="output" style="white-space:pre-wrap;max-width:800px;"></pre>
+<script>
+const resultEl = document.getElementById('result');
+const outputEl = document.getElementById('output');
+const fileInput = document.getElementById('fileInput');
+
+// Load pdf.js from CDN
+const script = document.createElement('script');
+script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+script.onload = () => {
+  const lib = window.pdfjsLib;
+  if (lib) {
+    lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    resultEl.textContent = 'pdf.js laddat (v' + lib.version + '). Välj en PDF!';
+    resultEl.style.color = 'green';
+    fileInput.disabled = false;
+  } else {
+    resultEl.textContent = 'pdf.js laddades men pdfjsLib saknas';
+    resultEl.style.color = 'red';
+  }
+};
+script.onerror = () => {
+  resultEl.textContent = 'Kunde inte ladda pdf.js från CDN (kan blockeras av CSP)';
+  resultEl.style.color = 'red';
+};
+document.head.appendChild(script);
+
+fileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  resultEl.textContent = 'Extraherar text...';
+  resultEl.style.color = 'blue';
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pages = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      pages.push(content.items.map(item => item.str).join(' '));
+    }
+    const text = pages.join('\n\n');
+    resultEl.textContent = 'Text extraherad! ' + pdf.numPages + ' sidor, ' + text.length + ' tecken';
+    resultEl.style.color = 'green';
+    outputEl.textContent = text;
+  } catch (err) {
+    resultEl.textContent = 'Error: ' + err.message;
+    resultEl.style.color = 'red';
+  }
+});
+</script>
+</body>
+</html>
