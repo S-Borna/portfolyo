@@ -286,8 +286,8 @@ export default function PortfolioEditorPage() {
     } : undefined,
     highlights: Array.isArray(profile.highlights)
       ? profile.highlights.map(h =>
-          typeof h === 'string' ? h : (h?.label || h?.value || '')
-        ).filter(Boolean)
+        typeof h === 'string' ? h : (h?.label || h?.value || '')
+      ).filter(Boolean)
       : [],
   }), [profile, projects, timeline, techStack, contact]);
 
