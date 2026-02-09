@@ -1119,15 +1119,26 @@ export default function PortfolioEditorPage() {
                             rows={10}
                             className="font-mono text-sm"
                           />
-                          <div className="flex justify-end mt-3">
-                            <Button
-                              onClick={handleParseCvText}
-                              isLoading={isImporting}
-                              leftIcon={<Sparkles className="h-4 w-4" />}
-                              disabled={!importCvText.trim()}
-                            >
-                              {isImporting ? 'Analyserar...' : 'Analysera med AI'}
-                            </Button>
+                          <div className="flex items-center justify-between mt-3">
+                            <p className="text-xs text-gray-500">
+                              Kostar 1 credit — AI analyserar och fyller i alla fält automatiskt
+                            </p>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                onClick={() => { setShowImportModal(false); setImportCvText(''); }}
+                              >
+                                Avbryt
+                              </Button>
+                              <Button
+                                onClick={handleParseCvText}
+                                isLoading={isImporting}
+                                leftIcon={<Sparkles className="h-4 w-4" />}
+                                disabled={!importCvText.trim()}
+                              >
+                                {isImporting ? 'Analyserar...' : 'Analysera med AI (1 credit)'}
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </div>
