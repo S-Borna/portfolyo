@@ -39,7 +39,7 @@ const securityHeaders = {
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
     "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.anthropic.com https://www.google-analytics.com https://region1.google-analytics.com https://api.stripe.com",
-    "worker-src 'self' blob:",
+    "worker-src 'self' blob: https://cdnjs.cloudflare.com",
     "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
     "frame-ancestors 'self'",
     "base-uri 'self'",
