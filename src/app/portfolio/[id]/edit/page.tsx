@@ -168,7 +168,17 @@ export default function PortfolioEditorPage() {
       };
       fetchFromDb();
     } else if (storePortfolio) {
-      setPortfolioState(storePortfolio);
+      // Ensure store portfolio has required nested fields
+      const safePortfolio = {
+        ...storePortfolio,
+        profile: storePortfolio.profile || { fullName: '', title: '', tagline: '', bio: '', highlights: [] },
+        projects: storePortfolio.projects || [],
+        timeline: storePortfolio.timeline || [],
+        techStack: storePortfolio.techStack || [],
+        contact: storePortfolio.contact || { email: '', showContactForm: true },
+        settings: storePortfolio.settings || { primaryColor: '#8B5CF6', accentColor: '#6366F1', fontFamily: 'inter' as const, darkMode: true, showAnalytics: false },
+      };
+      setPortfolioState(safePortfolio);
       setLoadingFromDb(false);
     }
   }, [storePortfolio, mounted, portfolioId]);
@@ -210,12 +220,29 @@ export default function PortfolioEditorPage() {
 
   useEffect(() => {
     if (portfolio) {
-      setProfile(portfolio.profile);
-      setProjects(portfolio.projects);
-      setTimeline(portfolio.timeline);
-      setTechStack(portfolio.techStack);
-      setContact(portfolio.contact);
-      setSettings(portfolio.settings);
+      setProfile(portfolio.profile || {
+        fullName: '',
+        title: '',
+        tagline: '',
+        bio: '',
+        highlights: [],
+        seeking: '',
+        seekingDetails: undefined,
+      });
+      setProjects(portfolio.projects || []);
+      setTimeline(portfolio.timeline || []);
+      setTechStack(portfolio.techStack || []);
+      setContact(portfolio.contact || {
+        email: '',
+        showContactForm: true,
+      });
+      setSettings(portfolio.settings || {
+        primaryColor: '#8B5CF6',
+        accentColor: '#6366F1',
+        fontFamily: 'inter' as const,
+        darkMode: true,
+        showAnalytics: false,
+      });
     }
   }, [portfolio]);
 
@@ -257,7 +284,11 @@ export default function PortfolioEditorPage() {
       period: profile.seekingDetails?.period,
       description: '',
     } : undefined,
-    highlights: profile.highlights?.map(h => h.label || h.value) || [],
+    highlights: Array.isArray(profile.highlights)
+      ? profile.highlights.map(h =>
+          typeof h === 'string' ? h : (h?.label || h?.value || '')
+        ).filter(Boolean)
+      : [],
   }), [profile, projects, timeline, techStack, contact]);
 
   if (!mounted || !isAuthenticated || loadingFromDb) {
@@ -782,7 +813,7 @@ export default function PortfolioEditorPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100" data-testid="portfolio-editor">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
