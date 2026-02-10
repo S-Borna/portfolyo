@@ -1,0 +1,8 @@
+{
+    "guardian": {
+        "command": "/Users/mrebadi/Desktop/DevOps/Portfolyo/Claude/.venv/bin/python",
+        "args": [
+            "/Users/mrebadi/Desktop/DevOps/Portfolyo/Claude/server.py"
+        ]
+    }
+}

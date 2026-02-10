@@ -41,3 +41,6 @@ next-env.d.ts
 # Reference files
 reference/*.pdf
 CLAUDE.md
+
+# Claude Code Guardian venv
+Claude/.venv/
