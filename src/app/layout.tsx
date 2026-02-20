@@ -53,6 +53,14 @@ export default function RootLayout({
         <main id="main-content">
           {children}
         </main>
+        <footer className="border-t border-slate-200 py-4">
+          <div className="mx-auto flex max-w-5xl items-center justify-center px-6">
+            <a href="https://globaldex.ai/domain/portfolyo.se" target="_blank" rel="noopener noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="https://globaldex.ai/api/v1/badge?domain=portfolyo.se" alt="GlobalDex Score" height={32} width={210} style={{ height: "32px", width: "auto" }} />
+            </a>
+          </div>
+        </footer>
         <Toaster
           position="bottom-right"
           toastOptions={{
