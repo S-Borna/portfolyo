@@ -42,5 +42,5 @@ next-env.d.ts
 reference/*.pdf
 CLAUDE.md
 
-# Claude Code Guardian venv
-Claude/.venv/
+# Claude Code Guardian venv, entire folder is internal tooling, not portfolio-relevant
+Claude/
