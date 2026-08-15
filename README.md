@@ -8,7 +8,7 @@ Skapa en professionell portfolio på minuter, inte timmar.
 
 ```bash
 # Klona projektet
-git clone https://github.com/your-username/portfolyo.git
+git clone https://github.com/S-Borna/portfolyo.git
 cd portfolyo
 
 # Installera dependencies
