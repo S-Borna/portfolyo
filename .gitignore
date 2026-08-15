@@ -44,3 +44,9 @@ CLAUDE.md
 
 # Claude Code Guardian venv, entire folder is internal tooling, not portfolio-relevant
 Claude/
+
+# Supabase CLI local cache, not portfolio-relevant
+supabase/.temp/
+
+# local MCP config
+.mcp.json
